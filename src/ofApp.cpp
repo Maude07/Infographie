@@ -2,7 +2,8 @@
 
 //--------------------------------------------------------------
 void ofApp::setup(){
-
+	ofSetWindowTitle("TP1_Infographie");
+	ofBackground(31, 31, 31);//Couleur de visual studio
 }
 
 //--------------------------------------------------------------
@@ -13,11 +14,17 @@ void ofApp::update(){
 //--------------------------------------------------------------
 void ofApp::draw(){
 
+
+
 }
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
+	if (key =='f') {
+		ofToggleFullscreen();
+	}
 
+	//key pour ouvrir un cmd dans l'app
 }
 
 //--------------------------------------------------------------
