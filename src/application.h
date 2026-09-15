@@ -6,6 +6,7 @@
 #include "ofxGui.h"
 
 #include "renderer.h"
+#include "../ofxPalettePreview.h"
 
 class Application : public ofBaseApp {
 	Renderer renderer;
@@ -14,16 +15,29 @@ class Application : public ofBaseApp {
 
 	ofxGuiGroup group_draw;
 
+	ofxColorSlider gui_color_picker_background;
+	//ofxGuiGroup background_color_group;
 	ofParameter<ofColor> color_picker_background;
+
+	ofxColorSlider gui_color_picker_stroke;
 	ofParameter<ofColor> color_picker_stroke;
-
+	ofParameter<int> palette_index;
 	ofParameter<float> slider_stroke_weight;
-
 	ofParameter<string> textbox;
 
 	ofParameter<bool> checkbox;
 
 	ofxButton button;
+
+	vector<ofxPalettePreview> palettesPreview;
+
+	vector<vector<ofColor>> allPalettes;
+	vector<ofColor> currentPalette;
+
+	ofColor lastActiveColor = ofColor(0);
+
+	void onColorChanged(ofColor & color);
+
 
 	void setup();
 	void update();
@@ -31,8 +45,10 @@ class Application : public ofBaseApp {
 	void exit();
 
 	void keyReleased(int key);
+	void keyPressed(int key);
 
 	void windowResized(int w, int h);
 
+	void setupPalettes();
 	void button_pressed();
 };

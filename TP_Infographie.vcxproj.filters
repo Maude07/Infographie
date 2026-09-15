@@ -104,6 +104,9 @@
     <ClInclude Include="src\renderer.h">
       <Filter>src</Filter>
     </ClInclude>
+    <ClInclude Include="ofxPalettePreview.h">
+      <Filter>src</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="icon.rc" />
