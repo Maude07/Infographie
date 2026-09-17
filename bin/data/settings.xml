@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <interface>
 	<outils_de_dessin>
-		<couleur_du_canevas>31, 31, 31, 255</couleur_du_canevas>
-		<couleur_du_trait>255, 255, 255, 255</couleur_du_trait>
+		<couleur_du_canevas>255, 182, 193, 255</couleur_du_canevas>
+		<couleur_du_trait>216, 39, 0, 255</couleur_du_trait>
 		<largeur_de_la_ligne>4</largeur_de_la_ligne>
 	</outils_de_dessin>
 	<text>ift3100</text>

@@ -9,6 +9,13 @@
 #include "../ofxPalettePreview.h"
 
 class Application : public ofBaseApp {
+
+public:
+	vector<ofColor> currentPalette;
+
+	ofColor lastActiveColor = ofColor(0);
+
+private:
 	Renderer renderer;
 
 	ofxPanel gui;
@@ -32,9 +39,6 @@ class Application : public ofBaseApp {
 	vector<ofxPalettePreview> palettesPreview;
 
 	vector<vector<ofColor>> allPalettes;
-	vector<ofColor> currentPalette;
-
-	ofColor lastActiveColor = ofColor(0);
 
 	void onColorChanged(ofColor & color);
 
