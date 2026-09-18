@@ -68,6 +68,20 @@ vcpkg_installed/
 Testing/
 .cache/
 
+*.tlog
+*.recipe
+*.lastbuildstate
+*.exp
+*.idb
+*.user
+*.suo
+
+
+obj/
+x64/
+Debug/
+Release/
+
 
 
 .vs/
