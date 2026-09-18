@@ -43,3 +43,38 @@ void Renderer::draw() {
 		(ofGetWidth() / 2.0f) + (bounding_box.getWidth() / 2.0f),
 		(ofGetHeight() / 2.0f) + (bounding_box.getHeight() / 2.0f) + line_offset);
 }
+
+std::vector<int> Renderer::computeHistogram(const ofImage& image, int channel) {
+	const ofPixels & pixels = image.getPixels();
+
+	std::vector<int> hist(256, 0);
+	int width = pixels.getWidth();
+	int height = pixels.getHeight();
+
+	for (int y = 0; y < height; y++) {
+		for (int x = 0; x < width; x++) {
+			ofColor c = pixels.getColor(x, y);
+
+			unsigned char value;
+			switch (channel) {
+			case 0:
+				value = c.r;
+				break;
+			case 1:
+				value = c.g;
+				break;
+			case 2:
+				value = c.b;
+				break;
+			case 3:
+				value = c.a;
+				break;
+			default:
+				value = c.r;
+				break;
+			}
+			hist[value]++;
+		}
+	}
+	return hist;
+}

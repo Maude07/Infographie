@@ -26,4 +26,6 @@ public:
 	void setup();
 	void update();
 	void draw();
+
+	std::vector<int> computeHistogram(const ofImage & image, int channel);
 };
