@@ -228,7 +228,6 @@
   <ItemGroup>
     <ClCompile Include="src\application.cpp" />
     <ClCompile Include="src\main.cpp" />
-    <ClCompile Include="src\ofApp.cpp" />
     <ClCompile Include="..\..\..\addons\ofxGui\src\ofxBaseGui.cpp" />
     <ClCompile Include="..\..\..\addons\ofxGui\src\ofxButton.cpp" />
     <ClCompile Include="..\..\..\addons\ofxGui\src\ofxColorPicker.cpp" />
@@ -242,8 +241,8 @@
     <ClCompile Include="src\renderer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ofxPalettePreview.h" />
     <ClInclude Include="src\application.h" />
-    <ClInclude Include="src\ofApp.h" />
     <ClInclude Include="..\..\..\addons\ofxGui\src\ofxBaseGui.h" />
     <ClInclude Include="..\..\..\addons\ofxGui\src\ofxButton.h" />
     <ClInclude Include="..\..\..\addons\ofxGui\src\ofxColorPicker.h" />
