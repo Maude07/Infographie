@@ -78,3 +78,27 @@ std::vector<int> Renderer::computeHistogram(const ofImage& image, int channel) {
 	}
 	return hist;
 }
+
+void Renderer::drawHistogram(const std::vector<int> & histogram, ofRectangle area, ofColor barColor = ofColor(255)) {
+	if (histogram.empty()) return;
+
+	int maxCount = *std::max_element(histogram.begin(), histogram.end());
+	if (maxCount == 0) return;
+
+	float barWidth = area.width / histogram.size();
+
+	ofPushStyle();
+	ofSetColor(barColor);
+	ofFill();
+
+	for (int i = 0; i < histogram.size(); ++i) {
+		float normHeight = (float)histogram[i] / maxCount * area.height;
+
+		float x = area.x + i * barWidth;
+		float y = area.y + area.height - normHeight;
+
+		ofDrawRectangle(x, y, barWidth, normHeight);
+	}
+
+	ofPopStyle();
+}
