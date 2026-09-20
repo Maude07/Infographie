@@ -67,6 +67,10 @@ void Application::setup() {
 	//Écouter changements sur color pickers
 	color_picker_background.addListener(this, &Application::onColorChanged);
 	color_picker_stroke.addListener(this, &Application::onColorChanged);
+
+	button_histogram.setup("Calculer l'histogramme");
+	button_histogram.addListener(this, &Application::histogram_button_pressed);
+	gui.add(&button_histogram);
 }
 
 void Application::update() {
@@ -87,6 +91,10 @@ void Application::draw() {
 	if (checkbox)
 		gui.draw();
 
+	if (showHistogram) {
+		float guiHeight = gui.getHeight();
+		renderer.drawRgbHistogram(histoR, histoG, histoB, ofRectangle(gui.getPosition().x, guiHeight + 10, gui.getWidth(), 100));
+	}
 
 }
 
@@ -167,6 +175,23 @@ void Application::windowResized(int w, int h) {
 
 void Application::exit() {
 	button.removeListener(this, &Application::button_pressed);
+	button_histogram.removeListener(this, &Application::histogram_button_pressed);
 
 	ofLog() << "<app::exit>";
+}
+
+void Application::histogram_button_pressed() {
+	ofImage capture;
+	capture.grabScreen(gui.getWidth() + 10, 0, ofGetWidth() - gui.getWidth() - 10, ofGetHeight());
+
+	if (!capture.isAllocated()) {
+		ofLogWarning() << "histograme: capture échouée";
+		return;
+	}
+
+	histoR = renderer.computeHistogram(capture, 0);
+	histoG = renderer.computeHistogram(capture, 1);
+	histoB = renderer.computeHistogram(capture, 2);
+	showHistogram = true;
+	ofLog() << "histogramme calculé";
 }

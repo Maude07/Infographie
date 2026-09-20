@@ -79,7 +79,7 @@ std::vector<int> Renderer::computeHistogram(const ofImage& image, int channel) {
 	return hist;
 }
 
-void Renderer::drawHistogram(const std::vector<int> & histogram, ofRectangle area, ofColor barColor = ofColor(255)) {
+void Renderer::drawHistogram(const std::vector<int> & histogram, ofRectangle area, ofColor barColor) {
 	if (histogram.empty()) return;
 
 	int maxCount = *std::max_element(histogram.begin(), histogram.end());
@@ -101,4 +101,16 @@ void Renderer::drawHistogram(const std::vector<int> & histogram, ofRectangle are
 	}
 
 	ofPopStyle();
+}
+
+void Renderer::drawRgbHistogram(const std::vector<int> & histoR,
+								const std::vector<int> & histoG,
+								const std::vector<int> & histoB, ofRectangle area) {
+	ofEnableAlphaBlending();
+
+	drawHistogram(histoR, area, ofColor(255, 0, 0, 120));
+	drawHistogram(histoG, area, ofColor(0, 255, 0, 120));
+	drawHistogram(histoB, area, ofColor(0, 0, 255, 120));
+
+	ofDisableAlphaBlending();
 }
