@@ -23,7 +23,6 @@
 *.dll
 *.so.*
 
-
 # Fortran module files
 *.mod
 *.smod
@@ -43,6 +42,8 @@
 build/
 Build/
 build-*/
+bin/*
+!bin/data/
 
 # CMake generated files
 CMakeFiles/
@@ -63,6 +64,13 @@ vcpkg_installed/
 
 # debug information files
 *.dwo
+
+# Xcode user-specific
+xcuserdata/
+*.xcuserstate
+
+# macOS
+.DS_Store
 
 # test output & cache
 Testing/
