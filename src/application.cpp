@@ -26,6 +26,15 @@ void Application::setup() {
 
 	gui.add(&group_draw);
 
+	// image_export
+	group_export.setup("exportation d'images");
+	group_export.add(slider_export_fps.set("images/sec", 24, 1, 60));
+	group_export.add(slider_export_duration.set("duree (s, 0=illimite)", 5.0f, 0.0f, 60.0f));
+	button_record.setup("enregistrer / arreter (r)");
+	button_record.addListener(this, &Application::button_record_pressed);
+	group_export.add(&button_record);
+	gui.add(&group_export);
+
 	textbox.set("text", "ift3100");
 	gui.add(textbox);
 
@@ -52,8 +61,20 @@ void Application::update() {
 void Application::draw() {
 	renderer.draw();
 
+	exporter.capture();
+
 	if (checkbox)
 		gui.draw();
+
+	// afficher l'état de l'exportation
+	if (exporter.is_recording) {
+		ofSetColor(255, 0, 0);
+		ofFill();
+		ofDrawCircle(ofGetWidth() - 120, 30, 8);
+		ofSetColor(255);
+		ofDrawBitmapString("REC " + ofToString(exporter.frame_count), ofGetWidth() - 105, 35);
+		ofNoFill();
+	}
 }
 
 void Application::keyReleased(int key) {
@@ -61,6 +82,10 @@ void Application::keyReleased(int key) {
 	{
 		checkbox = !checkbox;
 		ofLog() << "<toggle ui: " << checkbox << ">";
+	}
+
+	if (key == 114) {
+		button_record_pressed(); // touche r
 	}
 }
 
@@ -71,12 +96,19 @@ void Application::button_pressed() {
 	ofLog() << "<button pressed>";
 }
 
+void Application::button_record_pressed() {
+	exporter.fps = slider_export_fps;
+	exporter.duration = slider_export_duration;
+	exporter.toggle();
+}
+
 void Application::windowResized(int w, int h) {
 	ofLog() << "<app::windowResized: (" << w << ", " << h << ")>";
 }
 
 void Application::exit() {
 	button.removeListener(this, &Application::button_pressed);
+	button_record.removeListener(this, &Application::button_record_pressed);
 
 	ofLog() << "<app::exit>";
 }
