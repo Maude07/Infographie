@@ -39,7 +39,7 @@ void Application::setup() {
 
 	palettesPreview[1].setup(currentPalette, color_picker_stroke, group_draw.getWidth());
 
-	gui_color_picker_stroke.add(&palettesPreview[1]); //J'utilise la même palette partout
+	gui_color_picker_stroke.add(&palettesPreview[1]); //J'utilise la mÃƒÂªme palette partout
 
 	slider_stroke_weight.set("largeur de la ligne", 4.0f, 0.0f, 10.0f);
 	color_picker_stroke.set("couleur du trait", ofColor(255), ofColor(0, 0), ofColor(255, 255));
@@ -49,6 +49,15 @@ void Application::setup() {
 
 
 	gui.add(&group_draw);
+
+	// image_export
+	group_export.setup("exportation d'images");
+	group_export.add(slider_export_fps.set("images/sec", 24, 1, 60));
+	group_export.add(slider_export_duration.set("duree (s, 0=illimite)", 5.0f, 0.0f, 60.0f));
+	button_record.setup("enregistrer / arreter (r)");
+	button_record.addListener(this, &Application::button_record_pressed);
+	group_export.add(&button_record);
+	gui.add(&group_export);
 
 	textbox.set("text", "ift3100");
 	gui.add(textbox);
@@ -64,7 +73,7 @@ void Application::setup() {
 
 	currentPalette = allPalettes[palette_index];
 
-	//Écouter changements sur color pickers
+	//ÃƒÂ‰couter changements sur color pickers
 	color_picker_background.addListener(this, &Application::onColorChanged);
 	color_picker_stroke.addListener(this, &Application::onColorChanged);
 
@@ -74,7 +83,7 @@ void Application::setup() {
 }
 
 void Application::update() {
-	// assigner les états courants de l'interface
+	// assigner les ÃƒÂ©tats courants de l'interface
 	renderer.background_color = color_picker_background;
 	renderer.stroke_color = color_picker_stroke;
 	renderer.stroke_weight = slider_stroke_weight;
@@ -88,9 +97,20 @@ void Application::update() {
 void Application::draw() {
 	renderer.draw();
 
+	exporter.capture();
+
 	if (checkbox)
 		gui.draw();
 
+	// afficher l'ÃƒÂ©tat de l'exportation
+	if (exporter.is_recording) {
+		ofSetColor(255, 0, 0);
+		ofFill();
+		ofDrawCircle(ofGetWidth() - 120, 30, 8);
+		ofSetColor(255);
+		ofDrawBitmapString("REC " + ofToString(exporter.frame_count), ofGetWidth() - 105, 35);
+		ofNoFill();
+	}
 	if (showHistogram) {
 		float guiHeight = gui.getHeight();
 		renderer.drawRgbHistogram(histoR, histoG, histoB, ofRectangle(gui.getPosition().x, guiHeight + 10, gui.getWidth(), 100));
@@ -124,6 +144,10 @@ void Application::keyReleased(int key) {
 		checkbox = !checkbox;
 		ofLog() << "<toggle ui: " << checkbox << ">";
 	}
+
+	if (key == 114) {
+		button_record_pressed(); // touche r
+	}
 }
 
 void Application::keyPressed(int key) {
@@ -145,8 +169,8 @@ void Application::keyPressed(int key) {
 
 		if (color_idx >= 0 && color_idx < currentPalette.size()) {
 			//Est ce qu'on veut vraiment effacer la couleur
-			//Ou la rendre noir et réassignable?
-			allPalettes[0].erase(allPalettes[0].begin() + color_idx);//Pour l'instant seulement la zéro car c'est une seule palette globale, sinon utiliser palette_index
+			//Ou la rendre noir et rÃƒÂ©assignable?
+			allPalettes[0].erase(allPalettes[0].begin() + color_idx);//Pour l'instant seulement la zÃƒÂ©ro car c'est une seule palette globale, sinon utiliser palette_index
 
 			palettesPreview[palette_index].selectedIndex = -1;
 
@@ -163,10 +187,16 @@ void Application::keyPressed(int key) {
 }
 
 void Application::button_pressed() {
-	// réinitialiser la zone de texte
+	// rÃƒÂ©initialiser la zone de texte
 	textbox.set("text", "ift3100");
 
 	ofLog() << "<button pressed>";
+}
+
+void Application::button_record_pressed() {
+	exporter.fps = slider_export_fps;
+	exporter.duration = slider_export_duration;
+	exporter.toggle();
 }
 
 void Application::windowResized(int w, int h) {
@@ -175,6 +205,7 @@ void Application::windowResized(int w, int h) {
 
 void Application::exit() {
 	button.removeListener(this, &Application::button_pressed);
+	button_record.removeListener(this, &Application::button_record_pressed);
 	button_histogram.removeListener(this, &Application::histogram_button_pressed);
 
 	ofLog() << "<app::exit>";
@@ -185,7 +216,7 @@ void Application::histogram_button_pressed() {
 	capture.grabScreen(gui.getWidth() + 10, 0, ofGetWidth() - gui.getWidth() - 10, ofGetHeight());
 
 	if (!capture.isAllocated()) {
-		ofLogWarning() << "histograme: capture échouée";
+		ofLogWarning() << "histograme: capture Ã©chouÃ©e";
 		return;
 	}
 
@@ -193,5 +224,5 @@ void Application::histogram_button_pressed() {
 	histoG = renderer.computeHistogram(capture, 1);
 	histoB = renderer.computeHistogram(capture, 2);
 	showHistogram = true;
-	ofLog() << "histogramme calculé";
+	ofLog() << "histogramme calculÃ©";
 }
