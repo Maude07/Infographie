@@ -8,6 +8,7 @@
 #include "renderer.h"
 #include "imageExporter.h"
 #include "../ofxPalettePreview.h"
+#include "histogram.h"
 
 class Application : public ofBaseApp {
 
@@ -19,6 +20,8 @@ public:
 private:
 	Renderer renderer;
 	ImageExporter exporter;
+
+	Histogram histogram;
 
 	ofxPanel gui;
 
@@ -47,9 +50,7 @@ private:
 
 	vector<vector<ofColor>> allPalettes;
 
-	std::vector<int> histoR, histoG, histoB;
 	ofxButton button_histogram;
-	bool showHistogram = false;
 
 	void onColorChanged(ofColor & color);
 

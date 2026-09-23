@@ -102,7 +102,6 @@ void Application::draw() {
 	if (checkbox)
 		gui.draw();
 
-	// afficher l'Ã©tat de l'exportation
 	if (exporter.is_recording) {
 		ofSetColor(255, 0, 0);
 		ofFill();
@@ -111,9 +110,9 @@ void Application::draw() {
 		ofDrawBitmapString("REC " + ofToString(exporter.frame_count), ofGetWidth() - 105, 35);
 		ofNoFill();
 	}
-	if (showHistogram) {
-		float guiHeight = gui.getHeight();
-		renderer.drawRgbHistogram(histoR, histoG, histoB, ofRectangle(gui.getPosition().x, guiHeight + 10, gui.getWidth(), 100));
+
+	if (histogram.is_computed()) {
+		histogram.draw(ofRectangle(gui.getPosition().x, gui.getHeight() + 10, gui.getWidth(), 100));
 	}
 
 }
@@ -220,9 +219,6 @@ void Application::histogram_button_pressed() {
 		return;
 	}
 
-	histoR = renderer.computeHistogram(capture, 0);
-	histoG = renderer.computeHistogram(capture, 1);
-	histoB = renderer.computeHistogram(capture, 2);
-	showHistogram = true;
+	histogram.compute(capture);
 	ofLog() << "histogramme calculé";
 }

@@ -75,12 +75,16 @@ Testing/
 *.idb
 *.user
 *.suo
+*.vcxproj.user
+
 
 
 obj/
 x64/
 Debug/
 Release/
+bin/*
+!bin/data/
 
 
 
