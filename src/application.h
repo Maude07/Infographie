@@ -6,6 +6,7 @@
 #include "ofxGui.h"
 
 #include "renderer.h"
+#include "imageExporter.h"
 #include "../ofxPalettePreview.h"
 #include "histogram.h"
 
@@ -18,12 +19,14 @@ public:
 
 private:
 	Renderer renderer;
+	ImageExporter exporter;
 
 	Histogram histogram;
 
 	ofxPanel gui;
 
 	ofxGuiGroup group_draw;
+	ofxGuiGroup group_export;
 
 	ofxColorSlider gui_color_picker_background;
 	//ofxGuiGroup background_color_group;
@@ -36,6 +39,10 @@ private:
 	ofParameter<string> textbox;
 
 	ofParameter<bool> checkbox;
+
+	ofParameter<int> slider_export_fps;
+	ofParameter<float> slider_export_duration;
+	ofxButton button_record;
 
 	ofxButton button;
 
@@ -61,5 +68,6 @@ private:
 	void setupPalettes();
 	void button_pressed();
 
+	void button_record_pressed();
 	void histogram_button_pressed();
 };
