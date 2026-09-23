@@ -47,6 +47,10 @@ private:
 
 	vector<vector<ofColor>> allPalettes;
 
+	std::vector<int> histoR, histoG, histoB;
+	ofxButton button_histogram;
+	bool showHistogram = false;
+
 	void onColorChanged(ofColor & color);
 
 
@@ -64,4 +68,5 @@ private:
 	void button_pressed();
 
 	void button_record_pressed();
+	void histogram_button_pressed();
 };

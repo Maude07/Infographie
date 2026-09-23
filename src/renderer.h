@@ -26,4 +26,8 @@ public:
 	void setup();
 	void update();
 	void draw();
+
+	std::vector<int> computeHistogram(const ofImage & image, int channel);
+	void drawHistogram(const std::vector<int> & histogram, ofRectangle area, ofColor barColor = ofColor(255));
+	void drawRgbHistogram(const std::vector<int> & histoR, const std::vector<int> & histoG, const std::vector<int> & histoB, ofRectangle area);
 };
