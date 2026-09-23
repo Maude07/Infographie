@@ -40,6 +40,9 @@
     <ClCompile Include="src\renderer.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="src\histogram.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="src">
@@ -99,6 +102,9 @@
       <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="ofxPalettePreview.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\histogram.h">
       <Filter>src</Filter>
     </ClInclude>
   </ItemGroup>

@@ -81,6 +81,8 @@ obj/
 x64/
 Debug/
 Release/
+bin/*
+!bin/data/
 
 
 
