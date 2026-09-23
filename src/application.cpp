@@ -102,6 +102,15 @@ void Application::draw() {
 	if (checkbox)
 		gui.draw();
 
+	if (exporter.is_recording) {
+		ofSetColor(255, 0, 0);
+		ofFill();
+		ofDrawCircle(ofGetWidth() - 120, 30, 8);
+		ofSetColor(255);
+		ofDrawBitmapString("REC " + ofToString(exporter.frame_count), ofGetWidth() - 105, 35);
+		ofNoFill();
+	}
+
 	if (histogram.is_computed()) {
 		histogram.draw(ofRectangle(gui.getPosition().x, gui.getHeight() + 10, gui.getWidth(), 100));
 	}
