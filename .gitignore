@@ -75,6 +75,8 @@ Testing/
 *.idb
 *.user
 *.suo
+*.vcxproj.user
+
 
 
 obj/
