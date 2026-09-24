@@ -23,7 +23,8 @@ void Renderer::update() {
 
 void Renderer::draw() {
 	ofClear(background_color);
-	drawImages();
+
+	scene.draw();
 
 	font.drawString(
 		text,

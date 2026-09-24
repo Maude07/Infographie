@@ -47,6 +47,7 @@ void Application::setup() {
 
 	gui.add(&group_draw);
 
+	//Image export
 	group_export.setup("exportation d'images");
 	group_export.add(slider_export_fps.set("images/sec", 24, 1, 60));
 	group_export.add(slider_export_duration.set("duree (s, 0=illimite)", 5.0f, 0.0f, 60.0f));
@@ -69,6 +70,7 @@ void Application::setup() {
 
 	currentPalette = allPalettes[palette_index];
 
+	//Ecouter changements sur color pickers
 	color_picker_background.addListener(this, &Application::onColorChanged);
 	color_picker_stroke.addListener(this, &Application::onColorChanged);
 
@@ -92,6 +94,8 @@ void Application::draw() {
 	renderer.draw();
 
 	exporter.capture();
+
+	transform_tool.drawOverlay();
 
 	if (checkbox)
 		gui.draw();
@@ -157,6 +161,8 @@ void Application::keyPressed(int key) {
 		if (color_idx >= 0 && color_idx < currentPalette.size()) {
 			allPalettes[0].erase(allPalettes[0].begin() + color_idx);
 
+			palettesPreview[palette_index].selectedIndex = -1;
+
 			ofLog() << "<deleted color at index: " << color_idx << ">";
 		}
 	}
@@ -169,33 +175,17 @@ void Application::keyPressed(int key) {
 }
 
 void Application::mousePressed(int x, int y, int button) {
-	renderer.deselectAll();
-	
-	selectedImage = renderer.hitTest(x, y);
-	if (!selectedImage) return;
-	
-	selectedImage->selected = true;
-	isResizing = selectedImage->getResizeHandleBounds().inside(x, y);
-	
-	if (!isResizing) {
-		dragOffset.set(x - selectedImage->position.x, y - selectedImage->position.y);
-	}
+	if (checkbox && gui.getShape().inside(x, y)) return;
+
+	transform_tool.mousePressed(scene, x, y);
 }
 	
 void Application::mouseDragged(int x, int y, int button) {
-	if (!selectedImage) return;
-	
-	if (isResizing) {
-		selectedImage->size.set(
-			std::max(20.0f, x - selectedImage->position.x),
-			std::max(20.0f, y - selectedImage->position.y));
-	} else {
-		selectedImage->position.set(x - dragOffset.x, y - dragOffset.y);
-	}
+	transform_tool.mouseDragged(x, y);
 }
 
 void Application::mouseReleased(int x, int y, int button) {
-	isResizing = false;
+	transform_tool.mouseReleased();
 }
 
 void Application::button_pressed() {
@@ -206,8 +196,12 @@ void Application::button_pressed() {
 
 void Application::button_import_pressed() {
 	ofFileDialogResult result = ofSystemLoadDialog("Choisir une image");
-	if (result.bSuccess) {
-		renderer.addImage(result.getPath());
+	if (!result.bSuccess) return;
+	
+	if (auto image = SceneImage::load(result.getPath())) {
+		float offset = 30.0f * scene.size();
+		image->position = { 100 + offset, 100 + offset };
+		scene.add(std::move(image));
 	}
 }
 

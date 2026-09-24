@@ -6,7 +6,7 @@
 int main( ){
 
 
-	//Les commentaires en dessous c'Était pour l'init par défaut d'openframeworks
+	//Les commentaires en dessous c'ï¿½tait pour l'init par dï¿½faut d'openframeworks
 
 	//Use ofGLFWWindowSettings for more options like multi-monitor fullscreen
 	//ofGLWindowSettings settings;
@@ -17,9 +17,6 @@ int main( ){
 
 	//ofRunApp(window, std::make_shared<ofApp>());
 	//ofRunMainLoop();
-
-
-
 
 	ofSetupOpenGL(1024, 1024, OF_WINDOW);
 	ofRunApp(new Application());

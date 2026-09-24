@@ -23,6 +23,9 @@ private:
 
 	Histogram histogram;
 
+	Scene scene;
+	TransformTool transform_tool;
+
 	ofxPanel gui;
 
 	ofxGuiGroup group_draw;
@@ -42,17 +45,13 @@ private:
 	ofParameter<int> slider_export_fps;
 	ofParameter<float> slider_export_duration;
 	ofxButton button_record;
-	ofxButton button_import;
 
 	ofxButton button;
+	ofxButton button_import;
 
 	vector<ofxPalettePreview> palettesPreview;
 
 	vector<vector<ofColor>> allPalettes;
-
-	shared_ptr<SceneImage> selectedImage;
-	ofVec2f dragOffset;
-	bool isResizing = false;
 
 	ofxButton button_histogram;
 
