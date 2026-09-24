@@ -23,6 +23,10 @@
 *.dll
 *.so.*
 
+# macOS / VS Code (local)
+.vscode/
+*.code-workspace
+openFrameworks-Info.plist
 
 # Fortran module files
 *.mod
@@ -90,3 +94,4 @@ bin/*
 
 .vs/
 
+openFrameworks-Info.plist

@@ -29,7 +29,6 @@ private:
 	ofxGuiGroup group_export;
 
 	ofxColorSlider gui_color_picker_background;
-	//ofxGuiGroup background_color_group;
 	ofParameter<ofColor> color_picker_background;
 
 	ofxColorSlider gui_color_picker_stroke;
@@ -43,6 +42,7 @@ private:
 	ofParameter<int> slider_export_fps;
 	ofParameter<float> slider_export_duration;
 	ofxButton button_record;
+	ofxButton button_import;
 
 	ofxButton button;
 
@@ -50,10 +50,13 @@ private:
 
 	vector<vector<ofColor>> allPalettes;
 
+	shared_ptr<SceneImage> selectedImage;
+	ofVec2f dragOffset;
+	bool isResizing = false;
+
 	ofxButton button_histogram;
 
 	void onColorChanged(ofColor & color);
-
 
 	void setup();
 	void update();
@@ -63,6 +66,10 @@ private:
 	void keyReleased(int key);
 	void keyPressed(int key);
 
+	void mousePressed(int x, int y, int button);
+	void mouseDragged(int x, int y, int button);
+	void mouseReleased(int x, int y, int button);
+
 	void windowResized(int w, int h);
 
 	void setupPalettes();
@@ -70,4 +77,5 @@ private:
 
 	void button_record_pressed();
 	void histogram_button_pressed();
+	void button_import_pressed();
 };
