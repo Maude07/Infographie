@@ -1,5 +1,7 @@
 #include "transformTool.h"
 
+using namespace std;
+
 void TransformTool::mousePressed(Scene & scene, float x, float y) {
     if (selection && getHandleBounds().inside(x, y)) {
         isResizing = true;
@@ -19,11 +21,11 @@ void TransformTool::mouseDragged(float x, float y) {
 
     if (isResizing) {
         selection->size = {
-            std::max(minSize, x - selection->position.x),
-            std::max(minSize, y - selection->position.y)
+            max(minSize, x - selection->position.x),
+            max(minSize, y - selection->position.y)
         };
     } else {
-        selection->position = glm::vec2(x, y) - drag_offset;
+        selection->position = glm::vec2(x, y) - dragOffset;
     }
 }
 
@@ -31,7 +33,7 @@ void TransformTool::mouseReleased() {
     isResizing = false;
 }
 
-void TransformTool::DrawOverlay() const {
+void TransformTool::drawOverlay() const {
     if (!selection) return;
 
     ofPushStyle();

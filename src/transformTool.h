@@ -1,3 +1,8 @@
+#pragma once
+
+#include "sceneObject.h"
+#include "scene.h"
+
 class TransformTool {
 
 public: 
@@ -17,4 +22,4 @@ private:
     static constexpr float handleSize = 10.0f;
 
     ofRectangle getHandleBounds() const;
-}
+};

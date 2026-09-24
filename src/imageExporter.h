@@ -2,21 +2,23 @@
 
 #include "ofMain.h"
 
+using namespace std;
+
 class ImageExporter {
 public:
-	bool is_recording = false;
-	int fps = 24; // cadence d'exportation (images/seconde)
-	float duration = 5.0f; // durée en secondes (0 = illimité)
-	int frame_count = 0; // nombre d'images exportées
+	bool isRecording = false;
+	int fps = 24;
+	float duration = 5.0f;
+	int frameCount = 0;
 
 	void start();
 	void stop();
 	void toggle();
-	void capture(); // à appeler après le rendu de la scène
+	void capture();
 
 private:
-	std::string folder;
-	float start_time = 0.0f;
-	float last_capture_time = -1.0f;
+	string folder;
+	float startTime = 0.0f;
+	float lastCaptureTime = -1.0f;
 	ofImage image;
 };

@@ -1,41 +1,41 @@
 #include "imageExporter.h"
 
+using namespace std;
+
 void ImageExporter::start() {
 	folder = "export_" + ofGetTimestampString("%Y%m%d_%H%M%S");
 	ofDirectory::createDirectory(folder, true, true);
-	frame_count = 0;
-	start_time = ofGetElapsedTimef();
-	last_capture_time = -1.0f;
-	is_recording = true;
+	frameCount = 0;
+	startTime = ofGetElapsedTimef();
+	lastCaptureTime = -1.0f;
+	isRecording = true;
 	ofLog() << "<export démarré: " << folder << ">";
 }
 
 void ImageExporter::stop() {
-	is_recording = false;
-	ofLog() << "<export terminé: " << frame_count << " images>";
+	isRecording = false;
+	ofLog() << "<export terminé: " << frameCount << " images>";
 }
 
 void ImageExporter::toggle() {
-	is_recording ? stop() : start();
+	isRecording ? stop() : start();
 }
 
 void ImageExporter::capture() {
-	if (!is_recording) return;
+	if (!isRecording) return;
 
 	float now = ofGetElapsedTimef();
 
-	// arrêt automatique une fois la durée écoulée
-	if (duration > 0 && (now - start_time) >= duration) {
+	if (duration > 0 && (now - startTime) >= duration) {
 		stop();
 		return;
 	}
 
-	// respecter la cadence demandée
-	if (last_capture_time >= 0 && (now - last_capture_time) < 1.0f / fps) return;
-	last_capture_time = now;
+	if (lastCaptureTime >= 0 && (now - lastCaptureTime) < 1.0f / fps) return;
+	lastCaptureTime = now;
 
 	image.grabScreen(0, 0, ofGetWidth(), ofGetHeight());
-	std::string name = folder + "/frame_" + ofToString(frame_count, 5, '0') + ".png";
+	string name = folder + "/frame_" + ofToString(frameCount, 5, '0') + ".png";
 	image.save(name);
-	frame_count++;
+	frameCount++;
 }

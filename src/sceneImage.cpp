@@ -1,7 +1,10 @@
+#include "ofMain.h"
 #include "sceneImage.h"
 
-std::unique_ptr<SceneImage> SceneImage::load(const std::string & path, float maxDimension) {
-    auto sceneImage = std::make_unique<SceneImage>();
+using namespace std;
+
+unique_ptr<SceneImage> SceneImage::load(const string & path, float maxDimension) {
+    auto sceneImage = make_unique<SceneImage>();
 
     if (!sceneImage->image.load(path)) {
         ofLogError() << "echec du chargement de l'image: " << path;
@@ -10,7 +13,7 @@ std::unique_ptr<SceneImage> SceneImage::load(const std::string & path, float max
 
     float w = sceneImage->image.getWidth();
     float h = sceneImage->image.getHeight();
-    float scale = std::min(1.0f, maxDimension / std::max(w, h));
+    float scale = min(1.0f, maxDimension / max(w, h));
     sceneImage->size = { w * scale, h * scale };
 
     return sceneImage;

@@ -7,6 +7,7 @@
 
 #include "renderer.h"
 #include "imageExporter.h"
+#include "transformTool.h"
 #include "../ofxPalettePreview.h"
 #include "histogram.h"
 
@@ -24,36 +25,36 @@ private:
 	Histogram histogram;
 
 	Scene scene;
-	TransformTool transform_tool;
+	TransformTool transformTool;
 
 	ofxPanel gui;
 
-	ofxGuiGroup group_draw;
-	ofxGuiGroup group_export;
+	ofxGuiGroup groupDraw;
+	ofxGuiGroup groupExport;
 
-	ofxColorSlider gui_color_picker_background;
-	ofParameter<ofColor> color_picker_background;
+	ofxColorSlider guiColorPickerBackground;
+	ofParameter<ofColor> colorPickerBackground;
 
-	ofxColorSlider gui_color_picker_stroke;
-	ofParameter<ofColor> color_picker_stroke;
-	ofParameter<int> palette_index;
-	ofParameter<float> slider_stroke_weight;
-	ofParameter<string> textbox;
+	ofxColorSlider guiColorPickerStroke;
+	ofParameter<ofColor> colorPickerStroke;
+	ofParameter<int> paletteIndex;
+	ofParameter<float> sliderStrokeWeight;
+	ofParameter<string> textBox;
 
-	ofParameter<bool> checkbox;
+	ofParameter<bool> checkBox;
 
-	ofParameter<int> slider_export_fps;
-	ofParameter<float> slider_export_duration;
-	ofxButton button_record;
+	ofParameter<int> sliderExportFps;
+	ofParameter<float> sliderExportDuration;
+	ofxButton buttonRecord;
 
 	ofxButton button;
-	ofxButton button_import;
+	ofxButton buttonImport;
 
 	vector<ofxPalettePreview> palettesPreview;
 
 	vector<vector<ofColor>> allPalettes;
 
-	ofxButton button_histogram;
+	ofxButton buttonHistogram;
 
 	void onColorChanged(ofColor & color);
 
@@ -76,9 +77,10 @@ private:
 	void setupDrawGui();
 	void setupExportGui();
 	void setupMiscGui();
-	void button_pressed();
 
-	void button_record_pressed();
-	void histogram_button_pressed();
-	void button_import_pressed();
+	//TODO: Uniformize button name
+	void buttonPressed();
+	void buttonRecordPressed();
+	void histogramButtonPressed();
+	void buttonImportPressed();
 };

@@ -10,19 +10,19 @@ class Renderer {
 public:
 	ofTrueTypeFont font;
 
-	ofColor background_color;
+	ofColor backgroundColor;
 
-	ofColor stroke_color;
+	ofColor strokeColor;
 
-	ofRectangle bounding_box;
+	ofRectangle boundingBox;
 
 	string text;
 
-	float stroke_weight;
+	float strokeWeight;
 
-	float line_offset;
+	float lineOffset;
 
-	int font_size;
+	int fontSize;
 
 	void setup();
 	void update();

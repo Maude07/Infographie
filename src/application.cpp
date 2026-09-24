@@ -2,6 +2,9 @@
 // Classe principale de l'application.
 
 #include "application.h"
+#include "sceneImage.h"
+
+using namespace std;
 
 void Application::setup() {
 	ofSetWindowTitle("interface (u)");
@@ -14,8 +17,8 @@ void Application::setup() {
 	gui.setup("interface");
 
 	setupPalettes();
-	palette_index.set("Palette", 0, 0, allPalettes.size() -1);
-	currentPalette = allPalettes[palette_index];
+	paletteIndex.set("Palette", 0, 0, allPalettes.size() -1);
+	currentPalette = allPalettes[paletteIndex];
 
 	setupImportGui();
 	setupDrawGui();
@@ -24,70 +27,70 @@ void Application::setup() {
 }
 
 void Application::setupImportGui() {
-	button_import.setup("Importer une image");
-	button_import.addListener(this, &Application::button_import_pressed);
-	gui.add(&button_import);
+	buttonImport.setup("Importer une image");
+	buttonImport.addListener(this, &Application::buttonImportPressed);
+	gui.add(&buttonImport);
 }
 
 void Application::setupDrawGui() {
-	group_draw.setup("outils de dessin");
+	groupDraw.setup("outils de dessin");
 
 	//Palette 1
-	color_picker_background.set("couleur du canevas", ofColor(31), ofColor(0, 0), ofColor(255, 255));	
-	gui_color_picker_background.setup(color_picker_background);
-	palettesPreview[0].setup(currentPalette, color_picker_background, group_draw.getWidth());
-	gui_color_picker_background.add(&palettesPreview[0]);
-	group_draw.add(&gui_color_picker_background);
+	colorPickerBackground.set("couleur du canevas", ofColor(31), ofColor(0, 0), ofColor(255, 255));	
+	guiColorPickerBackground.setup(colorPickerBackground);
+	palettesPreview[0].setup(currentPalette, colorPickerBackground, groupDraw.getWidth());
+	guiColorPickerBackground.add(&palettesPreview[0]);
+	groupDraw.add(&guiColorPickerBackground);
 
 	//Palette 2
-	color_picker_stroke.set("couleur du trait", ofColor(255), ofColor(0, 0), ofColor(255, 255));
-	gui_color_picker_stroke.setup(color_picker_stroke);
-	palettesPreview[1].setup(currentPalette, color_picker_stroke, group_draw.getWidth());
-	gui_color_picker_stroke.add(&palettesPreview[1]);
-	group_draw.add(&gui_color_picker_stroke);
+	colorPickerStroke.set("couleur du trait", ofColor(255), ofColor(0, 0), ofColor(255, 255));
+	guiColorPickerStroke.setup(colorPickerStroke);
+	palettesPreview[1].setup(currentPalette, colorPickerStroke, groupDraw.getWidth());
+	guiColorPickerStroke.add(&palettesPreview[1]);
+	groupDraw.add(&guiColorPickerStroke);
 
-	slider_stroke_weight.set("largeur de la ligne", 4.0f, 0.0f, 10.0f);
+	sliderStrokeWeight.set("largeur de la ligne", 4.0f, 0.0f, 10.0f);
 
-	gui.add(&group_draw);
+	gui.add(&groupDraw);
 
-	color_picker_background.addListener(this, &Application::onColorChanged);
-	color_picker_stroke.addListener(this, &Application::onColorChanged);
+	colorPickerBackground.addListener(this, &Application::onColorChanged);
+	colorPickerStroke.addListener(this, &Application::onColorChanged);
 }
 
 void Application::setupExportGui() {
-	group_export.setup("exportation d'images");
-	group_export.add(slider_export_fps.set("images/sec", 24, 1, 60));
-	group_export.add(slider_export_duration.set("duree (s, 0=illimite)", 5.0f, 0.0f, 60.0f));
-	button_record.setup("enregistrer / arreter (r)");
-	button_record.addListener(this, &Application::button_record_pressed);
-	group_export.add(&button_record);
-	gui.add(&group_export);
+	groupExport.setup("exportation d'images");
+	groupExport.add(sliderExportFps.set("images/sec", 24, 1, 60));
+	groupExport.add(sliderExportDuration.set("duree (s, 0=illimite)", 5.0f, 0.0f, 60.0f));
+	buttonRecord.setup("enregistrer / arreter (r)");
+	buttonRecord.addListener(this, &Application::buttonRecordPressed);
+	groupExport.add(&buttonRecord);
+	gui.add(&groupExport);
 }
 
 void Application::setupMiscGui() {
-	textbox.set("text", "ift3100");
-	gui.add(textbox);
+	textBox.set("text", "ift3100");
+	gui.add(textBox);
 
 	button.setup("Reinitialiser");
-	button.addListener(this, &Application::button_pressed);
+	button.addListener(this, &Application::buttonPressed);
 	gui.add(&button);
 
-	checkbox.setName("visible");
-	gui.add(checkbox);
-	checkbox = true;
+	checkBox.setName("visible");
+	gui.add(checkBox);
+	checkBox = true;
 
-	currentPalette = allPalettes[palette_index];
+	currentPalette = allPalettes[paletteIndex];
 
-	button_histogram.setup("Calculer l'histogramme");
-	button_histogram.addListener(this, &Application::histogram_button_pressed);
-	gui.add(&button_histogram);
+	buttonHistogram.setup("Calculer l'histogramme");
+	buttonHistogram.addListener(this, &Application::histogramButtonPressed);
+	gui.add(&buttonHistogram);
 }
 
 void Application::update() {
-	renderer.background_color = color_picker_background;
-	renderer.stroke_color = color_picker_stroke;
-	renderer.stroke_weight = slider_stroke_weight;
-	renderer.text = textbox;
+	renderer.backgroundColor = colorPickerBackground;
+	renderer.strokeColor = colorPickerStroke;
+	renderer.strokeWeight = sliderStrokeWeight;
+	renderer.text = textBox;
 
 	currentPalette = allPalettes[0];
 
@@ -95,21 +98,21 @@ void Application::update() {
 }
 
 void Application::draw() {
-	renderer.draw();
+	renderer.draw(scene);
 
 	exporter.capture();
 
-	transform_tool.drawOverlay();
+	transformTool.drawOverlay();
 
-	if (checkbox)
+	if (checkBox)
 		gui.draw();
 
-	if (exporter.is_recording) {
+	if (exporter.isRecording) {
 		ofSetColor(255, 0, 0);
 		ofFill();
 		ofDrawCircle(ofGetWidth() - 120, 30, 8);
 		ofSetColor(255);
-		ofDrawBitmapString("REC " + ofToString(exporter.frame_count), ofGetWidth() - 105, 35);
+		ofDrawBitmapString("REC " + ofToString(exporter.frameCount), ofGetWidth() - 105, 35);
 		ofNoFill();
 	}
 
@@ -139,79 +142,79 @@ void Application::setupPalettes() {
 void Application::keyReleased(int key) {
 	if (key == 117) //touche u
 	{
-		checkbox = !checkbox;
-		ofLog() << "<toggle ui: " << checkbox << ">";
+		checkBox = !checkBox;
+		ofLog() << "<toggle ui: " << checkBox << ">";
 	}
 
 	if (key == 114) {
-		button_record_pressed(); // touche r
+		buttonRecordPressed(); // touche r
 	}
 }
 
 void Application::keyPressed(int key) {
 
 	if (key == OF_KEY_DEL || key == OF_KEY_BACKSPACE) {
-		int active_preview_idx = -1;
-		int color_idx = -1;
+		int activePreviewIdx = -1;
+		int colorIdx = -1;
 
 		for (size_t i = 0; i < palettesPreview.size(); i++) {
 			if (palettesPreview[i].selectedIndex >= 0) {
-				active_preview_idx = i;
-				color_idx = palettesPreview[i].selectedIndex;
+				activePreviewIdx = i;
+				colorIdx = palettesPreview[i].selectedIndex;
 				break;
 			}
 		}
 
-		if (color_idx >= 0 && color_idx < currentPalette.size()) {
-			allPalettes[0].erase(allPalettes[0].begin() + color_idx);
+		if (colorIdx >= 0 && colorIdx < currentPalette.size()) {
+			allPalettes[0].erase(allPalettes[0].begin() + colorIdx);
 
-			palettesPreview[palette_index].selectedIndex = -1;
+			palettesPreview[paletteIndex].selectedIndex = -1;
 
-			ofLog() << "<deleted color at index: " << color_idx << ">";
+			ofLog() << "<deleted color at index: " << colorIdx << ">";
 		}
 	}
 
 	if (key == OF_KEY_RETURN) {
-		allPalettes[palette_index].push_back(lastActiveColor);
+		allPalettes[paletteIndex].push_back(lastActiveColor);
 
 		ofLog() << "<added color: " << lastActiveColor << ">";
 	}
 }
 
 void Application::mousePressed(int x, int y, int button) {
-	if (checkbox && gui.getShape().inside(x, y)) return;
+	if (checkBox && gui.getShape().inside(x, y)) return;
 
-	transform_tool.mousePressed(scene, x, y);
+	transformTool.mousePressed(scene, x, y);
 }
 	
 void Application::mouseDragged(int x, int y, int button) {
-	transform_tool.mouseDragged(x, y);
+	transformTool.mouseDragged(x, y);
 }
 
 void Application::mouseReleased(int x, int y, int button) {
-	transform_tool.mouseReleased();
+	transformTool.mouseReleased();
 }
 
-void Application::button_pressed() {
-	textbox.set("text", "ift3100");
+void Application::buttonPressed() {
+	textBox.set("text", "ift3100");
 
 	ofLog() << "<button pressed>";
 }
 
-void Application::button_import_pressed() {
+void Application::buttonImportPressed() {
 	ofFileDialogResult result = ofSystemLoadDialog("Choisir une image");
 	if (!result.bSuccess) return;
 	
 	if (auto image = SceneImage::load(result.getPath())) {
 		float offset = 30.0f * scene.size();
 		image->position = { 100 + offset, 100 + offset };
-		scene.add(std::move(image));
+		scene.add(move(image));
 	}
 }
 
-void Application::button_record_pressed() {
-	exporter.fps = slider_export_fps;
-	exporter.duration = slider_export_duration;
+void Application::buttonRecordPressed() {
+	exporter.fps = sliderExportFps;
+	exporter.duration = sliderExportDuration;
 	exporter.toggle();
 }
 
@@ -220,15 +223,15 @@ void Application::windowResized(int w, int h) {
 }
 
 void Application::exit() {
-	button.removeListener(this, &Application::button_pressed);
-	button_record.removeListener(this, &Application::button_record_pressed);
-	button_histogram.removeListener(this, &Application::histogram_button_pressed);
-	button_import.removeListener(this, &Application::button_import_pressed);
+	button.removeListener(this, &Application::buttonPressed);
+	buttonRecord.removeListener(this, &Application::buttonRecordPressed);
+	buttonHistogram.removeListener(this, &Application::histogramButtonPressed);
+	buttonImport.removeListener(this, &Application::buttonImportPressed);
 
 	ofLog() << "<app::exit>";
 }
 
-void Application::histogram_button_pressed() {
+void Application::histogramButtonPressed() {
 	ofImage capture;
 	capture.grabScreen(gui.getWidth() + 10, 0, ofGetWidth() - gui.getWidth() - 10, ofGetHeight());
 

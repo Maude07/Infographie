@@ -1,7 +1,12 @@
-#includde "scene.h"
+#pragma once
+#include "ofMain.h"
+#include "scene.h"
+#include "sceneObject.h"
 
-void Scene::add(std::unique_ptr<SceneObject> object) {
-    objects.push_back(std::move(object));
+using namespace std;
+
+void Scene::add(unique_ptr<SceneObject> object) {
+    objects.push_back(move(object));
 }
 
 void Scene::draw() const {

@@ -1,6 +1,11 @@
+#pragma once
+#include "sceneObject.h"
+
+using namespace std;
+
 class Scene {
 public:
-    void add(std::unique_ptr<SceneObject> object);
+    void add(unique_ptr<SceneObject> object);
     void draw() const;
 
     SceneObject * hitTest(float x, float y) const;
@@ -8,5 +13,5 @@ public:
     size_t size() const { return objects.size(); }
 
 private:
-    std::vector<std::unique_ptr<SceneObject>> objects;
+    vector<unique_ptr<SceneObject>> objects;
 };
