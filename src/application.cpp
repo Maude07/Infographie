@@ -13,41 +13,48 @@ void Application::setup() {
 
 	gui.setup("interface");
 
-	group_draw.setup("outils de dessin");
-
 	setupPalettes();
+	palette_index.set("Palette", 0, 0, allPalettes.size() -1);
+	currentPalette = allPalettes[palette_index];
 
-	color_picker_background.set("couleur du canevas", ofColor(31), ofColor(0, 0), ofColor(255, 255));
+	setupImportGui();
+	setupDrawGui();
+	setupExportGui();
+	setupMiscGui();
+}
 
+void Application::setupImportGui() {
 	button_import.setup("Importer une image");
 	button_import.addListener(this, &Application::button_import_pressed);
 	gui.add(&button_import);
+}
+
+void Application::setupDrawGui() {
+	group_draw.setup("outils de dessin");
 
 	//Palette 1
+	color_picker_background.set("couleur du canevas", ofColor(31), ofColor(0, 0), ofColor(255, 255));	
 	gui_color_picker_background.setup(color_picker_background);
-
-	palette_index.set("Palette", 0, 0, allPalettes.size() - 1);
 	palettesPreview[0].setup(currentPalette, color_picker_background, group_draw.getWidth());
-
 	gui_color_picker_background.add(&palettesPreview[0]);
-
 	group_draw.add(&gui_color_picker_background);
 
 	//Palette 2
+	color_picker_stroke.set("couleur du trait", ofColor(255), ofColor(0, 0), ofColor(255, 255));
 	gui_color_picker_stroke.setup(color_picker_stroke);
-
 	palettesPreview[1].setup(currentPalette, color_picker_stroke, group_draw.getWidth());
-
 	gui_color_picker_stroke.add(&palettesPreview[1]);
+	group_draw.add(&gui_color_picker_stroke);
 
 	slider_stroke_weight.set("largeur de la ligne", 4.0f, 0.0f, 10.0f);
-	color_picker_stroke.set("couleur du trait", ofColor(255), ofColor(0, 0), ofColor(255, 255));
-
-	group_draw.add(&gui_color_picker_stroke);
 
 	gui.add(&group_draw);
 
-	//Image export
+	color_picker_background.addListener(this, &Application::onColorChanged);
+	color_picker_stroke.addListener(this, &Application::onColorChanged);
+}
+
+void Application::setupExportGui() {
 	group_export.setup("exportation d'images");
 	group_export.add(slider_export_fps.set("images/sec", 24, 1, 60));
 	group_export.add(slider_export_duration.set("duree (s, 0=illimite)", 5.0f, 0.0f, 60.0f));
@@ -55,7 +62,9 @@ void Application::setup() {
 	button_record.addListener(this, &Application::button_record_pressed);
 	group_export.add(&button_record);
 	gui.add(&group_export);
+}
 
+void Application::setupMiscGui() {
 	textbox.set("text", "ift3100");
 	gui.add(textbox);
 
@@ -65,14 +74,9 @@ void Application::setup() {
 
 	checkbox.setName("visible");
 	gui.add(checkbox);
-
 	checkbox = true;
 
 	currentPalette = allPalettes[palette_index];
-
-	//Ecouter changements sur color pickers
-	color_picker_background.addListener(this, &Application::onColorChanged);
-	color_picker_stroke.addListener(this, &Application::onColorChanged);
 
 	button_histogram.setup("Calculer l'histogramme");
 	button_histogram.addListener(this, &Application::histogram_button_pressed);

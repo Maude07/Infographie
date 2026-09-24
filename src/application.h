@@ -72,6 +72,10 @@ private:
 	void windowResized(int w, int h);
 
 	void setupPalettes();
+	void setupImportGui();
+	void setupDrawGui();
+	void setupExportGui();
+	void setupMiscGui();
 	void button_pressed();
 
 	void button_record_pressed();
