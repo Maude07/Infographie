@@ -226,6 +226,7 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\primitive\scenePrimitive.cpp" />
     <ClCompile Include="src\application.cpp" />
     <ClCompile Include="src\histogram.cpp" />
     <ClCompile Include="src\imageExporter.cpp" />
@@ -241,9 +242,13 @@
     <ClCompile Include="..\..\..\addons\ofxGui\src\ofxSliderGroup.cpp" />
     <ClCompile Include="..\..\..\addons\ofxGui\src\ofxToggle.cpp" />
     <ClCompile Include="src\renderer.cpp" />
+    <ClCompile Include="src\scene.cpp" />
+    <ClCompile Include="src\sceneImage.cpp" />
+    <ClCompile Include="src\transformTool.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ofxPalettePreview.h" />
+    <ClInclude Include="src\primitive\scenePrimitive.h" />
     <ClInclude Include="src\application.h" />
     <ClInclude Include="..\..\..\addons\ofxGui\src\ofxBaseGui.h" />
     <ClInclude Include="..\..\..\addons\ofxGui\src\ofxButton.h" />
@@ -260,6 +265,10 @@
     <ClInclude Include="src\histogram.h" />
     <ClInclude Include="src\imageExporter.h" />
     <ClInclude Include="src\renderer.h" />
+    <ClInclude Include="src\scene.h" />
+    <ClInclude Include="src\sceneImage.h" />
+    <ClInclude Include="src\sceneObject.h" />
+    <ClInclude Include="src\transformTool.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="$(OF_ROOT)\libs\openFrameworksCompiled\project\vs\openframeworksLib.vcxproj">
