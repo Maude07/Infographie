@@ -46,6 +46,15 @@
     <ClCompile Include="src\imageExporter.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="src\scene.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\sceneImage.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\transformTool.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="src">
@@ -111,6 +120,18 @@
       <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="src\imageExporter.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\scene.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sceneImage.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sceneObject.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\transformTool.h">
       <Filter>src</Filter>
     </ClInclude>
   </ItemGroup>
