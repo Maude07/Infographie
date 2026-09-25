@@ -120,6 +120,12 @@ void Application::draw() {
 		histogram.draw(ofRectangle(gui.getPosition().x, gui.getHeight() + 10, gui.getWidth(), 100));
 	}
 
+	if (isMouseButtonPressed) {
+		if (auto preview = makeShape(drawMode, mousePressPos, mouseCurrentPos)) {
+			preview->draw();
+		}
+	}
+
 }
 
 void Application::onColorChanged(ofColor & color) {
@@ -140,15 +146,28 @@ void Application::setupPalettes() {
 
 
 void Application::keyReleased(int key) {
-	if (key == 117) //touche u
-	{
+	switch (key) {
+	case 117: //touche u
 		checkBox = !checkBox;
 		ofLog() << "<toggle ui: " << checkBox << ">";
+
+	case 114: //touche r
+		buttonRecordPressed();
+	case 49: // touche 1
+		drawMode = VectorPrimitiveType::Select;
+		break; 
+	case 50: // touche 2
+		drawMode = VectorPrimitiveType::Rect;
+		break; 
+	case 51: // touche 3
+		drawMode = VectorPrimitiveType::Line;
+		break; 
+	case 52: // touche 4
+		drawMode = VectorPrimitiveType::Point;
+		break; 
 	}
 
-	if (key == 114) {
-		buttonRecordPressed(); // touche r
-	}
+
 }
 
 void Application::keyPressed(int key) {
@@ -184,15 +203,31 @@ void Application::keyPressed(int key) {
 void Application::mousePressed(int x, int y, int button) {
 	if (checkBox && gui.getShape().inside(x, y)) return;
 
-	transformTool.mousePressed(scene, x, y);
+	if (drawMode == VectorPrimitiveType::Select) {
+		transformTool.mousePressed(scene, x, y);
+		return;
+	}
+
+	isMouseButtonPressed = true;
+	mousePressPos = mouseCurrentPos = { (float)x, (float)y };
 }
 	
 void Application::mouseDragged(int x, int y, int button) {
-	transformTool.mouseDragged(x, y);
+	if (drawMode == VectorPrimitiveType::Select) {
+		transformTool.mouseDragged(x, y);
+		return;
+	}
+	mouseCurrentPos = { (float)x, (float)y };
 }
 
 void Application::mouseReleased(int x, int y, int button) {
-	transformTool.mouseReleased();
+	if (drawMode == VectorPrimitiveType::Select) {
+		transformTool.mouseReleased();
+		return;
+	}
+	mouseCurrentPos = { (float)x, (float)y };
+	addVectorShape();
+	isMouseButtonPressed = false;
 }
 
 void Application::buttonPressed() {
@@ -242,4 +277,43 @@ void Application::histogramButtonPressed() {
 
 	histogram.compute(capture);
 	ofLog() << "histogramme calculé";
+}
+
+unique_ptr<ScenePrimitive> Application::makeShape(VectorPrimitiveType type, const glm::vec2& start, const glm::vec2& end) const {
+	unique_ptr<ScenePrimitive> shape;
+
+	switch (type) {
+	case VectorPrimitiveType::Line:
+		shape = make_unique<ScenePrimitiveLine>();
+		shape->position = start;
+		shape->size = end;
+		break;
+	case VectorPrimitiveType::Point:
+		shape = make_unique<ScenePrimitivePoint>();
+		shape->position = start;
+		shape->size = end;
+		break;
+	case VectorPrimitiveType::Rect:
+		shape = make_unique<ScenePrimitiveRect>();
+		shape->position = start;
+		shape->size = end;
+		break;
+	default:
+		return nullptr;
+	}
+
+	applyDrawStyle(*shape);
+	return shape;
+}
+
+void Application::addVectorShape() {
+	if (auto shape = makeShape(drawMode, mousePressPos, mouseCurrentPos)) {
+		scene.add(move(shape));
+	}
+}
+
+void Application::applyDrawStyle(ScenePrimitive& primitive) const {
+	primitive.fillColor = colorPickerBackground;
+	primitive.lineColor = colorPickerStroke;
+	primitive.lineWidth = sliderStrokeWeight;
 }

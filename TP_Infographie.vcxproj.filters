@@ -58,6 +58,15 @@
     <ClCompile Include="src\primitive\scenePrimitive.cpp">
       <Filter>src\primitive</Filter>
     </ClCompile>
+    <ClCompile Include="src\primitive\scenePrimitiveRect.cpp">
+      <Filter>src\primitive</Filter>
+    </ClCompile>
+    <ClCompile Include="src\primitive\scenePrimitiveLine.cpp">
+      <Filter>src\primitive</Filter>
+    </ClCompile>
+    <ClCompile Include="src\primitive\scenePrimitivePoint.cpp">
+      <Filter>src\primitive</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="src">
@@ -141,6 +150,15 @@
       <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="src\primitive\scenePrimitive.h">
+      <Filter>src\primitive</Filter>
+    </ClInclude>
+    <ClInclude Include="src\primitive\scenePrimitiveRect.h">
+      <Filter>src\primitive</Filter>
+    </ClInclude>
+    <ClInclude Include="src\primitive\scenePrimitiveLine.h">
+      <Filter>src\primitive</Filter>
+    </ClInclude>
+    <ClInclude Include="src\primitive\scenePrimitivePoint.h">
       <Filter>src\primitive</Filter>
     </ClInclude>
   </ItemGroup>
