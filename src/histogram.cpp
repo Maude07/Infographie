@@ -1,5 +1,7 @@
 #include "histogram.h"
 
+using namespace std;
+
 void Histogram::compute(const ofImage & image) {
 	histoR = computeHistogram(image, 0);
 	histoG = computeHistogram(image, 1);
@@ -11,10 +13,10 @@ void Histogram::draw(ofRectangle area) {
 	drawRgbHistogram(histoR, histoG, histoB, area);
 }
 
-std::vector<int> Histogram::computeHistogram(const ofImage & image, int channel) {
+vector<int> Histogram::computeHistogram(const ofImage & image, int channel) {
 	const ofPixels & pixels = image.getPixels();
 
-	std::vector<int> hist(256, 0);
+	vector<int> hist(256, 0);
 	int width = pixels.getWidth();
 	int height = pixels.getHeight();
 
@@ -46,10 +48,10 @@ std::vector<int> Histogram::computeHistogram(const ofImage & image, int channel)
 	return hist;
 }
 
-void Histogram::drawHistogram(const std::vector<int> & histogram, ofRectangle area, ofColor barColor) {
+void Histogram::drawHistogram(const vector<int> & histogram, ofRectangle area, ofColor barColor) {
 	if (histogram.empty()) return;
 
-	int maxCount = *std::max_element(histogram.begin(), histogram.end());
+	int maxCount = *max_element(histogram.begin(), histogram.end());
 	if (maxCount == 0) return;
 
 	float barWidth = area.width / histogram.size();
@@ -70,9 +72,9 @@ void Histogram::drawHistogram(const std::vector<int> & histogram, ofRectangle ar
 	ofPopStyle();
 }
 
-void Histogram::drawRgbHistogram(const std::vector<int> & histoR,
-	const std::vector<int> & histoG,
-	const std::vector<int> & histoB, ofRectangle area) {
+void Histogram::drawRgbHistogram(const vector<int> & histoR,
+	const vector<int> & histoG,
+	const vector<int> & histoB, ofRectangle area) {
 	ofEnableAlphaBlending();
 
 	drawHistogram(histoR, area, ofColor(255, 0, 0, 120));

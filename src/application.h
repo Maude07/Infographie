@@ -7,6 +7,7 @@
 
 #include "renderer.h"
 #include "imageExporter.h"
+#include "transformTool.h"
 #include "../ofxPalettePreview.h"
 #include "histogram.h"
 
@@ -23,37 +24,39 @@ private:
 
 	Histogram histogram;
 
+	Scene scene;
+	TransformTool transformTool;
+
 	ofxPanel gui;
 
-	ofxGuiGroup group_draw;
-	ofxGuiGroup group_export;
+	ofxGuiGroup groupDraw;
+	ofxGuiGroup groupExport;
 
-	ofxColorSlider gui_color_picker_background;
-	//ofxGuiGroup background_color_group;
-	ofParameter<ofColor> color_picker_background;
+	ofxColorSlider guiColorPickerBackground;
+	ofParameter<ofColor> colorPickerBackground;
 
-	ofxColorSlider gui_color_picker_stroke;
-	ofParameter<ofColor> color_picker_stroke;
-	ofParameter<int> palette_index;
-	ofParameter<float> slider_stroke_weight;
-	ofParameter<string> textbox;
+	ofxColorSlider guiColorPickerStroke;
+	ofParameter<ofColor> colorPickerStroke;
+	ofParameter<int> paletteIndex;
+	ofParameter<float> sliderStrokeWeight;
+	ofParameter<string> textBox;
 
-	ofParameter<bool> checkbox;
+	ofParameter<bool> checkBox;
 
-	ofParameter<int> slider_export_fps;
-	ofParameter<float> slider_export_duration;
-	ofxButton button_record;
+	ofParameter<int> sliderExportFps;
+	ofParameter<float> sliderExportDuration;
+	ofxButton buttonRecord;
 
 	ofxButton button;
+	ofxButton buttonImport;
 
 	vector<ofxPalettePreview> palettesPreview;
 
 	vector<vector<ofColor>> allPalettes;
 
-	ofxButton button_histogram;
+	ofxButton buttonHistogram;
 
 	void onColorChanged(ofColor & color);
-
 
 	void setup();
 	void update();
@@ -63,11 +66,21 @@ private:
 	void keyReleased(int key);
 	void keyPressed(int key);
 
+	void mousePressed(int x, int y, int button);
+	void mouseDragged(int x, int y, int button);
+	void mouseReleased(int x, int y, int button);
+
 	void windowResized(int w, int h);
 
 	void setupPalettes();
-	void button_pressed();
+	void setupImportGui();
+	void setupDrawGui();
+	void setupExportGui();
+	void setupMiscGui();
 
-	void button_record_pressed();
-	void histogram_button_pressed();
+	//TODO: Uniformize button name
+	void buttonPressed();
+	void buttonRecordPressed();
+	void histogramButtonPressed();
+	void buttonImportPressed();
 };
