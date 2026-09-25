@@ -2,7 +2,7 @@
 #include "scenePrimitive.h"
 #include "ofMain.h"
 
-class ScenePrimitivePoint : public ScenePrimitive {
+class ScenePrimitiveEllipse : public ScenePrimitive {
 public:
 	void draw() const override;
 	ofRectangle getBounds() const override;

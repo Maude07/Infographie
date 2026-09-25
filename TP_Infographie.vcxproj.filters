@@ -67,6 +67,9 @@
     <ClCompile Include="src\primitive\scenePrimitivePoint.cpp">
       <Filter>src\primitive</Filter>
     </ClCompile>
+    <ClCompile Include="src\primitive\scenePrimitiveEllipse.cpp">
+      <Filter>src\primitive</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="src">
@@ -159,6 +162,9 @@
       <Filter>src\primitive</Filter>
     </ClInclude>
     <ClInclude Include="src\primitive\scenePrimitivePoint.h">
+      <Filter>src\primitive</Filter>
+    </ClInclude>
+    <ClInclude Include="src\primitive\scenePrimitiveEllipse.h">
       <Filter>src\primitive</Filter>
     </ClInclude>
   </ItemGroup>

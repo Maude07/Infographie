@@ -13,6 +13,7 @@
 #include "primitive/scenePrimitiveLine.h"
 #include "primitive/scenePrimitivePoint.h"
 #include "primitive/scenePrimitiveRect.h"
+#include "primitive/scenePrimitiveEllipse.h"
 
 enum class VectorPrimitiveType { Select, Rect, Line, Point, Ellipse };
 
@@ -39,6 +40,9 @@ private:
 
 	ofxColorSlider guiColorPickerBackground;
 	ofParameter<ofColor> colorPickerBackground;
+
+	ofxColorSlider guiColorPickerFill;
+	ofParameter<ofColor> colorPickerFill;
 
 	ofxColorSlider guiColorPickerStroke;
 	ofParameter<ofColor> colorPickerStroke;

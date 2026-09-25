@@ -49,12 +49,22 @@ void Application::setupDrawGui() {
 	guiColorPickerStroke.add(&palettesPreview[1]);
 	groupDraw.add(&guiColorPickerStroke);
 
+	//Palette 1
+	colorPickerFill.set("couleur de remplissage", ofColor(31), ofColor(0, 0), ofColor(255, 255));
+	guiColorPickerFill.setup(colorPickerFill);
+	palettesPreview[2].setup(currentPalette, colorPickerFill, groupDraw.getWidth());
+	guiColorPickerFill.add(&palettesPreview[2]);
+	groupDraw.add(&guiColorPickerFill);
+
 	sliderStrokeWeight.set("largeur de la ligne", 4.0f, 0.0f, 10.0f);
+
+	groupDraw.add(sliderStrokeWeight);
 
 	gui.add(&groupDraw);
 
 	colorPickerBackground.addListener(this, &Application::onColorChanged);
 	colorPickerStroke.addListener(this, &Application::onColorChanged);
+	colorPickerFill.addListener(this, &Application::onColorChanged);
 }
 
 void Application::setupExportGui() {
@@ -133,8 +143,8 @@ void Application::onColorChanged(ofColor & color) {
 }
 
 void Application::setupPalettes() {
-	allPalettes.resize(2);
-	palettesPreview.resize(2);
+	allPalettes.resize(3);
+	palettesPreview.resize(3);
 
 	allPalettes[0] = {
 		ofColor(15, 15, 15),
@@ -150,9 +160,11 @@ void Application::keyReleased(int key) {
 	case 117: //touche u
 		checkBox = !checkBox;
 		ofLog() << "<toggle ui: " << checkBox << ">";
+		break;
 
 	case 114: //touche r
 		buttonRecordPressed();
+		break;
 	case 49: // touche 1
 		drawMode = VectorPrimitiveType::Select;
 		break; 
@@ -164,7 +176,10 @@ void Application::keyReleased(int key) {
 		break; 
 	case 52: // touche 4
 		drawMode = VectorPrimitiveType::Point;
-		break; 
+		break;
+	case 53: // touche 5
+		drawMode = VectorPrimitiveType::Ellipse;
+		break;
 	}
 
 
@@ -287,16 +302,23 @@ unique_ptr<ScenePrimitive> Application::makeShape(VectorPrimitiveType type, cons
 		shape = make_unique<ScenePrimitiveLine>();
 		shape->position = start;
 		shape->size = end;
+		shape->filled = false;
 		break;
 	case VectorPrimitiveType::Point:
 		shape = make_unique<ScenePrimitivePoint>();
 		shape->position = start;
 		shape->size = end;
+		shape->filled = false;
 		break;
 	case VectorPrimitiveType::Rect:
 		shape = make_unique<ScenePrimitiveRect>();
-		shape->position = start;
-		shape->size = end;
+		shape->position = glm::min(start, end);
+		shape->size = glm::abs(end - start);
+		break;
+	case VectorPrimitiveType::Ellipse:
+		shape = make_unique<ScenePrimitiveEllipse>();
+		shape->position = (start + end) * 0.5f;
+		shape->size = glm::abs(end - start);
 		break;
 	default:
 		return nullptr;
@@ -313,7 +335,7 @@ void Application::addVectorShape() {
 }
 
 void Application::applyDrawStyle(ScenePrimitive& primitive) const {
-	primitive.fillColor = colorPickerBackground;
+	primitive.fillColor = colorPickerFill;
 	primitive.lineColor = colorPickerStroke;
 	primitive.lineWidth = sliderStrokeWeight;
 }

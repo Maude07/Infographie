@@ -241,6 +241,7 @@
     <ClCompile Include="..\..\..\addons\ofxGui\src\ofxSlider.cpp" />
     <ClCompile Include="..\..\..\addons\ofxGui\src\ofxSliderGroup.cpp" />
     <ClCompile Include="..\..\..\addons\ofxGui\src\ofxToggle.cpp" />
+    <ClCompile Include="src\primitive\scenePrimitiveEllipse.cpp" />
     <ClCompile Include="src\primitive\scenePrimitiveLine.cpp" />
     <ClCompile Include="src\primitive\scenePrimitivePoint.cpp" />
     <ClCompile Include="src\primitive\scenePrimitiveRect.cpp" />
@@ -267,6 +268,7 @@
     <ClInclude Include="..\..\..\addons\ofxGui\src\ofxToggle.h" />
     <ClInclude Include="src\histogram.h" />
     <ClInclude Include="src\imageExporter.h" />
+    <ClInclude Include="src\primitive\scenePrimitiveEllipse.h" />
     <ClInclude Include="src\primitive\scenePrimitiveLine.h" />
     <ClInclude Include="src\primitive\scenePrimitivePoint.h" />
     <ClInclude Include="src\primitive\scenePrimitiveRect.h" />

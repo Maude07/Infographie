@@ -11,6 +11,8 @@ public:
 
 	virtual ~ScenePrimitive() = default;
 
+	void setFilled(bool f) { filled = f; }
+
 	protected:
 		void applyStyle() const {
 			ofSetLineWidth(lineWidth);
