@@ -49,7 +49,7 @@ void Application::setupDrawGui() {
 	guiColorPickerStroke.add(&palettesPreview[1]);
 	groupDraw.add(&guiColorPickerStroke);
 
-	//Palette 1
+	//Palette 3 (remplissage)
 	colorPickerFill.set("couleur de remplissage", ofColor(31), ofColor(0, 0), ofColor(255, 255));
 	guiColorPickerFill.setup(colorPickerFill);
 	palettesPreview[2].setup(currentPalette, colorPickerFill, groupDraw.getWidth());
