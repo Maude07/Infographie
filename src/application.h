@@ -10,6 +10,12 @@
 #include "transformTool.h"
 #include "../ofxPalettePreview.h"
 #include "histogram.h"
+#include "primitive/scenePrimitiveLine.h"
+#include "primitive/scenePrimitivePoint.h"
+#include "primitive/scenePrimitiveRect.h"
+#include "primitive/scenePrimitiveEllipse.h"
+
+enum class VectorPrimitiveType { Select, Rect, Line, Point, Ellipse };
 
 class Application : public ofBaseApp {
 
@@ -35,6 +41,9 @@ private:
 	ofxColorSlider guiColorPickerBackground;
 	ofParameter<ofColor> colorPickerBackground;
 
+	ofxColorSlider guiColorPickerFill;
+	ofParameter<ofColor> colorPickerFill;
+
 	ofxColorSlider guiColorPickerStroke;
 	ofParameter<ofColor> colorPickerStroke;
 	ofParameter<int> paletteIndex;
@@ -55,6 +64,11 @@ private:
 	vector<vector<ofColor>> allPalettes;
 
 	ofxButton buttonHistogram;
+
+	VectorPrimitiveType drawMode = VectorPrimitiveType::Select;
+	glm::vec2 mousePressPos;
+	glm::vec2 mouseCurrentPos;
+	bool isMouseButtonPressed = false;
 
 	void onColorChanged(ofColor & color);
 
@@ -83,4 +97,8 @@ private:
 	void buttonRecordPressed();
 	void histogramButtonPressed();
 	void buttonImportPressed();
+
+	unique_ptr<ScenePrimitive> makeShape(VectorPrimitiveType type, const glm::vec2 & start, const glm::vec2 & end) const;
+	void addVectorShape();
+	void applyDrawStyle(ScenePrimitive & primitive) const;
 };

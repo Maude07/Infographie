@@ -46,6 +46,30 @@
     <ClCompile Include="src\imageExporter.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="src\scene.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\sceneImage.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\transformTool.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\primitive\scenePrimitive.cpp">
+      <Filter>src\primitive</Filter>
+    </ClCompile>
+    <ClCompile Include="src\primitive\scenePrimitiveRect.cpp">
+      <Filter>src\primitive</Filter>
+    </ClCompile>
+    <ClCompile Include="src\primitive\scenePrimitiveLine.cpp">
+      <Filter>src\primitive</Filter>
+    </ClCompile>
+    <ClCompile Include="src\primitive\scenePrimitivePoint.cpp">
+      <Filter>src\primitive</Filter>
+    </ClCompile>
+    <ClCompile Include="src\primitive\scenePrimitiveEllipse.cpp">
+      <Filter>src\primitive</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="src">
@@ -59,6 +83,9 @@
     </Filter>
     <Filter Include="addons\ofxGui\src">
       <UniqueIdentifier>{890B8A5E--15D-D-4B-73-B-58B-BA384439C636}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\primitive">
+      <UniqueIdentifier>{c82982f3-f80e-4e0d-a892-f28ec2ad8757}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -112,6 +139,33 @@
     </ClInclude>
     <ClInclude Include="src\imageExporter.h">
       <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\scene.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sceneImage.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sceneObject.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\transformTool.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\primitive\scenePrimitive.h">
+      <Filter>src\primitive</Filter>
+    </ClInclude>
+    <ClInclude Include="src\primitive\scenePrimitiveRect.h">
+      <Filter>src\primitive</Filter>
+    </ClInclude>
+    <ClInclude Include="src\primitive\scenePrimitiveLine.h">
+      <Filter>src\primitive</Filter>
+    </ClInclude>
+    <ClInclude Include="src\primitive\scenePrimitivePoint.h">
+      <Filter>src\primitive</Filter>
+    </ClInclude>
+    <ClInclude Include="src\primitive\scenePrimitiveEllipse.h">
+      <Filter>src\primitive</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
