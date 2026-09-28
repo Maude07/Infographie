@@ -9,7 +9,7 @@ public:
     virtual ~SceneObject() = default;
     virtual void draw() const = 0;
 
-    ofRectangle getBounds() const { 
+    virtual ofRectangle getBounds() const { 
         return ofRectangle(position.x, position.y, size.x, size.y); 
     }
 
