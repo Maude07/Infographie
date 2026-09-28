@@ -7,6 +7,7 @@ class Histogram {
 public:
 	void compute(const ofImage & image);
 	void draw(ofRectangle area);
+	void reset();
 	bool is_computed() const { return computed; }
 
 private:

@@ -7,6 +7,7 @@ class Scene {
 public:
     void add(unique_ptr<SceneObject> object);
     void draw() const;
+	void clear();
 
     SceneObject * hitTest(float x, float y) const;
     

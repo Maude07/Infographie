@@ -34,8 +34,11 @@ void ImageExporter::capture() {
 	if (lastCaptureTime >= 0 && (now - lastCaptureTime) < 1.0f / fps) return;
 	lastCaptureTime = now;
 
-	image.grabScreen(0, 0, ofGetWidth(), ofGetHeight());
-	string name = folder + "/frame_" + ofToString(frameCount, 5, '0') + ".png";
+	int w = (captureWidth > 0) ? captureWidth : ofGetWidth();
+	int h = (captureHeight > 0) ? captureHeight : ofGetHeight();
+
+	image.grabScreen(captureX, captureY, w, h);
+	std::string name = folder + "/frame_" + ofToString(frameCount, 5, '0') + ".png";
 	image.save(name);
 	frameCount++;
 }
