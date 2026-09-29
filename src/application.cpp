@@ -7,7 +7,19 @@
 using namespace std;
 
 void Application::setup() {
-	ofSetWindowTitle("interface (u)");
+
+	// Lignes ajoutées, car ofLog n'affichait rien dans ma console(noa) 
+	FILE * fp;
+	freopen_s(&fp, "CONOUT$", "w", stdout);
+	freopen_s(&fp, "CONOUT$", "w", stderr);
+
+	
+	ofLogToConsole();
+	ofSetLogLevel(OF_LOG_VERBOSE);
+
+	ofLog() << "<app::setup>";
+
+	ofSetWindowTitle("interface (u) graphe (i) ");
 	ofFill();
 
 	ofLog() << "<app::setup>";
@@ -24,6 +36,13 @@ void Application::setup() {
 	renderer.setup();
 
 	gui.setup("interface", "setting.json", 0, 0);
+
+	sceneGraph.setUp();
+	auto box1 = make_shared<SceneEntity>("Box One");
+	auto box2 = make_shared<SceneEntity>("Box two");
+	sceneGraph.addEntityToSceneGraph(box1);
+	sceneGraph.addEntityToSceneGraph(box2);
+
 
 	setupPalettes();
 	paletteIndex.set("Palette", 0, 0, allPalettes.size() -1);
@@ -138,6 +157,9 @@ void Application::draw() {
 
 	transformTool.drawOverlay();
 
+	if (toggleSceneGraph) sceneGraph.manageDraw();
+
+
 	if (checkBox) {
 		gui.draw();
 	} else {
@@ -201,7 +223,10 @@ void Application::keyReleased(int key) {
 		checkBox = !checkBox;
 		ofLog() << "<toggle ui: " << checkBox << ">";
 		break;
-
+	case 'i':
+		toggleSceneGraph = !toggleSceneGraph;
+		ofLog() << "<toggle scene graph ui: " << toggleSceneGraph << ">";
+		break;
 	case 114: //touche r
 		buttonRecordPressed();
 		break;
@@ -228,6 +253,9 @@ void Application::keyReleased(int key) {
 void Application::keyPressed(int key) {
 
 	if (key == OF_KEY_DEL || key == OF_KEY_BACKSPACE) {
+
+		if (checkBox) {
+
 		int activePreviewIdx = -1;
 		int colorIdx = -1;
 
@@ -246,6 +274,11 @@ void Application::keyPressed(int key) {
 
 			ofLog() << "<deleted color at index: " << colorIdx << ">";
 		}
+		}
+		else if (toggleSceneGraph)
+		{
+			sceneGraph.deleteSelected();
+		}
 	}
 
 	if (key == OF_KEY_RETURN) {
@@ -256,6 +289,10 @@ void Application::keyPressed(int key) {
 }
 
 void Application::mousePressed(int x, int y, int button) {
+	if (toggleSceneGraph) {
+		sceneGraph.mousePressed(x, y);
+	}
+
 	if (!checkBox && x >= 10 && x <= 40 && y >= 10 && y <= 40) {
 		checkBox = true;
 		return;
@@ -267,6 +304,7 @@ void Application::mousePressed(int x, int y, int button) {
 		transformTool.mousePressed(scene, x, y);
 		return;
 	}
+
 
 	isMouseButtonPressed = true;
 	mousePressPos = mouseCurrentPos = { (float)x, (float)y };
@@ -355,24 +393,24 @@ unique_ptr<ScenePrimitive> Application::makeShape(VectorPrimitiveType type, cons
 	switch (type) {
 	case VectorPrimitiveType::Line:
 		shape = make_unique<ScenePrimitiveLine>();
-		shape->position = start;
+		shape->SceneObject::position = start;
 		shape->size = end;
 		shape->filled = false;
 		break;
 	case VectorPrimitiveType::Point:
 		shape = make_unique<ScenePrimitivePoint>();
-		shape->position = start;
+		shape->SceneObject::position = start;
 		shape->size = end;
 		shape->filled = false;
 		break;
 	case VectorPrimitiveType::Rect:
 		shape = make_unique<ScenePrimitiveRect>();
-		shape->position = glm::min(start, end);
+		shape->SceneObject::position = glm::min(start, end);
 		shape->size = glm::abs(end - start);
 		break;
 	case VectorPrimitiveType::Ellipse:
 		shape = make_unique<ScenePrimitiveEllipse>();
-		shape->position = (start + end) * 0.5f;
+		shape->SceneObject::position = (start + end) * 0.5f;
 		shape->size = glm::abs(end - start);
 		break;
 	default:
@@ -383,8 +421,28 @@ unique_ptr<ScenePrimitive> Application::makeShape(VectorPrimitiveType type, cons
 	return shape;
 }
 
+string drawModeToString(VectorPrimitiveType type) {
+	switch (type) {
+	case VectorPrimitiveType::Rect:
+		return "Rectangle";
+	case VectorPrimitiveType::Line:
+		return "Line";
+	case VectorPrimitiveType::Point:
+		return "Point";
+	case VectorPrimitiveType::Ellipse:
+		return "Ellipse";
+	default:
+		return "Entity";
+	}
+}
+
 void Application::addVectorShape() {
 	if (auto shape = makeShape(drawMode, mousePressPos, mouseCurrentPos)) {
+		string shapeName = drawModeToString(drawMode);
+
+		auto entityRow = make_shared<SceneEntity>(shapeName, shape.get());
+		sceneGraph.addEntityToSceneGraph(entityRow);
+
 		scene.add(move(shape));
 	}
 }
@@ -394,3 +452,6 @@ void Application::applyDrawStyle(ScenePrimitive& primitive) const {
 	primitive.lineColor = colorPickerStroke;
 	primitive.lineWidth = sliderStrokeWeight;
 }
+
+
+

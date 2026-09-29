@@ -70,6 +70,9 @@
     <ClCompile Include="src\primitive\scenePrimitiveEllipse.cpp">
       <Filter>src\primitive</Filter>
     </ClCompile>
+    <ClCompile Include="src\SceneGraph\sceneGraph.cpp">
+      <Filter>src\sceneGraph</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="src">
@@ -86,6 +89,9 @@
     </Filter>
     <Filter Include="src\primitive">
       <UniqueIdentifier>{c82982f3-f80e-4e0d-a892-f28ec2ad8757}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\sceneGraph">
+      <UniqueIdentifier>{6e7380be-8c43-48aa-a524-27f25cc8a8f8}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -166,6 +172,12 @@
     </ClInclude>
     <ClInclude Include="src\primitive\scenePrimitiveEllipse.h">
       <Filter>src\primitive</Filter>
+    </ClInclude>
+    <ClInclude Include="src\SceneGraph\sceneEntity.h">
+      <Filter>src\sceneGraph</Filter>
+    </ClInclude>
+    <ClInclude Include="src\SceneGraph\sceneGraph.h">
+      <Filter>src\sceneGraph</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

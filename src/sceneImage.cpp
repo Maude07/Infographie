@@ -20,6 +20,8 @@ unique_ptr<SceneImage> SceneImage::load(const string & path, float maxDimension)
 }
 
 void SceneImage::draw() const {
+	if (isDeleted) return;
+
     ofPushStyle();
     ofSetColor(255);
     image.draw(position.x, position.y, size.x, size.y);

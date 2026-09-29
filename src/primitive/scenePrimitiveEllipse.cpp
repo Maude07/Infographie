@@ -1,6 +1,7 @@
 #include "scenePrimitiveEllipse.h"
 
 void ScenePrimitiveEllipse::draw() const {
+	if (isDeleted) return;
 	applyStyle();
 	ofDrawEllipse(position.x, position.y, size.x, size.y);
 	if (filled) {

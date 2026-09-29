@@ -14,6 +14,8 @@
 #include "primitive/scenePrimitivePoint.h"
 #include "primitive/scenePrimitiveRect.h"
 #include "primitive/scenePrimitiveEllipse.h"
+#include "SceneGraph/sceneGraph.h"
+
 
 enum class VectorPrimitiveType { Select, Rect, Line, Point, Ellipse };
 
@@ -35,6 +37,8 @@ private:
 
 	ofxPanel gui;
 
+	SceneGraph sceneGraph;
+
 	ofxGuiGroup groupDraw;
 	ofxGuiGroup groupExport;
 
@@ -51,6 +55,7 @@ private:
 	ofParameter<string> textBox;
 
 	ofParameter<bool> checkBox;
+	ofParameter<bool> toggleSceneGraph;
 
 	ofParameter<int> sliderExportFps;
 	ofParameter<float> sliderExportDuration;

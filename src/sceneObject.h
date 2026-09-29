@@ -6,6 +6,8 @@ public:
     glm::vec2 position;
     glm::vec2 size;
 
+	bool isDeleted = false;
+
     virtual ~SceneObject() = default;
     virtual void draw() const = 0;
 

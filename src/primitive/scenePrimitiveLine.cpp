@@ -1,6 +1,7 @@
 #include "scenePrimitiveLine.h"
 
 void ScenePrimitiveLine::draw() const {
+	if (isDeleted) return;
 	applyStyle();
 	ofDrawLine(position.x, position.y, size.x, size.y);
 }

@@ -247,6 +247,7 @@
     <ClCompile Include="src\primitive\scenePrimitiveRect.cpp" />
     <ClCompile Include="src\renderer.cpp" />
     <ClCompile Include="src\scene.cpp" />
+    <ClCompile Include="src\SceneGraph\sceneGraph.cpp" />
     <ClCompile Include="src\sceneImage.cpp" />
     <ClCompile Include="src\transformTool.cpp" />
   </ItemGroup>
@@ -274,6 +275,8 @@
     <ClInclude Include="src\primitive\scenePrimitiveRect.h" />
     <ClInclude Include="src\renderer.h" />
     <ClInclude Include="src\scene.h" />
+    <ClInclude Include="src\SceneGraph\sceneEntity.h" />
+    <ClInclude Include="src\SceneGraph\sceneGraph.h" />
     <ClInclude Include="src\sceneImage.h" />
     <ClInclude Include="src\sceneObject.h" />
     <ClInclude Include="src\transformTool.h" />

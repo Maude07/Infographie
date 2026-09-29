@@ -1,6 +1,7 @@
 #include "scenePrimitivePoint.h"
 
 void ScenePrimitivePoint::draw() const {
+	if (isDeleted) return;
 	ofFill();
 	ofSetColor(lineColor);
 	ofDrawCircle(position.x, position.y, lineWidth);

@@ -1,6 +1,7 @@
 #include "scenePrimitiveRect.h"
 
 void ScenePrimitiveRect::draw() const {
+	if (isDeleted) return;
 	applyStyle();
 	ofDrawRectangle(position.x, position.y, size.x, size.y);
 	if (filled) {
