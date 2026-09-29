@@ -13,6 +13,13 @@ void Histogram::draw(ofRectangle area) {
 	drawRgbHistogram(histoR, histoG, histoB, area);
 }
 
+void Histogram::reset() {
+	histoR.clear();
+	histoG.clear();
+	histoB.clear();
+	computed = false;
+}
+
 vector<int> Histogram::computeHistogram(const ofImage & image, int channel) {
 	const ofPixels & pixels = image.getPixels();
 

@@ -12,9 +12,18 @@ void Application::setup() {
 
 	ofLog() << "<app::setup>";
 
+	ofxGuiSetDefaultWidth(280);
+	ofxGuiSetDefaultHeight(36);
+	ofxGuiSetFillColor(ofColor(90, 140, 240));
+	ofxGuiSetBackgroundColor(ofColor(24, 24, 28));
+	ofxGuiSetBorderColor(ofColor(45, 45, 50));
+	ofxGuiSetHeaderColor(ofColor(18, 18, 22));
+	ofxGuiSetTextColor(ofColor(230, 230, 235));
+	ofxGuiSetFont("fonts/static/OpenSans-Regular.ttf", 13);
+
 	renderer.setup();
 
-	gui.setup("interface");
+	gui.setup("interface", "setting.json", 0, 0);
 
 	setupPalettes();
 	paletteIndex.set("Palette", 0, 0, allPalettes.size() -1);
@@ -108,14 +117,45 @@ void Application::update() {
 }
 
 void Application::draw() {
+	renderer.visibleOffsetX = (float)gui.getWidth();
 	renderer.draw(scene);
+
+	ofPushStyle();
+	ofFill();
+	ofSetColor(18, 18, 22);
+	ofDrawRectangle(0, 0, gui.getWidth(), ofGetHeight());
+	ofSetColor(60, 60, 68);
+	ofDrawLine(gui.getWidth(), 0, gui.getWidth(), ofGetHeight());
+	ofPopStyle();
+
+	int sidebarWidth = (int)gui.getWidth();
+	exporter.captureX = sidebarWidth;
+	exporter.captureY = 0;
+	exporter.captureWidth = ofGetWidth() - sidebarWidth;
+	exporter.captureHeight = ofGetHeight();
 
 	exporter.capture();
 
 	transformTool.drawOverlay();
 
-	if (checkBox)
+	if (checkBox) {
 		gui.draw();
+	} else {
+		ofPushStyle();
+		ofFill();
+		ofSetColor(24, 24, 28);
+		ofDrawRectangle(10, 10, 30, 30);
+
+		ofNoFill();
+		ofSetColor(90, 140, 240);
+		ofSetLineWidth(2);
+		ofDrawRectangle(10, 10, 30, 30);
+
+		ofFill();
+		ofSetColor(230, 230, 235);
+		ofDrawBitmapString(">", 20, 28);
+		ofPopStyle();
+	}
 
 	if (exporter.isRecording) {
 		ofSetColor(255, 0, 0);
@@ -127,7 +167,7 @@ void Application::draw() {
 	}
 
 	if (histogram.is_computed()) {
-		histogram.draw(ofRectangle(gui.getPosition().x, gui.getHeight() + 10, gui.getWidth(), 100));
+		histogram.draw(ofRectangle(gui.getWidth() + 20, ofGetHeight() - 150, 300, 120));
 	}
 
 	if (isMouseButtonPressed) {
@@ -216,6 +256,11 @@ void Application::keyPressed(int key) {
 }
 
 void Application::mousePressed(int x, int y, int button) {
+	if (!checkBox && x >= 10 && x <= 40 && y >= 10 && y <= 40) {
+		checkBox = true;
+		return;
+	}
+
 	if (checkBox && gui.getShape().inside(x, y)) return;
 
 	if (drawMode == VectorPrimitiveType::Select) {
@@ -248,6 +293,15 @@ void Application::mouseReleased(int x, int y, int button) {
 void Application::buttonPressed() {
 	textBox.set("text", "ift3100");
 
+	transformTool.clearSelection();
+	scene.clear();
+
+	colorPickerBackground = ofColor(31);
+	colorPickerStroke = ofColor(255);
+	sliderStrokeWeight = 4.0f;
+
+	histogram.reset();
+
 	ofLog() << "<button pressed>";
 }
 
@@ -257,7 +311,8 @@ void Application::buttonImportPressed() {
 	
 	if (auto image = SceneImage::load(result.getPath())) {
 		float offset = 30.0f * scene.size();
-		image->position = { 100 + offset, 100 + offset };
+		float startX = gui.getWidth() + 50;
+		image->position = { startX + offset, 100 + offset };
 		scene.add(move(image));
 	}
 }

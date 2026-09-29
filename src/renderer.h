@@ -22,6 +22,8 @@ public:
 
 	float lineOffset;
 
+	float visibleOffsetX = 0.0f;
+
 	int fontSize;
 
 	void setup();

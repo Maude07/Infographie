@@ -15,6 +15,10 @@ void Scene::draw() const {
     }
 }
 
+void Scene::clear() {
+	objects.clear();
+}
+
 SceneObject * Scene::hitTest(float x, float y) const {
     for (auto it = objects.rbegin(); it != objects.rend(); ++it) {
         if ((*it)->contains(x, y)) {

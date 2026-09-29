@@ -11,6 +11,11 @@ public:
 	float duration = 5.0f;
 	int frameCount = 0;
 
+	int captureX = 0;
+	int captureY = 0;
+	int captureWidth = 0;
+	int captureHeight = 0;
+
 	void start();
 	void stop();
 	void toggle();

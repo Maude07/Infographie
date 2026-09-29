@@ -26,14 +26,17 @@ void Renderer::draw(const Scene & scene) {
 
 	scene.draw();
 
+	float visibleWidth = ofGetWidth() - visibleOffsetX;
+	float centerX = visibleOffsetX + (visibleWidth / 2.0f);
+
 	font.drawString(
 		text,
-		(ofGetWidth() / 2.0f) - (boundingBox.getWidth() / 2.0f),
+		centerX - (boundingBox.getWidth() / 2.0f),
 		(ofGetHeight() / 2.0f) + (boundingBox.getHeight() / 2.0f));
 
 	ofDrawLine(
-		(ofGetWidth() / 2.0f) - (boundingBox.getWidth() / 2.0f),
+		centerX - (boundingBox.getWidth() / 2.0f),
 		(ofGetHeight() / 2.0f) + (boundingBox.getHeight() / 2.0f) + lineOffset,
-		(ofGetWidth() / 2.0f) + (boundingBox.getWidth() / 2.0f),
+		centerX + (boundingBox.getWidth() / 2.0f),
 		(ofGetHeight() / 2.0f) + (boundingBox.getHeight() / 2.0f) + lineOffset);
 };
