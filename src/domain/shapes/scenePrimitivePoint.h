@@ -1,5 +1,5 @@
 #pragma once
-#include "scenePrimitive.h"
+#include "domain/shapes/scenePrimitive.h"
 #include "ofMain.h"
 
 using namespace std;

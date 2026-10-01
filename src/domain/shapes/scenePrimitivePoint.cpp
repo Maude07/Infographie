@@ -1,4 +1,4 @@
-#include "scenePrimitivePoint.h"
+#include "domain/shapes/scenePrimitivePoint.h"
 
 void ScenePrimitivePoint::draw() const {
 	ofPushStyle();
