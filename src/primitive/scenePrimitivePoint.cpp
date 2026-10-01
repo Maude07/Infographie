@@ -1,15 +1,17 @@
 #include "scenePrimitivePoint.h"
 
 void ScenePrimitivePoint::draw() const {
+	ofPushStyle();
 	ofFill();
 	ofSetColor(lineColor);
 	ofDrawCircle(position.x, position.y, lineWidth);
+	ofPopStyle();
 }
 
 ofRectangle ScenePrimitivePoint::getBounds() const {
-	return ofRectangle(position.x - lineWidth, position.y - lineWidth, lineWidth * 2.0f, lineWidth * 2.0f);
+	return ofRectangle(position.x - radius(), position.y - radius(), radius() * 2.0f, radius() * 2.0f);
 }
 
 bool ScenePrimitivePoint::contains(float x, float y) const {
-	return glm::distance(glm::vec2(x, y), position) <= lineWidth;
+	return glm::distance(glm::vec2(x, y), position) <= radius();
 }

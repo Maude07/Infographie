@@ -2,15 +2,27 @@
 
 using namespace std;
 
+namespace {
+	constexpr size_t levelCount = 256;
+	const ofColor redBarColor = (255, 0, 0, 120);
+	const ofColor greenBarColor = (0, 255, 0, 120);
+	const ofColor blueBarColor = (0, 0, 255, 120);
+}
+
 void Histogram::compute(const ofImage & image) {
-	histoR = computeHistogram(image, 0);
-	histoG = computeHistogram(image, 1);
-	histoB = computeHistogram(image, 2);
+	histoR = computeChannel(image, 0);
+	histoG = computeChannel(image, 1);
+	histoB = computeChannel(image, 2);
 	computed = true;
 }
 
-void Histogram::draw(ofRectangle area) {
-	drawRgbHistogram(histoR, histoG, histoB, area);
+void Histogram::draw(const ofRectangle & area) const {
+	ofPushStyle();
+	ofEnableAlphaBlending();
+	drawChannel(histoR, area, redBarColor);
+	drawChannel(histoG, area, greenBarColor);
+	drawChannel(histoB, area, blueBarColor);
+	ofPopStyle();
 }
 
 void Histogram::reset() {
@@ -20,73 +32,32 @@ void Histogram::reset() {
 	computed = false;
 }
 
-vector<int> Histogram::computeHistogram(const ofImage & image, int channel) {
+vector<int> Histogram::computeChannel(const ofImage & image, size_t channel) {
 	const ofPixels & pixels = image.getPixels();
+	vector<int> counts(levelCount, 0);
 
-	vector<int> hist(256, 0);
-	int width = pixels.getWidth();
-	int height = pixels.getHeight();
-
-	for (int y = 0; y < height; y++) {
-		for (int x = 0; x < width; x++) {
-			ofColor c = pixels.getColor(x, y);
-
-			unsigned char value;
-			switch (channel) {
-			case 0:
-				value = c.r;
-				break;
-			case 1:
-				value = c.g;
-				break;
-			case 2:
-				value = c.b;
-				break;
-			case 3:
-				value = c.a;
-				break;
-			default:
-				value = c.r;
-				break;
-			}
-			hist[value]++;
+	for (size_t y = 0; y < pixels.getHeight(); y++) {
+		for (size_t x = 0; x < pixels.getWidth(); x++) {
+			counts[pixels.getColor(x, y) [channel]]++;
 		}
 	}
-	return hist;
+	return counts;	
 }
 
-void Histogram::drawHistogram(const vector<int> & histogram, ofRectangle area, ofColor barColor) {
-	if (histogram.empty()) return;
+void Histogram::drawChannel(const vector<int> & counts, const ofRectangle & area, const ofColor & barColor) {
+	if (counts.empty()) return;
 
-	int maxCount = *max_element(histogram.begin(), histogram.end());
+	int maxCount = *max_element(counts.begin(), counts.end());
 	if (maxCount == 0) return;
 
-	float barWidth = area.width / histogram.size();
+	float barWidth = area.width / counts.size();
 
 	ofPushStyle();
-	ofSetColor(barColor);
 	ofFill();
-
-	for (int i = 0; i < histogram.size(); ++i) {
-		float normHeight = (float)histogram[i] / maxCount * area.height;
-
-		float x = area.x + i * barWidth;
-		float y = area.y + area.height - normHeight;
-
-		ofDrawRectangle(x, y, barWidth, normHeight);
+	ofSetColor(barColor);
+	for (size_t i = 0; i < counts.size(); ++i) {
+		float barHeight = static_cast<float>(counts[i]) / maxCount * area.height;
+		ofDrawRectangle(area.x + i * barWidth, area.getBottom() - barHeight, barWidth, barHeight);
 	}
-
 	ofPopStyle();
-}
-
-void Histogram::drawRgbHistogram(const vector<int> & histoR,
-	const vector<int> & histoG,
-	const vector<int> & histoB, ofRectangle area) {
-	ofEnableAlphaBlending();
-
-	drawHistogram(histoR, area, ofColor(255, 0, 0, 120));
-	drawHistogram(histoG, area, ofColor(0, 255, 0, 120));
-	drawHistogram(histoB, area, ofColor(0, 0, 255, 120));
-
-	ofDisableAlphaBlending();
 }

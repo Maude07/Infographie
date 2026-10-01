@@ -1,5 +1,3 @@
-// IFT3100A25_Interface/application.h
-// Classe principale de l'application.
 #pragma once
 
 #include "ofMain.h"
@@ -20,83 +18,80 @@ enum class VectorPrimitiveType { Select, Rect, Line, Point, Ellipse };
 class Application : public ofBaseApp {
 
 public:
-	vector<ofColor> currentPalette;
+	void setup() override;
+	void update() override;
+	void draw() override;
+	void exit() override;
 
-	ofColor lastActiveColor = ofColor(0);
+	void keyPressed(ofKeyEventArgs & args) override;
+	void mousePressed(int x, int y, int button) override;
+	void mouseDragged(int x, int y, int button) override;
+	void mouseReleased(int x, int y, int button) override;
+	void windowResized(int w, int h) override;
 
 private:
 	Renderer renderer;
 	ImageExporter exporter;
-
 	Histogram histogram;
-
 	Scene scene;
 	TransformTool transformTool;
 
-	ofxPanel gui;
+	vector<ofColor> palette;
+	array<ofxPalettePreview, 3> palettePreviews;
+	ofColor lastActiveColor = ofColor();
 
+	ofxPanel gui;
 	ofxGuiGroup groupDraw;
 	ofxGuiGroup groupExport;
 
-	ofxColorSlider guiColorPickerBackground;
-	ofParameter<ofColor> colorPickerBackground;
+	ofxColorSlider backgroundSlider;
+	ofxColorSlider strokeSlider;
+	ofxColorSlider fillSlider;
+	ofParameter<ofColor> backgroundColor;
+	ofParameter<ofColor> strokeColor;
+	ofParameter<ofColor> fillColor;
+	ofParameter<float> strokeWeight;
 
-	ofxColorSlider guiColorPickerFill;
-	ofParameter<ofColor> colorPickerFill;
+	ofParameter<int> exportFps;
+	ofParameter<float> exportDuration;
 
-	ofxColorSlider guiColorPickerStroke;
-	ofParameter<ofColor> colorPickerStroke;
-	ofParameter<int> paletteIndex;
-	ofParameter<float> sliderStrokeWeight;
-	ofParameter<string> textBox;
+	ofParameter<string> displayText;
+	ofParameter<bool> showGui;
 
-	ofParameter<bool> checkBox;
-
-	ofParameter<int> sliderExportFps;
-	ofParameter<float> sliderExportDuration;
-	ofxButton buttonRecord;
-
-	ofxButton button;
-	ofxButton buttonImport;
-
-	vector<ofxPalettePreview> palettesPreview;
-
-	vector<vector<ofColor>> allPalettes;
-
-	ofxButton buttonHistogram;
+	ofxButton importButton;
+	ofxButton recordButton;
+	ofxButton resetButton;
+	ofxButton histogramButton;
 
 	VectorPrimitiveType drawMode = VectorPrimitiveType::Select;
 	glm::vec2 mousePressPos;
 	glm::vec2 mouseCurrentPos;
 	bool isMouseButtonPressed = false;
+	bool histogramRequested = false;
 
-	void onColorChanged(ofColor & color);
-
-	void setup();
-	void update();
-	void draw();
-	void exit();
-
-	void keyReleased(int key);
-	void keyPressed(int key);
-
-	void mousePressed(int x, int y, int button);
-	void mouseDragged(int x, int y, int button);
-	void mouseReleased(int x, int y, int button);
-
-	void windowResized(int w, int h);
-
-	void setupPalettes();
+	void setupTheme();
 	void setupImportGui();
 	void setupDrawGui();
 	void setupExportGui();
 	void setupMiscGui();
+	void addColorPicker(ofxColorSlider & slider, ofParameter<ofColor> & color, ofxPalettePreview & preview,
+		const string & name, const ofColor & initialColor);
 
-	//TODO: Uniformize button name
-	void buttonPressed();
-	void buttonRecordPressed();
-	void histogramButtonPressed();
-	void buttonImportPressed();
+	void onColorChanged(ofColor & color);
+	void onImportPressed();
+	void onRecordPressed();
+	void onResetPressed();
+	void onHistogramPressed();
+
+	void setDrawMode(VectorPrimitiveType mode);
+	void removeSelectedPaletteColor();
+	void clearPaletteSelection();
+
+	float canvasLeft() const;
+	void computeHistogram(const ofRectangle & canvas);
+	void drawSidebarBackground() const;
+	void drawCollapsedGuiButton() const;
+	void drawRecordingIndicator() const;
 
 	unique_ptr<ScenePrimitive> makeShape(VectorPrimitiveType type, const glm::vec2 & start, const glm::vec2 & end) const;
 	void addVectorShape();
