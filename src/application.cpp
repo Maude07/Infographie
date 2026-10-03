@@ -81,7 +81,6 @@ bool isLargeEnough(VectorPrimitiveType type, const glm::vec2 & start, const glm:
 
 void Application::setup() {
 
-	// Lignes ajoutées, car ofLog n'affichait rien dans ma console(noa) 
 	FILE * fp;
 	freopen_s(&fp, "CONOUT$", "w", stdout);
 	freopen_s(&fp, "CONOUT$", "w", stderr);
@@ -322,19 +321,19 @@ void Application::keyPressed(ofKeyEventArgs & args) {
 		setDrawMode(VectorPrimitiveType::Ellipse);
 		break;
 
-		case OF_KEY_DEL :
-			if (toggleSceneGraph) {
-				sceneGraph.deleteSelected();
-			}
+	case OF_KEY_DEL :
+		if (toggleSceneGraph) {
+			sceneGraph.deleteSelected();
+		}
 
-		case OF_KEY_BACKSPACE:
-			removeSelectedPaletteColor();
-			break;
+	case OF_KEY_BACKSPACE:
+		removeSelectedPaletteColor();
+		break;
 
-		case OF_KEY_RETURN:
-			palette.push_back(lastActiveColor);
-			ofLog() << "<added color: " << lastActiveColor << ">";
-			break;
+	case OF_KEY_RETURN:
+		palette.push_back(lastActiveColor);
+		ofLog() << "<added color: " << lastActiveColor << ">";
+		break;
 	}
 }
 
