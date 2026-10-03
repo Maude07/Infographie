@@ -2,7 +2,7 @@
 #include "ofMain.h"
 #include "ofxGui.h"
 
-class ofxPalettePreview : public ofxBaseGui {
+class PalettePreview : public ofxBaseGui {
 public:
 	std::vector<ofColor> * activePaletteRef = nullptr;
 	ofParameter<ofColor> * targetColorPickerRef = nullptr;

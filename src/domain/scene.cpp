@@ -1,6 +1,5 @@
 #include "ofMain.h"
-#include "scene.h"
-#include "sceneObject.h"
+#include "domain/scene.h"
 
 using namespace std;
 

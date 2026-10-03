@@ -3,15 +3,15 @@
 #include "ofMain.h"
 #include "ofxGui.h"
 
-#include "renderer.h"
-#include "imageExporter.h"
-#include "transformTool.h"
-#include "../ofxPalettePreview.h"
-#include "histogram.h"
-#include "primitive/scenePrimitiveLine.h"
-#include "primitive/scenePrimitivePoint.h"
-#include "primitive/scenePrimitiveRect.h"
-#include "primitive/scenePrimitiveEllipse.h"
+#include "presentation/renderer.h"
+#include "infrastructure/imageExporter.h"
+#include "presentation/transformTool.h"
+#include "presentation/ui/palettePreview.h"
+#include "domain/histogram.h"
+#include "domain/shapes/scenePrimitiveLine.h"
+#include "domain/shapes/scenePrimitivePoint.h"
+#include "domain/shapes/scenePrimitiveRect.h"
+#include "domain/shapes/scenePrimitiveEllipse.h"
 
 enum class VectorPrimitiveType { Select, Rect, Line, Point, Ellipse };
 
@@ -37,7 +37,7 @@ private:
 	TransformTool transformTool;
 
 	vector<ofColor> palette;
-	array<ofxPalettePreview, 3> palettePreviews;
+	array<PalettePreview, 3> palettePreviews;
 	ofColor lastActiveColor = ofColor();
 
 	ofxPanel gui;
@@ -74,7 +74,7 @@ private:
 	void setupDrawGui();
 	void setupExportGui();
 	void setupMiscGui();
-	void addColorPicker(ofxColorSlider & slider, ofParameter<ofColor> & color, ofxPalettePreview & preview,
+	void addColorPicker(ofxColorSlider & slider, ofParameter<ofColor> & color, PalettePreview & preview,
 		const string & name, const ofColor & initialColor);
 
 	void onColorChanged(ofColor & color);

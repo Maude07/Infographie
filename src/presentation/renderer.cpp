@@ -1,7 +1,4 @@
-// IFT3100A25_Interface/renderer.cpp
-// Classe responsable du rendu de l'application.
-
-#include "renderer.h"
+#include "presentation/renderer.h"
 
 void Renderer::setup() {
 	ofSetFrameRate(60);

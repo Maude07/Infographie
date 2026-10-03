@@ -1,4 +1,4 @@
-#include "histogram.h"
+#include "domain/histogram.h"
 
 using namespace std;
 

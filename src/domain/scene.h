@@ -1,5 +1,5 @@
 #pragma once
-#include "sceneObject.h"
+#include "domain/sceneObject.h"
 
 using namespace std;
 

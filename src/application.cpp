@@ -1,5 +1,9 @@
 #include "application.h"
-#include "sceneImage.h"
+#include "domain/sceneImage.h"
+#include "domain/shapes/scenePrimitiveEllipse.h"
+#include "domain/shapes/scenePrimitiveLine.h"
+#include "domain/shapes/scenePrimitivePoint.h"
+#include "domain/shapes/scenePrimitiveRect.h"
 
 using namespace std;
 
@@ -119,7 +123,7 @@ void Application::setupDrawGui() {
 	gui.add(&groupDraw);
 }
 
-void Application::addColorPicker(ofxColorSlider & slider, ofParameter<ofColor> & color, ofxPalettePreview & preview,
+void Application::addColorPicker(ofxColorSlider & slider, ofParameter<ofColor> & color, PalettePreview & preview,
 	const string & name, const ofColor & initialColor) {
 		color.set(name, initialColor, ofColor(0, 0), ofColor(255, 255));
 		slider.setup(color);
