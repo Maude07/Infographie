@@ -110,10 +110,6 @@ void Application::setup() {
 	sceneGraph.addEntityToSceneGraph(box2);
 
 
-	setupPalettes();
-	paletteIndex.set("Palette", 0, 0, allPalettes.size() -1);
-	currentPalette = allPalettes[paletteIndex];
-
 	setupImportGui();
 	setupDrawGui();
 	setupExportGui();
@@ -301,20 +297,30 @@ void Application::keyPressed(ofKeyEventArgs & args) {
 	if (args.isRepeat) return;
 
 	switch (args.key) {
-		case 'u':
-			showGui = !showGui;
-			ofLog() << "<toggle ui: " << showGui << ">";
-			break;
+	case 'u':
+		showGui = !showGui;
+		ofLog() << "<toggle ui: " << showGui << ">";
+		break;
 
-		case 'r':
-			onRecordPressed();
-			break;
-		
-		case '1': setDrawMode(VectorPrimitiveType::Select); break;
-		case '2': setDrawMode(VectorPrimitiveType::Rect); break;
-		case '3': setDrawMode(VectorPrimitiveType::Line); break;
-		case '4': setDrawMode(VectorPrimitiveType::Point); break;
-		case '5': setDrawMode(VectorPrimitiveType::Ellipse); break;
+	case 'r':
+		onRecordPressed();
+		break;
+
+	case '1':
+		setDrawMode(VectorPrimitiveType::Select);
+		break;
+	case '2':
+		setDrawMode(VectorPrimitiveType::Rect);
+		break;
+	case '3':
+		setDrawMode(VectorPrimitiveType::Line);
+		break;
+	case '4':
+		setDrawMode(VectorPrimitiveType::Point);
+		break;
+	case '5':
+		setDrawMode(VectorPrimitiveType::Ellipse);
+		break;
 
 		case OF_KEY_DEL :
 			if (toggleSceneGraph) {
@@ -324,7 +330,7 @@ void Application::keyPressed(ofKeyEventArgs & args) {
 		case OF_KEY_BACKSPACE:
 			removeSelectedPaletteColor();
 			break;
-		
+
 		case OF_KEY_RETURN:
 			palette.push_back(lastActiveColor);
 			ofLog() << "<added color: " << lastActiveColor << ">";
@@ -368,9 +374,6 @@ void Application::mousePressed(int x, int y, int button) {
 		return;
 	}
 
-	if (!showGui && collapsedGuiButton.inside(x, y)) {
-		showGui = true;
-
 	if (showGui && gui.getShape().inside(x, y)) return;
 
 	isMouseButtonPressed = true;
@@ -380,20 +383,17 @@ void Application::mousePressed(int x, int y, int button) {
 		return;
 	}
 
-	mousePressPos = mouseCurrentPos = { (float)x, (float)y };
 	mousePressPos = mouseCurrentPos = glm::vec2(x, y);
 }
 	
 void Application::mouseDragged(int x, int y, int button) {
 	if (!isMouseButtonPressed) return;
-	isMouseButtonPressed = false;
 
 	if (drawMode == VectorPrimitiveType::Select) {
 		transformTool.mouseDragged(x, y);
 		return;
 	}
 	mouseCurrentPos = glm::vec2(x, y);
-	addVectorShape();
 }
 
 void Application::mouseReleased(int x, int y, int button) {
@@ -499,6 +499,21 @@ unique_ptr<ScenePrimitive> Application::makeShape(VectorPrimitiveType type, cons
 
 	applyDrawStyle(*shape);
 	return shape;
+}
+
+string drawModeToString(VectorPrimitiveType type) {
+	switch (type) {
+	case VectorPrimitiveType::Rect:
+		return "Rectangle";
+	case VectorPrimitiveType::Line:
+		return "Line";
+	case VectorPrimitiveType::Point:
+		return "Point";
+	case VectorPrimitiveType::Ellipse:
+		return "Ellipse";
+	default:
+		return "Entity";
+	}
 }
 
 void Application::addVectorShape() {

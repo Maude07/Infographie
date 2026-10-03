@@ -9,6 +9,7 @@
 #include "presentation/transformTool.h"
 #include "presentation/ui/palettePreview.h"
 #include "domain/histogram.h"
+#include "domain/sceneGraph.h"
 #include "domain/shapes/scenePrimitiveLine.h"
 #include "domain/shapes/scenePrimitivePoint.h"
 #include "domain/shapes/scenePrimitiveRect.h"
