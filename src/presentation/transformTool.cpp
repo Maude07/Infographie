@@ -12,21 +12,21 @@ void TransformTool::mousePressed(Scene & scene, float x, float y) {
     selection = scene.hitTest(x, y);
 
     if (selection) {
-        dragOffset = glm::vec2(x, y) - selection->position;
+        dragOffset = glm::vec2(x, y) - glm::vec2(selection->getBounds().getPosition());
     }
 }
 
 void TransformTool::mouseDragged(float x, float y) {
     if (!selection) return;
 
+    ofRectangle bounds = selection->getBounds();
     if (isResizing) {
-        selection->size = {
-            max(minSize, x - selection->position.x),
-            max(minSize, y - selection->position.y)
-        };
+        bounds.width = max(minSize, x - bounds.x);
+        bounds.height = max(minSize, y - bounds.y);
     } else {
-        selection->position = glm::vec2(x, y) - dragOffset;
+        bounds.setPosition(x - dragOffset.x, y - dragOffset.y);
     }
+    selection->setBounds(bounds);
 }
 
 void TransformTool::mouseReleased() {
@@ -50,9 +50,9 @@ void TransformTool::drawOverlay() const {
 }
 
 ofRectangle TransformTool::getHandleBounds() const {
-    glm::vec2 corner = selection->position + selection->size;
+    ofRectangle bounds = selection->getBounds();
     return ofRectangle(
-        corner.x - handleSize / 2.0f,
-        corner.y - handleSize / 2.0f,
+        bounds.getRight() - handleSize / 2.0f,
+        bounds.getBottom() - handleSize / 2.0f,
         handleSize, handleSize);
 }
