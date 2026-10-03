@@ -4,9 +4,9 @@ using namespace std;
 
 namespace {
 	constexpr size_t levelCount = 256;
-	const ofColor redBarColor = (255, 0, 0, 120);
-	const ofColor greenBarColor = (0, 255, 0, 120);
-	const ofColor blueBarColor = (0, 0, 255, 120);
+	const ofColor redBarColor(255, 0, 0, 120);
+	const ofColor greenBarColor(0, 255, 0, 120);
+	const ofColor blueBarColor(0, 0, 255, 120);
 }
 
 void Histogram::compute(const ofImage & image) {
