@@ -15,7 +15,6 @@ public:
         return ofRectangle(position.x, position.y, size.x, size.y); 
     }
 
-    //TODO: a redefinir pour une detection plus precise (cercle, ligne, etc.)
     virtual bool contains(float x, float y) const { 
         return getBounds().inside(x, y); 
     }

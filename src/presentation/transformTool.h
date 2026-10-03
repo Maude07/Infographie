@@ -1,7 +1,7 @@
 #pragma once
 
-#include "sceneObject.h"
-#include "scene.h"
+#include "domain/sceneObject.h"
+#include "domain/scene.h"
 
 class TransformTool {
 
