@@ -1,6 +1,6 @@
 #pragma once
 #include "ofMain.h"
-#include "sceneGraph/sceneEntity.h"
+#include "domain/sceneEntity.h"
 #include "domain/sceneObject.h"
 
 class ScenePrimitive : public SceneObject,  SceneEntity {
