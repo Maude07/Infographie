@@ -2,11 +2,11 @@
 
 #include "ofMain.h"
 #include "ofxGui.h"
-
 #include "presentation/renderer.h"
 #include "infrastructure/imageExporter.h"
 #include "presentation/transformTool.h"
 #include "presentation/ui/palettePreview.h"
+#include "presentation/ui/sceneTreePanel.h"
 #include "domain/histogram.h"
 #include "domain/shapes/scenePrimitiveLine.h"
 #include "domain/shapes/scenePrimitivePoint.h"
@@ -35,6 +35,7 @@ private:
 	Histogram histogram;
 	Scene scene;
 	TransformTool transformTool;
+	SceneTreePanel sceneTreePanel;
 
 	vector<ofColor> palette;
 	array<PalettePreview, 3> palettePreviews;
@@ -57,6 +58,7 @@ private:
 
 	ofParameter<string> displayText;
 	ofParameter<bool> showGui;
+	ofParameter<bool> showSceneTree;
 
 	ofxButton importButton;
 	ofxButton recordButton;
@@ -84,6 +86,7 @@ private:
 	void onHistogramPressed();
 
 	void setDrawMode(VectorPrimitiveType mode);
+	void deleteSelectedObject();
 	void removeSelectedPaletteColor();
 	void clearPaletteSelection();
 

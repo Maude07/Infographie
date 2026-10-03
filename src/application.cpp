@@ -75,12 +75,30 @@ bool isLargeEnough(VectorPrimitiveType type, const glm::vec2 & start, const glm:
 			return true;
 	}
 		return true;
-	
 }
+
+string shapeLabel(VectorPrimitiveType type) {
+	switch (type) {
+		case VectorPrimitiveType::Rect: return "rectangle";
+		case VectorPrimitiveType::Line: return "ligne";
+		case VectorPrimitiveType::Point: return "point";
+		case VectorPrimitiveType::Ellipse: return "ellipse";
+		case VectorPrimitiveType::Select: break;;
+	}
+	return "objet";
+}
+
 }
 
 void Application::setup() {
-	ofSetWindowTitle("interface (u)");
+
+#ifdef _WIN32
+	FILE * console;
+	freopen_s(&console, "CONOUT$", "w", stdout);
+	freopen_s(&console, "CONOUT$", "w", stderr);
+#endif
+
+	ofSetWindowTitle("interface (u) graphe (i) ");
 	ofLog() << "<app::setup>";
 
 	setupTheme();
@@ -153,6 +171,7 @@ void Application::setupMiscGui() {
 	gui.add(&resetButton);
 
 	gui.add(showGui.set("visible", true));
+	gui.add(showSceneTree.set("graphe de scene (i)", false));
 
 	histogramButton.setup("Calculer l'histogramme");
 	histogramButton.addListener(this, &Application::onHistogramPressed);
@@ -203,6 +222,10 @@ void Application::draw() {
 	if (histogram.is_computed()) {
 		histogram.draw(ofRectangle(left + histogramMargin, ofGetHeight() - histogramMarginBottom - histogramHeight,
 			histogramWidth, histogramHeight));
+	}
+
+	if (showSceneTree) {
+		sceneTreePanel.draw(scene, transformTool.getSelection(), glm::vec2(ofGetMouseX(), ofGetMouseY()));
 	}
 
 	if (showGui) {
@@ -274,32 +297,57 @@ void Application::keyPressed(ofKeyEventArgs & args) {
 	if (args.isRepeat) return;
 
 	switch (args.key) {
-		case 'u':
-			showGui = !showGui;
-			ofLog() << "<toggle ui: " << showGui << ">";
-			break;
+	case 'u':
+		showGui = !showGui;
+		ofLog() << "<toggle ui: " << showGui << ">";
+		break;
+	
+	case 'i':
+		showSceneTree = !showSceneTree;
+		ofLog() << "<toggle scene tree: " << showSceneTree << ">";
+		break;
 
-		case 'r':
-			onRecordPressed();
-			break;
-		
-		case '1': setDrawMode(VectorPrimitiveType::Select); break;
-		case '2': setDrawMode(VectorPrimitiveType::Rect); break;
-		case '3': setDrawMode(VectorPrimitiveType::Line); break;
-		case '4': setDrawMode(VectorPrimitiveType::Point); break;
-		case '5': setDrawMode(VectorPrimitiveType::Ellipse); break;
+	case 'r':
+		onRecordPressed();
+		break;
 
-		case OF_KEY_DEL :
+	case '1':
+		setDrawMode(VectorPrimitiveType::Select);
+		break;
+	case '2':
+		setDrawMode(VectorPrimitiveType::Rect);
+		break;
+	case '3':
+		setDrawMode(VectorPrimitiveType::Line);
+		break;
+	case '4':
+		setDrawMode(VectorPrimitiveType::Point);
+		break;
+	case '5':
+		setDrawMode(VectorPrimitiveType::Ellipse);
+		break;
 
-		case OF_KEY_BACKSPACE:
+	case OF_KEY_DEL :
+	case OF_KEY_BACKSPACE :
+		if (transformTool.getSelection()) {
+			deleteSelectedObject();
+		} else {
 			removeSelectedPaletteColor();
-			break;
-		
-		case OF_KEY_RETURN:
-			palette.push_back(lastActiveColor);
-			ofLog() << "<added color: " << lastActiveColor << ">";
-			break;
+		}
+		break;
+
+	case OF_KEY_RETURN:
+		palette.push_back(lastActiveColor);
+		ofLog() << "<added color: " << lastActiveColor << ">";
+		break;
 	}
+}
+
+void Application::deleteSelectedObject() {
+	SceneObject * selection = transformTool.getSelection();
+	ofLog() << "<deleted object: " << selection->name << ">";
+	transformTool.clearSelection();
+	scene.remove(selection);
 }
 
 void Application::setDrawMode(VectorPrimitiveType mode) {
@@ -335,6 +383,14 @@ void Application::mousePressed(int x, int y, int button) {
 	}
 
 	if (showGui && gui.getShape().inside(x, y)) return;
+
+	if (showSceneTree) {
+		if (SceneObject * clicked = sceneTreePanel.hitTest(scene, x, y)) {
+			setDrawMode(VectorPrimitiveType::Select);
+			transformTool.select(clicked);
+			return;
+		}
+	}
 
 	isMouseButtonPressed = true;
 
@@ -433,30 +489,31 @@ unique_ptr<ScenePrimitive> Application::makeShape(VectorPrimitiveType type, cons
 	switch (type) {
 	case VectorPrimitiveType::Line:
 		shape = make_unique<ScenePrimitiveLine>();
-		shape->position = start;
+		shape->SceneObject::position = start;
 		shape->size = end;
 		shape->filled = false;
 		break;
 	case VectorPrimitiveType::Point:
 		shape = make_unique<ScenePrimitivePoint>();
-		shape->position = start;
+		shape->SceneObject::position = start;
 		shape->size = end;
 		shape->filled = false;
 		break;
 	case VectorPrimitiveType::Rect:
 		shape = make_unique<ScenePrimitiveRect>();
-		shape->position = glm::min(start, end);
+		shape->SceneObject::position = glm::min(start, end);
 		shape->size = glm::abs(end - start);
 		break;
 	case VectorPrimitiveType::Ellipse:
 		shape = make_unique<ScenePrimitiveEllipse>();
-		shape->position = (start + end) * 0.5f;
+		shape->SceneObject::position = (start + end) * 0.5f;
 		shape->size = glm::abs(end - start);
 		break;
 	case VectorPrimitiveType::Select:
 		return nullptr;
 	}
 
+	shape->name = shapeLabel(type);
 	applyDrawStyle(*shape);
 	return shape;
 }

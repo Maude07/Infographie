@@ -37,38 +37,38 @@
     <ClCompile Include="src\application.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="src\renderer.cpp">
-      <Filter>src</Filter>
+    <ClCompile Include="src\domain\histogram.cpp">
+      <Filter>src\domain</Filter>
     </ClCompile>
-    <ClCompile Include="src\histogram.cpp">
-      <Filter>src</Filter>
+    <ClCompile Include="src\domain\scene.cpp">
+      <Filter>src\domain</Filter>
     </ClCompile>
-    <ClCompile Include="src\imageExporter.cpp">
-      <Filter>src</Filter>
+    <ClCompile Include="src\domain\sceneImage.cpp">
+      <Filter>src\domain</Filter>
     </ClCompile>
-    <ClCompile Include="src\scene.cpp">
-      <Filter>src</Filter>
+    <ClCompile Include="src\domain\shapes\scenePrimitiveEllipse.cpp">
+      <Filter>src\domain\shapes</Filter>
     </ClCompile>
-    <ClCompile Include="src\sceneImage.cpp">
-      <Filter>src</Filter>
+    <ClCompile Include="src\domain\shapes\scenePrimitiveLine.cpp">
+      <Filter>src\domain\shapes</Filter>
     </ClCompile>
-    <ClCompile Include="src\transformTool.cpp">
-      <Filter>src</Filter>
+    <ClCompile Include="src\domain\shapes\scenePrimitivePoint.cpp">
+      <Filter>src\domain\shapes</Filter>
     </ClCompile>
-    <ClCompile Include="src\primitive\scenePrimitive.cpp">
-      <Filter>src\primitive</Filter>
+    <ClCompile Include="src\domain\shapes\scenePrimitiveRect.cpp">
+      <Filter>src\domain\shapes</Filter>
     </ClCompile>
-    <ClCompile Include="src\primitive\scenePrimitiveRect.cpp">
-      <Filter>src\primitive</Filter>
+    <ClCompile Include="src\infrastructure\imageExporter.cpp">
+      <Filter>src\infrastructure</Filter>
     </ClCompile>
-    <ClCompile Include="src\primitive\scenePrimitiveLine.cpp">
-      <Filter>src\primitive</Filter>
+    <ClCompile Include="src\presentation\renderer.cpp">
+      <Filter>src\presentation</Filter>
     </ClCompile>
-    <ClCompile Include="src\primitive\scenePrimitivePoint.cpp">
-      <Filter>src\primitive</Filter>
+    <ClCompile Include="src\presentation\transformTool.cpp">
+      <Filter>src\presentation</Filter>
     </ClCompile>
-    <ClCompile Include="src\primitive\scenePrimitiveEllipse.cpp">
-      <Filter>src\primitive</Filter>
+    <ClCompile Include="src\SceneGraph\sceneGraph.cpp">
+      <Filter>src\domain</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -84,8 +84,20 @@
     <Filter Include="addons\ofxGui\src">
       <UniqueIdentifier>{890B8A5E--15D-D-4B-73-B-58B-BA384439C636}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\primitive">
-      <UniqueIdentifier>{c82982f3-f80e-4e0d-a892-f28ec2ad8757}</UniqueIdentifier>
+    <Filter Include="src\domain">
+      <UniqueIdentifier>{3db43427-a678-4cf5-ae38-4914587a0c86}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\domain\shapes">
+      <UniqueIdentifier>{d325c32c-9f0c-4bf7-abad-2e6db00b0baa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\infrastructure">
+      <UniqueIdentifier>{b19a703e-c7b0-43a1-ae83-00b19ea5fff5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\presentation">
+      <UniqueIdentifier>{c264f66b-fb5d-420a-878d-313420bf7f43}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\presentation\ui">
+      <UniqueIdentifier>{9c26a4d1-aaad-428f-8249-b2ae1831e4da}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -128,44 +140,50 @@
     <ClInclude Include="src\application.h">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="src\renderer.h">
-      <Filter>src</Filter>
+    <ClInclude Include="src\domain\histogram.h">
+      <Filter>src\domain</Filter>
     </ClInclude>
-    <ClInclude Include="ofxPalettePreview.h">
-      <Filter>src</Filter>
+    <ClInclude Include="src\domain\scene.h">
+      <Filter>src\domain</Filter>
     </ClInclude>
-    <ClInclude Include="src\histogram.h">
-      <Filter>src</Filter>
+    <ClInclude Include="src\domain\sceneImage.h">
+      <Filter>src\domain</Filter>
     </ClInclude>
-    <ClInclude Include="src\imageExporter.h">
-      <Filter>src</Filter>
+    <ClInclude Include="src\domain\sceneObject.h">
+      <Filter>src\domain</Filter>
     </ClInclude>
-    <ClInclude Include="src\scene.h">
-      <Filter>src</Filter>
+    <ClInclude Include="src\domain\shapes\scenePrimitive.h">
+      <Filter>src\domain\shapes</Filter>
     </ClInclude>
-    <ClInclude Include="src\sceneImage.h">
-      <Filter>src</Filter>
+    <ClInclude Include="src\domain\shapes\scenePrimitiveEllipse.h">
+      <Filter>src\domain\shapes</Filter>
     </ClInclude>
-    <ClInclude Include="src\sceneObject.h">
-      <Filter>src</Filter>
+    <ClInclude Include="src\domain\shapes\scenePrimitiveLine.h">
+      <Filter>src\domain\shapes</Filter>
     </ClInclude>
-    <ClInclude Include="src\transformTool.h">
-      <Filter>src</Filter>
+    <ClInclude Include="src\domain\shapes\scenePrimitivePoint.h">
+      <Filter>src\domain\shapes</Filter>
     </ClInclude>
-    <ClInclude Include="src\primitive\scenePrimitive.h">
-      <Filter>src\primitive</Filter>
+    <ClInclude Include="src\domain\shapes\scenePrimitiveRect.h">
+      <Filter>src\domain\shapes</Filter>
     </ClInclude>
-    <ClInclude Include="src\primitive\scenePrimitiveRect.h">
-      <Filter>src\primitive</Filter>
+    <ClInclude Include="src\infrastructure\imageExporter.h">
+      <Filter>src\infrastructure</Filter>
     </ClInclude>
-    <ClInclude Include="src\primitive\scenePrimitiveLine.h">
-      <Filter>src\primitive</Filter>
+    <ClInclude Include="src\presentation\renderer.h">
+      <Filter>src\presentation</Filter>
     </ClInclude>
-    <ClInclude Include="src\primitive\scenePrimitivePoint.h">
-      <Filter>src\primitive</Filter>
+    <ClInclude Include="src\presentation\transformTool.h">
+      <Filter>src\presentation</Filter>
     </ClInclude>
-    <ClInclude Include="src\primitive\scenePrimitiveEllipse.h">
-      <Filter>src\primitive</Filter>
+    <ClInclude Include="src\presentation\ui\palettePreview.h">
+      <Filter>src\presentation\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\SceneGraph\sceneEntity.h">
+      <Filter>src\domain</Filter>
+    </ClInclude>
+    <ClInclude Include="src\SceneGraph\sceneGraph.h">
+      <Filter>src\domain</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -12,6 +12,7 @@ public:
     void drawOverlay() const;
 
     SceneObject * getSelection() const { return selection; } 
+    void select(SceneObject * object) { selection = object; isResizing = false; }
     void clearSelection() { selection = nullptr; }
 
 private:
