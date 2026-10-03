@@ -1,97 +1,49 @@
-# Prerequisites
-*.d
-
-# Compiled Object files
-*.slo
-*.lo
-*.o
-*.obj
-
-# Precompiled Headers
-*.gch
-*.pch
-
-# Linker files
-*.ilk
-
-# Debugger Files
-*.pdb
-
-# Compiled Dynamic libraries
-*.so
-*.dylib
-*.dll
-*.so.*
-
-# macOS / VS Code (local)
-.vscode/
-*.code-workspace
-openFrameworks-Info.plist
-
-# Fortran module files
-*.mod
-*.smod
-
-# Compiled Static libraries
-*.lai
-*.la
-*.a
-*.lib
-
-# Executables
-*.exe
-*.out
-*.app
-
-# Build directories
-build/
-Build/
-build-*/
-
-# CMake generated files
-CMakeFiles/
-CMakeCache.txt
-cmake_install.cmake
-Makefile
-install_manifest.txt
-compile_commands.json
-
-# Temporary files
-*.tmp
-*.log
-*.bak
-*.swp
-
-# vcpkg
-vcpkg_installed/
-
-# debug information files
-*.dwo
-
-# test output & cache
-Testing/
-.cache/
-
-*.tlog
-*.recipe
-*.lastbuildstate
-*.exp
-*.idb
-*.user
-*.suo
-*.vcxproj.user
-
-
-
+# --- Build output ---
 obj/
 x64/
 Debug/
 Release/
+build/
+*.o
+*.obj
+*.d
+*.a
+*.lib
+*.so
+*.dylib
+*.dll
+*.exe
+*.app
+*.pdb
+*.ilk
+*.exp
+*.idb
+*.tlog
+*.recipe
+*.lastbuildstate
+
+# bin/ holds compiled apps; only bin/data/ is source
 bin/*
 !bin/data/
 
-
-
+# --- IDE / user-specific ---
 .vs/
-
+.vscode/
+*.code-workspace
+*.user
+*.suo
+*.xcodeproj/
+xcuserdata/
 openFrameworks-Info.plist
+compile_commands.json
+.cache/
+
+# --- OS ---
+.DS_Store
+Thumbs.db
+
+# --- Temporary ---
+*.tmp
+*.log
+*.bak
+*.swp

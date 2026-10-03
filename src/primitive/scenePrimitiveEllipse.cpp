@@ -1,6 +1,7 @@
 #include "scenePrimitiveEllipse.h"
 
 void ScenePrimitiveEllipse::draw() const {
+	ofPushStyle();
 	applyStyle();
 	ofDrawEllipse(position.x, position.y, size.x, size.y);
 	if (filled) {
@@ -8,6 +9,7 @@ void ScenePrimitiveEllipse::draw() const {
 		ofSetColor(lineColor);
 		ofDrawEllipse(position.x, position.y, size.x, size.y);
 	}
+	ofPopStyle();
 }
 
 ofRectangle ScenePrimitiveEllipse::getBounds() const {

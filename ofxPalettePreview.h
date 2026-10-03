@@ -4,71 +4,74 @@
 
 class ofxPalettePreview : public ofxBaseGui {
 public:
-	std::vector<ofColor> * activePaletteRef;
-	ofParameter<ofColor> * targetColorPickerRef;
+	std::vector<ofColor> * activePaletteRef = nullptr;
+	ofParameter<ofColor> * targetColorPickerRef = nullptr;
 	int selectedIndex = -1;
 
-	void setup(std::vector<ofColor> & paletteRef, ofParameter<ofColor>& targetPicker, float width = 200) {
+	void setup(std::vector<ofColor> & paletteRef, ofParameter<ofColor>& targetPicker, float width = defaultWidth) {
 		activePaletteRef = &paletteRef;
 		b.width = width;
-		b.height = 30;
+		b.height = swatchHeight;
 		targetColorPickerRef = &targetPicker;
 	}
 
-	virtual bool mousePressed(ofMouseEventArgs & args) override {
-		if (b.inside(args.x, args.y) ) {
-
-			if (!activePaletteRef || activePaletteRef->empty()) return true;
-
-
-			float localX = args.x - b.x;
-
-			float squareWidth = b.width / activePaletteRef->size();
-			int clickedIndex = ofClamp(floor(localX / squareWidth), 0, activePaletteRef->size() - 1);
-			selectedIndex = clickedIndex;
-			targetColorPickerRef->set((*activePaletteRef)[clickedIndex]);
-			return true;
+	bool mousePressed(ofMouseEventArgs & args) override {
+		if (!b.inside(args.x, args.y) ) {
+			selectedIndex = -1;
+			return false;
 		}
-		selectedIndex = -1;
-		return false;
 
+		if (!activePaletteRef || !targetColorPickerRef || activePaletteRef->empty()) return true;
+
+
+		float localX = args.x - b.x;
+
+		float swatchWidth = b.width / activePaletteRef->size();
+		int lastIndex = static_cast<int>(activePaletteRef->size()) -1;
+		selectedIndex = std::clamp(static_cast<int>((args.x - b.x) / swatchWidth), 0, lastIndex);
+		targetColorPickerRef->set((*activePaletteRef)[selectedIndex]);
+		return true;
 	}
 
-
-	virtual void render() override {
+	void render() override {
 		if (!activePaletteRef || activePaletteRef->empty()) return;
 
-		float squareWidth = b.width / activePaletteRef->size();
-		ofPushStyle();
+		float swatchWidth = b.width / activePaletteRef->size();
 
+		ofPushStyle();
 		for (size_t i = 0; i < activePaletteRef->size(); i++) {
+			ofRectangle swatch(b.x + i * swatchWidth, b.y, swatchWidth - swatchGap, b.height);
+
 			ofFill();
 			ofSetColor((*activePaletteRef)[i]);
-			ofDrawRectangle(b.x + i * squareWidth, b.y, squareWidth - 2, b.height);
+			ofDrawRectangle(swatch);
 
-			//Ligne de contour pour carré sélectionné
-			if (i == selectedIndex) {
+			if (static_cast<int>(i) == selectedIndex) {
 				ofNoFill();
-				ofSetColor(255); //Border blanche
-				ofSetLineWidth(2);
-				ofDrawRectangle(b.x + i * squareWidth, b.y, squareWidth - 2, b.height);
+				ofSetColor(255);
+				ofSetLineWidth(selectionLineWidth);
+				ofDrawRectangle(swatch);
 			}
 		}
-
 		ofPopStyle();
 	}
 
-	virtual bool setValue(float mx, float my, bool bCheck) override { return false; }
-	virtual void generateDraw() override { }
+	bool setValue(float mx, float my, bool bCheck) override { return false; }
+	void generateDraw() override {}
 
-	//Obligatoire pour que le code compile, mais pas utilisé dans ce widget
-	virtual bool mouseMoved(ofMouseEventArgs & args) override { return false; }
-	virtual bool mouseDragged(ofMouseEventArgs & args) override { return false; }
-	virtual bool mouseReleased(ofMouseEventArgs & args) override { return false; }
-	virtual bool mouseScrolled(ofMouseEventArgs & args) override { return false; }
+	bool mouseMoved(ofMouseEventArgs & args) override { return false; }
+	bool mouseDragged(ofMouseEventArgs & args) override { return false; }
+	bool mouseReleased(ofMouseEventArgs & args) override { return false; }
+	bool mouseScrolled(ofMouseEventArgs & args) override { return false; }
 
-	virtual ofAbstractParameter & getParameter() override {
+	ofAbstractParameter & getParameter() override {
 		static ofParameter<void> dummy;
 		return dummy;
 	}
+
+private:
+	static constexpr float defaultWidth = 200.0f;
+	static constexpr float swatchHeight = 30.0f;
+	static constexpr float swatchGap = 2.0f;
+	static constexpr float selectionLineWidth = 2.0f;
 };

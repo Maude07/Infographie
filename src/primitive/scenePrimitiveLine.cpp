@@ -1,8 +1,10 @@
 #include "scenePrimitiveLine.h"
 
 void ScenePrimitiveLine::draw() const {
+	ofPushStyle();
 	applyStyle();
 	ofDrawLine(position.x, position.y, size.x, size.y);
+	ofPopStyle();
 }
 
 ofRectangle ScenePrimitiveLine::getBounds() const {
@@ -19,7 +21,8 @@ bool ScenePrimitiveLine::contains(float x, float y) const {
 	glm::vec2 b = size;
 	glm::vec2 ab = b - a;
 
-	float t = glm::clamp(glm::dot(p - a, ab) / glm::dot(ab, ab), 0.0f, 1.0f);
+	float lengthSquared = glm::dot(ab, ab);
+	float t = lengthSquared > 0.0f ? glm::clamp(glm::dot(p - a, ab) / lengthSquared, 0.0f, 1.0f) : 0.0f;
 	glm::vec2 closest = a + t * ab;
 	float tolerance = std::max(lineWidth, 4.0f);
 	return glm::distance(p, closest) <= tolerance;

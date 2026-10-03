@@ -1,6 +1,3 @@
-// IFT3100A25_Interface/renderer.h
-// Classe responsable du rendu de l'application.
-
 #pragma once
 
 #include "ofMain.h"
@@ -8,25 +5,22 @@
 
 class Renderer {
 public:
-	ofTrueTypeFont font;
 
-	ofColor backgroundColor;
-
-	ofColor strokeColor;
-
-	ofRectangle boundingBox;
-
+	ofColor backgroundColor = ofColor(31);
+	ofColor strokeColor = ofColor(255);
+	float strokeWeight = 1.0f;
 	string text;
-
-	float strokeWeight;
-
-	float lineOffset;
-
 	float visibleOffsetX = 0.0f;
-
-	int fontSize;
 
 	void setup();
 	void update();
-	void draw(const Scene & scene);
+	void draw(const Scene & scene) const;
+
+private:
+
+	static constexpr int fontSize = 64;
+	static constexpr float underlineOffset = fontSize / 2.0f;
+
+	ofTrueTypeFont font;
+	ofRectangle textBounds;
 };
