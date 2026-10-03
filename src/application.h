@@ -3,7 +3,7 @@
 #include "ofMain.h"
 #include "ofxGui.h"
 
-#include "infrastructure/renderer.h"
+#include "presentation/renderer.h"
 #include "infrastructure/imageExporter.h"
 #include "presentation/transformTool.h"
 #include "presentation/ui/palettePreview.h"

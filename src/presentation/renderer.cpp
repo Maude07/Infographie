@@ -1,4 +1,4 @@
-#include "infrastructure/renderer.h"
+#include "presentation/renderer.h"
 
 void Renderer::setup() {
 	ofSetFrameRate(60);
