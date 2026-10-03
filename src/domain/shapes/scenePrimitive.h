@@ -3,7 +3,7 @@
 #include "domain/sceneEntity.h"
 #include "domain/sceneObject.h"
 
-class ScenePrimitive : public SceneObject,  SceneEntity {
+class ScenePrimitive : public SceneObject, SceneEntity {
 public:
 	ofColor fillColor = ofColor::white;
 	ofColor lineColor = ofColor::black;
