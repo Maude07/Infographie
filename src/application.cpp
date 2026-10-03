@@ -103,11 +103,6 @@ void Application::setup() {
 	palette = defaultPalette();
 
 	sceneGraph.setUp();
-	auto box1 = make_shared<SceneEntity>("Box One");
-	auto box2 = make_shared<SceneEntity>("Box two");
-	sceneGraph.addEntityToSceneGraph(box1);
-	sceneGraph.addEntityToSceneGraph(box2);
-
 
 	setupImportGui();
 	setupDrawGui();
@@ -325,8 +320,12 @@ void Application::keyPressed(ofKeyEventArgs & args) {
 		if (toggleSceneGraph) {
 			sceneGraph.deleteSelected();
 		}
+		break;
 
-	case OF_KEY_BACKSPACE:
+	case OF_KEY_BACKSPACE :
+		if (toggleSceneGraph) {
+			sceneGraph.deleteSelected();
+		}
 		removeSelectedPaletteColor();
 		break;
 

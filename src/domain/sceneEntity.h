@@ -24,7 +24,6 @@ public:
 	}
 
 	virtual ~SceneEntity() {
-		ofLog() << "Destroyed entity: " << nameTextBox.get();
 	}
 
 	virtual void update() {
@@ -61,6 +60,11 @@ public:
 
 	ofParameter<string> & getNameRow() {
 		return nameTextBox;
+	}
+
+	void setName(const string & name) {
+		nameTextBox.set(name);
+		parameters.setName(name);
 	}
 	bool isMouseInside(int mouseX, int mouseY) {
 		float localMouseX = mouseX - uiPosition.get().x;

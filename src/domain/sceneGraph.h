@@ -21,6 +21,7 @@ private:
 	ofxPanel gui;
 
 	vector<shared_ptr<SceneEntity>> entities;
+	map<string, int> typeCounters;
 
 	const float offsetX = 15;
 	const float offsetY = 15;
