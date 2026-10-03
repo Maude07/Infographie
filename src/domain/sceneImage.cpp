@@ -11,6 +11,8 @@ unique_ptr<SceneImage> SceneImage::load(const string & path, float maxDimension)
         return nullptr;
     }
 
+    sceneImage->name = ofFilePath::getFileName(path);
+
     float w = sceneImage->image.getWidth();
     float h = sceneImage->image.getHeight();
     float scale = min(1.0f, maxDimension / max(w, h));
@@ -20,8 +22,6 @@ unique_ptr<SceneImage> SceneImage::load(const string & path, float maxDimension)
 }
 
 void SceneImage::draw() const {
-	if (isDeleted) return;
-
     ofPushStyle();
     ofSetColor(255);
     image.draw(position.x, position.y, size.x, size.y);

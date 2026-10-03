@@ -226,14 +226,10 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\domain\histogram.cpp" />
-    <ClCompile Include="src\domain\scene.cpp" />
-    <ClCompile Include="src\domain\sceneImage.cpp" />
-    <ClCompile Include="src\domain\shapes\scenePrimitiveEllipse.cpp" />
-    <ClCompile Include="src\domain\shapes\scenePrimitiveLine.cpp" />
-    <ClCompile Include="src\domain\shapes\scenePrimitivePoint.cpp" />
-    <ClCompile Include="src\domain\shapes\scenePrimitiveRect.cpp" />
+    <ClCompile Include="src\presentation\ui\sceneTreePanel.h" />
+    <ClCompile Include="src\domain\shapes\scenePrimitive.cpp" />
     <ClCompile Include="src\application.cpp" />
+    <ClCompile Include="src\domain\histogram.cpp" />
     <ClCompile Include="src\infrastructure\imageExporter.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="..\..\..\addons\ofxGui\src\ofxBaseGui.cpp" />
@@ -246,20 +242,19 @@
     <ClCompile Include="..\..\..\addons\ofxGui\src\ofxSlider.cpp" />
     <ClCompile Include="..\..\..\addons\ofxGui\src\ofxSliderGroup.cpp" />
     <ClCompile Include="..\..\..\addons\ofxGui\src\ofxToggle.cpp" />
+    <ClCompile Include="src\domain\shapes\scenePrimitiveEllipse.cpp" />
+    <ClCompile Include="src\domain\shapes\scenePrimitiveLine.cpp" />
+    <ClCompile Include="src\domain\shapes\scenePrimitivePoint.cpp" />
+    <ClCompile Include="src\domain\shapes\scenePrimitiveRect.cpp" />
     <ClCompile Include="src\presentation\renderer.cpp" />
+    <ClCompile Include="src\domain\scene.cpp" />
+    <ClCompile Include="src\domain\sceneImage.cpp" />
     <ClCompile Include="src\presentation\transformTool.cpp" />
-    <ClCompile Include="src\domain\sceneGraph.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\domain\histogram.h" />
-    <ClInclude Include="src\domain\scene.h" />
-    <ClInclude Include="src\domain\sceneImage.h" />
-    <ClInclude Include="src\domain\sceneObject.h" />
+    <ClInclude Include="src\presentation\ui\palettePreview.h" />
+    <ClInclude Include="src\presentation\ui\sceneTreePanel.h" />
     <ClInclude Include="src\domain\shapes\scenePrimitive.h" />
-    <ClInclude Include="src\domain\shapes\scenePrimitiveEllipse.h" />
-    <ClInclude Include="src\domain\shapes\scenePrimitiveLine.h" />
-    <ClInclude Include="src\domain\shapes\scenePrimitivePoint.h" />
-    <ClInclude Include="src\domain\shapes\scenePrimitiveRect.h" />
     <ClInclude Include="src\application.h" />
     <ClInclude Include="..\..\..\addons\ofxGui\src\ofxBaseGui.h" />
     <ClInclude Include="..\..\..\addons\ofxGui\src\ofxButton.h" />
@@ -273,12 +268,17 @@
     <ClInclude Include="..\..\..\addons\ofxGui\src\ofxSlider.h" />
     <ClInclude Include="..\..\..\addons\ofxGui\src\ofxSliderGroup.h" />
     <ClInclude Include="..\..\..\addons\ofxGui\src\ofxToggle.h" />
+    <ClInclude Include="src\domain\histogram.h" />
     <ClInclude Include="src\infrastructure\imageExporter.h" />
+    <ClInclude Include="src\domain\shapes\scenePrimitiveEllipse.h" />
+    <ClInclude Include="src\domain\shapes\scenePrimitiveLine.h" />
+    <ClInclude Include="src\domain\shapes\scenePrimitivePoint.h" />
+    <ClInclude Include="src\domain\shapes\scenePrimitiveRect.h" />
     <ClInclude Include="src\presentation\renderer.h" />
+    <ClInclude Include="src\domain\scene.h" />
+    <ClInclude Include="src\domain\sceneImage.h" />
+    <ClInclude Include="src\domain\sceneObject.h" />
     <ClInclude Include="src\presentation\transformTool.h" />
-    <ClInclude Include="src\presentation\ui\palettePreview.h" />
-    <ClInclude Include="src\domain\sceneEntity.h" />
-    <ClInclude Include="src\domain\sceneGraph.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="$(OF_ROOT)\libs\openFrameworksCompiled\project\vs\openframeworksLib.vcxproj">

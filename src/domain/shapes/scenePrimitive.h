@@ -1,9 +1,9 @@
 #pragma once
+
 #include "ofMain.h"
-#include "domain/sceneEntity.h"
 #include "domain/sceneObject.h"
 
-class ScenePrimitive : public SceneObject, SceneEntity {
+class ScenePrimitive : public SceneObject {
 public:
 	ofColor fillColor = ofColor::white;
 	ofColor lineColor = ofColor::black;

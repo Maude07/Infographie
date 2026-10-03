@@ -1,12 +1,13 @@
 #pragma once
 #include "ofMain.h"
 
+using namespace std;
+
 class SceneObject {
 public:
+    string name;
     glm::vec2 position;
     glm::vec2 size;
-
-	bool isDeleted = false;
 
     virtual ~SceneObject() = default;
     virtual void draw() const = 0;

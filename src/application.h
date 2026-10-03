@@ -2,14 +2,12 @@
 
 #include "ofMain.h"
 #include "ofxGui.h"
-
-
 #include "presentation/renderer.h"
 #include "infrastructure/imageExporter.h"
 #include "presentation/transformTool.h"
 #include "presentation/ui/palettePreview.h"
+#include "presentation/ui/sceneTreePanel.h"
 #include "domain/histogram.h"
-#include "domain/sceneGraph.h"
 #include "domain/shapes/scenePrimitiveLine.h"
 #include "domain/shapes/scenePrimitivePoint.h"
 #include "domain/shapes/scenePrimitiveRect.h"
@@ -37,12 +35,11 @@ private:
 	Histogram histogram;
 	Scene scene;
 	TransformTool transformTool;
+	SceneTreePanel sceneTreePanel;
 
 	vector<ofColor> palette;
 	array<PalettePreview, 3> palettePreviews;
 	ofColor lastActiveColor = ofColor();
-
-	SceneGraph sceneGraph;
 
 	ofxPanel gui;
 	ofxGuiGroup groupDraw;
@@ -61,14 +58,12 @@ private:
 
 	ofParameter<string> displayText;
 	ofParameter<bool> showGui;
+	ofParameter<bool> showSceneTree;
 
 	ofxButton importButton;
 	ofxButton recordButton;
 	ofxButton resetButton;
 	ofxButton histogramButton;
-
-	ofParameter<bool> toggleSceneGraph;
-
 
 	VectorPrimitiveType drawMode = VectorPrimitiveType::Select;
 	glm::vec2 mousePressPos;
@@ -91,6 +86,7 @@ private:
 	void onHistogramPressed();
 
 	void setDrawMode(VectorPrimitiveType mode);
+	void deleteSelectedObject();
 	void removeSelectedPaletteColor();
 	void clearPaletteSelection();
 

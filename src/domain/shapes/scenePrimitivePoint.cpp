@@ -1,8 +1,6 @@
 #include "domain/shapes/scenePrimitivePoint.h"
 
 void ScenePrimitivePoint::draw() const {
-	if (isDeleted) return;
-	
 	ofPushStyle();
 	ofFill();
 	ofSetColor(lineColor);

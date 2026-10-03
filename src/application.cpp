@@ -75,25 +75,30 @@ bool isLargeEnough(VectorPrimitiveType type, const glm::vec2 & start, const glm:
 			return true;
 	}
 		return true;
-	
 }
+
+string shapeLabel(VectorPrimitiveType type) {
+	switch (type) {
+		case VectorPrimitiveType::Rect: return "rectangle";
+		case VectorPrimitiveType::Line: return "ligne";
+		case VectorPrimitiveType::Point: return "point";
+		case VectorPrimitiveType::Ellipse: return "ellipse";
+		case VectorPrimitiveType::Select: break;;
+	}
+	return "objet";
+}
+
 }
 
 void Application::setup() {
 
-	FILE * fp;
-	freopen_s(&fp, "CONOUT$", "w", stdout);
-	freopen_s(&fp, "CONOUT$", "w", stderr);
-
-	
-	ofLogToConsole();
-	ofSetLogLevel(OF_LOG_VERBOSE);
-
-	ofLog() << "<app::setup>";
+#ifdef _WIN32
+	FILE * console;
+	freopen_s(&console, "CONOUT$", "w", stdout);
+	freopen_s(&console, "CONOUT$", "w", stderr);
+#endif
 
 	ofSetWindowTitle("interface (u) graphe (i) ");
-	ofFill();
-
 	ofLog() << "<app::setup>";
 
 	setupTheme();
@@ -101,8 +106,6 @@ void Application::setup() {
 
 	gui.setup("interface", "setting.json", 0, 0);
 	palette = defaultPalette();
-
-	sceneGraph.setUp();
 
 	setupImportGui();
 	setupDrawGui();
@@ -168,6 +171,7 @@ void Application::setupMiscGui() {
 	gui.add(&resetButton);
 
 	gui.add(showGui.set("visible", true));
+	gui.add(showSceneTree.set("graphe de scene (i)", false));
 
 	histogramButton.setup("Calculer l'histogramme");
 	histogramButton.addListener(this, &Application::onHistogramPressed);
@@ -220,7 +224,9 @@ void Application::draw() {
 			histogramWidth, histogramHeight));
 	}
 
-	if (toggleSceneGraph) sceneGraph.manageDraw();
+	if (showSceneTree) {
+		sceneTreePanel.draw(scene, transformTool.getSelection(), glm::vec2(ofGetMouseX(), ofGetMouseY()));
+	}
 
 	if (showGui) {
 		gui.draw();
@@ -295,6 +301,11 @@ void Application::keyPressed(ofKeyEventArgs & args) {
 		showGui = !showGui;
 		ofLog() << "<toggle ui: " << showGui << ">";
 		break;
+	
+	case 'i':
+		showSceneTree = !showSceneTree;
+		ofLog() << "<toggle scene tree: " << showSceneTree << ">";
+		break;
 
 	case 'r':
 		onRecordPressed();
@@ -317,16 +328,12 @@ void Application::keyPressed(ofKeyEventArgs & args) {
 		break;
 
 	case OF_KEY_DEL :
-		if (toggleSceneGraph) {
-			sceneGraph.deleteSelected();
-		}
-		break;
-
 	case OF_KEY_BACKSPACE :
-		if (toggleSceneGraph) {
-			sceneGraph.deleteSelected();
+		if (transformTool.getSelection()) {
+			deleteSelectedObject();
+		} else {
+			removeSelectedPaletteColor();
 		}
-		removeSelectedPaletteColor();
 		break;
 
 	case OF_KEY_RETURN:
@@ -334,6 +341,13 @@ void Application::keyPressed(ofKeyEventArgs & args) {
 		ofLog() << "<added color: " << lastActiveColor << ">";
 		break;
 	}
+}
+
+void Application::deleteSelectedObject() {
+	SceneObject * selection = transformTool.getSelection();
+	ofLog() << "<deleted object: " << selection->name << ">";
+	transformTool.clearSelection();
+	scene.remove(selection);
 }
 
 void Application::setDrawMode(VectorPrimitiveType mode) {
@@ -363,16 +377,20 @@ void Application::clearPaletteSelection() {
 }
 
 void Application::mousePressed(int x, int y, int button) {
-	if (toggleSceneGraph) {
-		sceneGraph.mousePressed(x, y);
-	}
-
 	if (!showGui && collapsedGuiButton.inside(x, y)) {
 		showGui = true;
 		return;
 	}
 
 	if (showGui && gui.getShape().inside(x, y)) return;
+
+	if (showSceneTree) {
+		if (SceneObject * clicked = sceneTreePanel.hitTest(scene, x, y)) {
+			setDrawMode(VectorPrimitiveType::Select);
+			transformTool.select(clicked);
+			return;
+		}
+	}
 
 	isMouseButtonPressed = true;
 
@@ -495,34 +513,15 @@ unique_ptr<ScenePrimitive> Application::makeShape(VectorPrimitiveType type, cons
 		return nullptr;
 	}
 
+	shape->name = shapeLabel(type);
 	applyDrawStyle(*shape);
 	return shape;
-}
-
-string drawModeToString(VectorPrimitiveType type) {
-	switch (type) {
-	case VectorPrimitiveType::Rect:
-		return "Rectangle";
-	case VectorPrimitiveType::Line:
-		return "Line";
-	case VectorPrimitiveType::Point:
-		return "Point";
-	case VectorPrimitiveType::Ellipse:
-		return "Ellipse";
-	default:
-		return "Entity";
-	}
 }
 
 void Application::addVectorShape() {
 	if (!isLargeEnough(drawMode, mousePressPos, mouseCurrentPos)) return;
 
 	if (auto shape = makeShape(drawMode, mousePressPos, mouseCurrentPos)) {
-		string shapeName = drawModeToString(drawMode);
-
-		auto entityRow = make_shared<SceneEntity>(shapeName, shape.get());
-		sceneGraph.addEntityToSceneGraph(entityRow);
-
 		scene.add(move(shape));
 	}
 }
