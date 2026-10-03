@@ -535,6 +535,3 @@ void Application::applyDrawStyle(ScenePrimitive& primitive) const {
 float Application::canvasLeft() const {
 	return showGui ? gui.getWidth() : 0.0f;
 }
-
-
-
