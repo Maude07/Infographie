@@ -15,7 +15,6 @@ public:
 	bool hasSelection() const { return !selection.empty(); }
 	void select(SceneObject * object, bool additive = false);
     void clearSelection() {
-		ofLog() << "clearSelection appelee";
 		selection.clear();
 		isResizing = false;
 		isDragging = false;
