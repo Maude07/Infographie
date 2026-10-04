@@ -6,21 +6,30 @@
 class TransformTool {
 
 public: 
-    void mousePressed(Scene & scene, float x, float y);
+    void mousePressed(Scene & scene, float x, float y, bool additive);
     void mouseDragged(float x, float y);
     void mouseReleased();
     void drawOverlay() const;
 
-    SceneObject * getSelection() const { return selection; } 
-    void select(SceneObject * object) { selection = object; isResizing = false; }
-    void clearSelection() { selection = nullptr; }
+    const std::unordered_set<SceneObject *> & getSelection() const { return selection; }
+	bool hasSelection() const { return !selection.empty(); }
+	void select(SceneObject * object, bool additive = false);
+    void clearSelection() {
+		ofLog() << "clearSelection appelee";
+		selection.clear();
+		isResizing = false;
+		isDragging = false;
+	}
 
 private:
-    SceneObject * selection = nullptr;
+	std::unordered_set<SceneObject *> selection;
     glm::vec2 dragOffset;
+	glm::vec2 lastMouse;
     bool isResizing = false;
+	bool isDragging = false;
     float minSize = 20.0f;
     static constexpr float handleSize = 10.0f;
 
-    ofRectangle getHandleBounds() const;
+	SceneObject * single() const { return selection.size() == 1 ? *selection.begin() : nullptr; }
+	ofRectangle getHandleBounds(const SceneObject & object) const;
 };

@@ -329,7 +329,7 @@ void Application::keyPressed(ofKeyEventArgs & args) {
 
 	case OF_KEY_DEL :
 	case OF_KEY_BACKSPACE :
-		if (transformTool.getSelection()) {
+		if (transformTool.hasSelection()) {
 			deleteSelectedObject();
 		} else {
 			removeSelectedPaletteColor();
@@ -344,10 +344,10 @@ void Application::keyPressed(ofKeyEventArgs & args) {
 }
 
 void Application::deleteSelectedObject() {
-	SceneObject * selection = transformTool.getSelection();
-	ofLog() << "<deleted object: " << selection->name << ">";
+	auto toRemove = transformTool.getSelection();
+	ofLog() << "<deleted objects: " << toRemove.size() << ">";
 	transformTool.clearSelection();
-	scene.remove(selection);
+	scene.remove(toRemove);
 }
 
 void Application::setDrawMode(VectorPrimitiveType mode) {
@@ -384,10 +384,12 @@ void Application::mousePressed(int x, int y, int button) {
 
 	if (showGui && gui.getShape().inside(x, y)) return;
 
+	bool additive = ofGetKeyPressed(OF_KEY_SHIFT) || ofGetKeyPressed(OF_KEY_CONTROL);
+
 	if (showSceneTree) {
 		if (SceneObject * clicked = sceneTreePanel.hitTest(scene, x, y)) {
-			setDrawMode(VectorPrimitiveType::Select);
-			transformTool.select(clicked);
+			if (drawMode != VectorPrimitiveType::Select) setDrawMode(VectorPrimitiveType::Select);
+			transformTool.select(clicked, additive);
 			return;
 		}
 	}
@@ -395,7 +397,7 @@ void Application::mousePressed(int x, int y, int button) {
 	isMouseButtonPressed = true;
 
 	if (drawMode == VectorPrimitiveType::Select) {
-		transformTool.mousePressed(scene, x, y);
+		transformTool.mousePressed(scene, x, y, additive);
 		return;
 	}
 

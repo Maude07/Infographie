@@ -8,7 +8,7 @@ namespace {
     const glm::vec2 rowTextOffset(10, 20);
 }
 
-void SceneTreePanel::draw(const Scene & scene, const SceneObject * selection, const glm::vec2 & mouse) const {
+void SceneTreePanel::draw(const Scene & scene, const std::unordered_set<SceneObject*> & selection, const glm::vec2 & mouse) const {
     const auto & objects = scene.getObjects();
 
     ofPushStyle();
@@ -16,7 +16,7 @@ void SceneTreePanel::draw(const Scene & scene, const SceneObject * selection, co
     for (size_t i = 0; i < objects.size(); ++i) {
         ofRectangle row = getRowBounds(i);
 
-        if (objects[i].get() == selection) {
+        if (selection.count(objects[i].get()) > 0) {
             ofSetColor(rowSelectedColor);
         } else if (row.inside(mouse.x, mouse.y)) {
             ofSetColor(rowHoverColor);

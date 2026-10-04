@@ -1,12 +1,13 @@
 #pragma once
 #include "domain/sceneObject.h"
+#include <unordered_set>
 
 using namespace std;
 
 class Scene {
 public:
     void add(unique_ptr<SceneObject> object);
-    void remove(const SceneObject * object);
+	void remove(const std::unordered_set<SceneObject *> & toRemove);
     void draw() const;
 	void clear();
 
