@@ -24,4 +24,6 @@ public:
     virtual bool contains(float x, float y) const { 
         return getBounds().inside(x, y); 
     }
+
+    virtual bool isResizable() const { return true; }
 };
