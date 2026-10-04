@@ -17,11 +17,11 @@
 | `2` `3` `4` `5` | Rectangle, line, point, ellipse |
 | `u` | Show / hide the panel |
 | `r` | Start / stop recording |
+| `i` | Show / hide the scene graph |   
 | `Enter` | Add the last chosen color to the palette |
-| `Delete` / `Backspace` | Remove the selected palette color |
+| `Delete` / `Backspace` | Remove the selected object, otherwise the selected palette color |
 
 ## Conventions
 
 - Code, identifiers and comments in **English**; text shown in the UI in **French**.
-- Tabs, UTF-8, LF (see `.editorconfig` and `.clang-format`).
-- Architecture: see the "Architecture" section (added during the refactor).
+- Architecture: Architecture helper coming soon...
