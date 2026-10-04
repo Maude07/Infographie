@@ -3,7 +3,7 @@
 using namespace std;
 
 void TransformTool::mousePressed(Scene & scene, float x, float y) {
-    if (selection && getHandleBounds().inside(x, y)) {
+    if (selection && selection-> isResizable() && getHandleBounds().inside(x, y)) {
         isResizing = true;
         return;
     }
@@ -43,8 +43,10 @@ void TransformTool::drawOverlay() const {
     ofNoFill();
     ofDrawRectangle(selection->getBounds());
 
-    ofFill();
-    ofDrawRectangle(getHandleBounds());
+    if (selection->isResizable()) {
+        ofFill();
+        ofDrawRectangle(getHandleBounds());
+    }
 
     ofPopStyle();
 }
