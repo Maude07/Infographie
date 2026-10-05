@@ -3,7 +3,7 @@
 
 #include "command.h"
 #include "ofMain.h"
-#include "sceneObject.h"
+#include "domain/sceneObject.h"
 
 class TransformCommand : public Command {
 public:

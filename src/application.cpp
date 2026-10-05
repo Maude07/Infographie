@@ -109,10 +109,6 @@ void Application::setup() {
 
 	transformTool.setHistory(&history);
 
-	setupPalettes();
-	paletteIndex.set("Palette", 0, 0, allPalettes.size() -1);
-	currentPalette = allPalettes[paletteIndex];
-
 	setupImportGui();
 	setupDrawGui();
 	setupExportGui();
@@ -510,19 +506,6 @@ void Application::exit() {
 	buttonRedo.removeListener(this, &Application::buttonRedoPressed);
 
 	ofLog() << "<app::exit>";
-}
-
-void Application::histogramButtonPressed() {
-	ofImage capture;
-	capture.grabScreen(gui.getWidth() + 10, 0, ofGetWidth() - gui.getWidth() - 10, ofGetHeight());
-
-	if (!capture.isAllocated()) {
-		ofLogWarning() << "histograme: capture échouée";
-		return;
-	}
-
-	histogram.compute(capture);
-	ofLog() << "histogramme calculé";
 }
 
 void Application::setupHistoryGui() {
