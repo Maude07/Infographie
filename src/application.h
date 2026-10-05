@@ -14,6 +14,7 @@
 #include "primitive/scenePrimitivePoint.h"
 #include "primitive/scenePrimitiveRect.h"
 #include "primitive/scenePrimitiveEllipse.h"
+#include "commands/historyManager.h"
 
 enum class VectorPrimitiveType { Select, Rect, Line, Point, Ellipse };
 
@@ -33,10 +34,13 @@ private:
 	Scene scene;
 	TransformTool transformTool;
 
+	HistoryManager history;
+
 	ofxPanel gui;
 
 	ofxGuiGroup groupDraw;
 	ofxGuiGroup groupExport;
+	ofxGuiGroup groupHistory;
 
 	ofxColorSlider guiColorPickerBackground;
 	ofParameter<ofColor> colorPickerBackground;
@@ -65,6 +69,9 @@ private:
 
 	ofxButton buttonHistogram;
 
+	ofxButton buttonUndo;
+	ofxButton buttonRedo;
+
 	VectorPrimitiveType drawMode = VectorPrimitiveType::Select;
 	glm::vec2 mousePressPos;
 	glm::vec2 mouseCurrentPos;
@@ -91,12 +98,15 @@ private:
 	void setupDrawGui();
 	void setupExportGui();
 	void setupMiscGui();
+	void setupHistoryGui();
 
 	//TODO: Uniformize button name
 	void buttonPressed();
 	void buttonRecordPressed();
 	void histogramButtonPressed();
 	void buttonImportPressed();
+	void buttonUndoPressed();
+	void buttonRedoPressed();
 
 	unique_ptr<ScenePrimitive> makeShape(VectorPrimitiveType type, const glm::vec2 & start, const glm::vec2 & end) const;
 	void addVectorShape();

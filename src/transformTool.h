@@ -2,6 +2,7 @@
 
 #include "sceneObject.h"
 #include "scene.h"
+#include "commands/historyManager.h"
 
 class TransformTool {
 
@@ -14,12 +15,18 @@ public:
     SceneObject * getSelection() const { return selection; } 
     void clearSelection() { selection = nullptr; }
 
+	void setHistory(HistoryManager * history) { this->history = history; }
+
 private:
     SceneObject * selection = nullptr;
     glm::vec2 dragOffset;
     bool isResizing = false;
     float minSize = 20.0f;
     static constexpr float handleSize = 10.0f;
+
+	HistoryManager * history = nullptr;
+	glm::vec2 dragStartPos;
+	glm::vec2 dragStartSize;
 
     ofRectangle getHandleBounds() const;
 };

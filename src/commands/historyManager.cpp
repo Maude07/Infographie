@@ -1,4 +1,4 @@
-// IFT3100A25_Interface/commands/historyManager.cpp
+
 #include "historyManager.h"
 
 using namespace std;

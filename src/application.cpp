@@ -25,6 +25,8 @@ void Application::setup() {
 
 	gui.setup("interface", "setting.json", 0, 0);
 
+	transformTool.setHistory(&history);
+
 	setupPalettes();
 	paletteIndex.set("Palette", 0, 0, allPalettes.size() -1);
 	currentPalette = allPalettes[paletteIndex];
@@ -33,6 +35,7 @@ void Application::setup() {
 	setupDrawGui();
 	setupExportGui();
 	setupMiscGui();
+	setupHistoryGui();
 }
 
 void Application::setupImportGui() {
@@ -101,7 +104,7 @@ void Application::setupMiscGui() {
 	currentPalette = allPalettes[paletteIndex];
 
 	buttonHistogram.setup("Calculer l'histogramme");
-	buttonHistogram.addListener(this, &Application::histogramButtonPressed);
+	buttonHistogram.addListener(this, &Application::buttonHistogramPressed);
 	gui.add(&buttonHistogram);
 }
 
@@ -137,6 +140,9 @@ void Application::draw() {
 	exporter.capture();
 
 	transformTool.drawOverlay();
+
+	buttonUndo.setBackgroundColor(history.canUndo() ? ofColor(90, 140, 240) : ofColor(50, 50, 55));
+	buttonRedo.setBackgroundColor(history.canRedo() ? ofColor(90, 140, 240) : ofColor(50, 50, 55));
 
 	if (checkBox) {
 		gui.draw();
@@ -220,6 +226,14 @@ void Application::keyReleased(int key) {
 	case 53: // touche 5
 		drawMode = VectorPrimitiveType::Ellipse;
 		break;
+
+	case 'z': // ctrl+z
+		if (ofGetKeyPressed(OF_KEY_CONTROL)) history.undo();
+		break;
+
+	case 'y': // ctrl+y
+		if (ofGetKeyPressed(OF_KEY_CONTROL)) history.redo();
+		break;
 	}
 
 
@@ -295,6 +309,7 @@ void Application::buttonPressed() {
 
 	transformTool.clearSelection();
 	scene.clear();
+	history.clear();
 
 	colorPickerBackground = ofColor(31);
 	colorPickerStroke = ofColor(255);
@@ -323,6 +338,14 @@ void Application::buttonRecordPressed() {
 	exporter.toggle();
 }
 
+void Application::buttonUndoPressed() {
+	if (history.canUndo()) history.undo();
+}
+
+void Application::buttonRedoPressed() {
+	if (history.canRedo()) history.redo();
+}
+
 void Application::windowResized(int w, int h) {
 	ofLog() << "<app::windowResized: (" << w << ", " << h << ")>";
 }
@@ -330,13 +353,15 @@ void Application::windowResized(int w, int h) {
 void Application::exit() {
 	button.removeListener(this, &Application::buttonPressed);
 	buttonRecord.removeListener(this, &Application::buttonRecordPressed);
-	buttonHistogram.removeListener(this, &Application::histogramButtonPressed);
+	buttonHistogram.removeListener(this, &Application::buttonHistogramPressed);
 	buttonImport.removeListener(this, &Application::buttonImportPressed);
+	buttonUndo.removeListener(this, &Application::buttonUndoPressed);
+	buttonRedo.removeListener(this, &Application::buttonRedoPressed);
 
 	ofLog() << "<app::exit>";
 }
 
-void Application::histogramButtonPressed() {
+void Application::buttonHistogramPressed() {
 	ofImage capture;
 	capture.grabScreen(gui.getWidth() + 10, 0, ofGetWidth() - gui.getWidth() - 10, ofGetHeight());
 
@@ -347,6 +372,20 @@ void Application::histogramButtonPressed() {
 
 	histogram.compute(capture);
 	ofLog() << "histogramme calculé";
+}
+
+void Application::setupHistoryGui() {
+	groupHistory.setup("historique");
+
+	buttonUndo.setup("annuler (ctrl+z)");
+	buttonUndo.addListener(this, &Application::buttonUndoPressed);
+	groupHistory.add(&buttonUndo);
+
+	buttonRedo.setup("refaire (ctrl+y)");
+	buttonRedo.addListener(this, &Application::buttonRedoPressed);
+	groupHistory.add(&buttonRedo);
+
+	gui.add(&groupHistory);
 }
 
 unique_ptr<ScenePrimitive> Application::makeShape(VectorPrimitiveType type, const glm::vec2& start, const glm::vec2& end) const {

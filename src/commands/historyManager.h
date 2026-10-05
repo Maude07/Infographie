@@ -1,5 +1,4 @@
-#pragma once
-// IFT3100A25_Interface/commands/historyManager.h
+
 #pragma once
 
 #include "command.h"
