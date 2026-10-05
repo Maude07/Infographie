@@ -226,6 +226,7 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\presentation\ui\sceneTreePanel.h" />
     <ClCompile Include="src\domain\shapes\scenePrimitive.cpp" />
     <ClCompile Include="src\application.cpp" />
     <ClCompile Include="src\domain\histogram.cpp" />
@@ -252,6 +253,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\presentation\ui\palettePreview.h" />
+    <ClInclude Include="src\presentation\ui\sceneTreePanel.h" />
     <ClInclude Include="src\domain\shapes\scenePrimitive.h" />
     <ClInclude Include="src\application.h" />
     <ClInclude Include="..\..\..\addons\ofxGui\src\ofxBaseGui.h" />

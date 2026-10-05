@@ -4,7 +4,7 @@ void ScenePrimitivePoint::draw() const {
 	ofPushStyle();
 	ofFill();
 	ofSetColor(lineColor);
-	ofDrawCircle(position.x, position.y, lineWidth);
+	ofDrawCircle(position.x, position.y, radius());
 	ofPopStyle();
 }
 
@@ -12,6 +12,11 @@ ofRectangle ScenePrimitivePoint::getBounds() const {
 	return ofRectangle(position.x - radius(), position.y - radius(), radius() * 2.0f, radius() * 2.0f);
 }
 
+void ScenePrimitivePoint::setBounds(const ofRectangle & bounds) {
+	position = { bounds.getCenter().x, bounds.getCenter().y };
+}
+
 bool ScenePrimitivePoint::contains(float x, float y) const {
-	return glm::distance(glm::vec2(x, y), position) <= radius();
+	constexpr float pickTolerance = 4.0f;
+	return glm::distance(glm::vec2(x, y), position) <= radius() + pickTolerance;
 }
