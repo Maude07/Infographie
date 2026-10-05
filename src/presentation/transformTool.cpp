@@ -17,12 +17,14 @@ void TransformTool::select(SceneObject* object, bool additive) {
 
 	isResizing = false;
 	isDragging = false;
+	isInZone = false;
 }
 
 void TransformTool::mousePressed(Scene & scene, float x, float y, bool additive) {
 	lastMouse = glm::vec2(x, y);
 	isResizing = false;
 	isDragging = false;
+	isInZone = false;
 
 	if (SceneObject * only = single()) {
 		if (only->isResizable() && getHandleBounds(*only).inside(x, y)) {
@@ -35,6 +37,8 @@ void TransformTool::mousePressed(Scene & scene, float x, float y, bool additive)
 
 	if (!hit) {
 		if (!additive) selection.clear();
+		isInZone = true;
+		zoneStart = zoneEnd = glm::vec2(x, y);
 		return;
 	}
 
@@ -62,34 +66,58 @@ void TransformTool::mouseDragged(float x, float y) {
 		for (SceneObject* object : selection) {
 			object->position += delta;
 		}
+	} else if (isInZone) {
+		zoneEnd = glm::vec2(x, y);
 	}
 	lastMouse = mouse;
 }
 
-void TransformTool::mouseReleased() {
+void TransformTool::mouseReleased(Scene & scene) {
+	if (isInZone) {
+		ofRectangle zone = getZoneBounds();
+		for (const auto& object : scene.getObjects()) {
+			if (zone.intersects(object->getBounds())) {
+				selection.insert(object.get());
+			}
+		}
+		isInZone = false;
+	}
     isResizing = false;
 	isDragging = false;
 }
 
 void TransformTool::drawOverlay() const {
-    if (selection.empty()) return;
+	ofPushStyle();
 
-    ofPushStyle();
-    ofSetColor(255, 255, 0);
-    ofSetLineWidth(1);
+	if (isInZone) {
+		ofRectangle zone = getZoneBounds();
+		ofEnableAlphaBlending();
+		ofFill();
+		ofSetColor(255, 255, 0, 50);
+		ofSetLineWidth(1);
+		ofDrawRectangle(zone);
 
-    ofNoFill();
-	for (const SceneObject * object : selection) {
-		ofDrawRectangle(object->getBounds());
+		ofNoFill();
+		ofSetColor(255, 255, 0, 100);
+		ofSetLineWidth(1);
+		ofDrawRectangle(zone);
 	}
- 
 
-	if (const SceneObject* only = single()) {
-		if (only->isResizable()) {
-			ofFill();
-			ofDrawRectangle(getHandleBounds(*only));
+	if (!selection.empty()) {
+		ofSetColor(255, 255, 0);
+		ofSetLineWidth(1);
+		ofNoFill();
+		for (const SceneObject * object : selection) {
+			ofDrawRectangle(object->getBounds());
+		}
+		if (const SceneObject * only = single()) {
+			if (only->isResizable()) {
+				ofFill();
+				ofDrawRectangle(getHandleBounds(*only));
+			}
 		}
 	}
+
     ofPopStyle();
 }
 
@@ -99,4 +127,10 @@ ofRectangle TransformTool::getHandleBounds(const SceneObject & object) const {
         bounds.getRight() - handleSize / 2.0f,
         bounds.getBottom() - handleSize / 2.0f,
         handleSize, handleSize);
+}
+
+ofRectangle TransformTool::getZoneBounds() const {
+	glm::vec2 topLeft = glm::min(zoneStart, zoneEnd);
+	glm::vec2 size = glm::abs(zoneEnd - zoneStart);
+	return ofRectangle(topLeft.x, topLeft.y, size.x, size.y);
 }

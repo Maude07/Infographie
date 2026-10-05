@@ -419,7 +419,7 @@ void Application::mouseReleased(int x, int y, int button) {
 	isMouseButtonPressed = false;
 
 	if (drawMode == VectorPrimitiveType::Select) {
-		transformTool.mouseReleased();
+		transformTool.mouseReleased(scene);
 		return;
 	}
 	mouseCurrentPos = glm::vec2(x, y);
