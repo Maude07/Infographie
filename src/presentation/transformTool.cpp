@@ -3,16 +3,6 @@
 using namespace std;
 
 void TransformTool::select(SceneObject* object, bool additive) {
-	isResizing = false;
-	isDragging = false;
-}
-
-void TransformTool::mousePressed(Scene & scene, float x, float y) {
-    if (selection && selection-> isResizable() && getHandleBounds().inside(x, y)) {
-        isResizing = true;
-        return;
-    }
-
 	if (!object) {
 		if (!additive) selection.clear();
 		return;
@@ -24,6 +14,9 @@ void TransformTool::mousePressed(Scene & scene, float x, float y) {
 		selection.clear();
 		selection.insert(object);
 	}
+
+	isResizing = false;
+	isDragging = false;
 }
 
 void TransformTool::mousePressed(Scene & scene, float x, float y, bool additive) {
@@ -31,14 +24,14 @@ void TransformTool::mousePressed(Scene & scene, float x, float y, bool additive)
 	isResizing = false;
 	isDragging = false;
 
-    if (SceneObject * only = single()) {
-		  if (getHandleBounds(*only).inside(x, y)) {
-			  isResizing = true;
-			  return;
-		  }
-    }
+	if (SceneObject * only = single()) {
+		if (only->isResizable() && getHandleBounds(*only).inside(x, y)) {
+			isResizing = true;
+			return;
+		}
+	}
 
-    SceneObject * hit = scene.hitTest(x, y);
+	SceneObject * hit = scene.hitTest(x, y);
 
 	if (!hit) {
 		if (!additive) selection.clear();
@@ -59,10 +52,10 @@ void TransformTool::mouseDragged(float x, float y) {
 
 	if (isResizing) {
 		if (SceneObject * only = single()) {
-			only->size = {
-				max(minSize, x - only->position.x),
-				max(minSize, y - only->position.y)
-			};
+			ofRectangle b = only->getBounds();
+			float newW = max(minSize, x - b.x);
+			float newH = max(minSize, y - b.y);
+			only->setBounds(ofRectangle(b.x, b.y, newW, newH));
 		}
 	} else if (isDragging) {
 		glm::vec2 delta = mouse - lastMouse;
@@ -89,21 +82,19 @@ void TransformTool::drawOverlay() const {
 	for (const SceneObject * object : selection) {
 		ofDrawRectangle(object->getBounds());
 	}
-  
-    if (selection->isResizable()) {
-        ofFill();
-        ofDrawRectangle(getHandleBounds());
-    }
+ 
 
 	if (const SceneObject* only = single()) {
-		ofFill();
-		ofDrawRectangle(getHandleBounds(*only));
+		if (only->isResizable()) {
+			ofFill();
+			ofDrawRectangle(getHandleBounds(*only));
+		}
 	}
     ofPopStyle();
 }
 
 ofRectangle TransformTool::getHandleBounds(const SceneObject & object) const {
-	glm::vec2 corner = object.position + object.size;
+	ofRectangle bounds = object.getBounds();
     return ofRectangle(
         bounds.getRight() - handleSize / 2.0f,
         bounds.getBottom() - handleSize / 2.0f,
