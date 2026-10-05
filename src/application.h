@@ -100,10 +100,9 @@ private:
 	void setupMiscGui();
 	void setupHistoryGui();
 
-	//TODO: Uniformize button name
 	void buttonPressed();
 	void buttonRecordPressed();
-	void histogramButtonPressed();
+	void buttonHistogramPressed();
 	void buttonImportPressed();
 	void buttonUndoPressed();
 	void buttonRedoPressed();
