@@ -1,7 +1,5 @@
-#pragma once
 #include "ofMain.h"
-#include "scene.h"
-#include "sceneObject.h"
+#include "domain/scene.h"
 
 using namespace std;
 
@@ -13,6 +11,14 @@ void Scene::draw() const {
     for (const auto & object : objects) {
         object->draw();
     }
+}
+
+void Scene::remove(const SceneObject * object) {
+    objects.erase(
+    remove_if(objects.begin(), objects.end(),
+        [object](const unique_ptr<SceneObject> & candidate) {
+        return candidate.get() == object; }),
+        objects.end());
 }
 
 void Scene::clear() {

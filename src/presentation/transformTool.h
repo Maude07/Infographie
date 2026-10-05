@@ -1,7 +1,7 @@
 #pragma once
 
-#include "sceneObject.h"
-#include "scene.h"
+#include "domain/sceneObject.h"
+#include "domain/scene.h"
 #include "commands/historyManager.h"
 
 class TransformTool {
@@ -13,6 +13,7 @@ public:
     void drawOverlay() const;
 
     SceneObject * getSelection() const { return selection; } 
+    void select(SceneObject * object) { selection = object; isResizing = false; }
     void clearSelection() { selection = nullptr; }
 
 	void setHistory(HistoryManager * history) { this->history = history; }

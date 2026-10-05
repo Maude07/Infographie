@@ -1,6 +1,7 @@
-#include "scenePrimitiveEllipse.h"
+#include "domain/shapes/scenePrimitiveEllipse.h"
 
 void ScenePrimitiveEllipse::draw() const {
+	ofPushStyle();
 	applyStyle();
 	ofDrawEllipse(position.x, position.y, size.x, size.y);
 	if (filled) {
@@ -8,10 +9,16 @@ void ScenePrimitiveEllipse::draw() const {
 		ofSetColor(lineColor);
 		ofDrawEllipse(position.x, position.y, size.x, size.y);
 	}
+	ofPopStyle();
 }
 
 ofRectangle ScenePrimitiveEllipse::getBounds() const {
 	return ofRectangle(position.x - size.x / 2.0f, position.y - size.y / 2.0f, size.x, size.y);
+}
+
+void ScenePrimitiveEllipse::setBounds(const ofRectangle & bounds) {
+	position = { bounds.getCenter().x, bounds.getCenter().y };
+	size = { bounds.width, bounds.height };
 }
 
 bool ScenePrimitiveEllipse::contains(float x, float y) const {

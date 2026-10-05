@@ -1,5 +1,5 @@
 #include "ofMain.h"
-#include "sceneImage.h"
+#include "domain/sceneImage.h"
 
 using namespace std;
 
@@ -10,6 +10,8 @@ unique_ptr<SceneImage> SceneImage::load(const string & path, float maxDimension)
         ofLogError() << "echec du chargement de l'image: " << path;
         return nullptr;
     }
+
+    sceneImage->name = ofFilePath::getFileName(path);
 
     float w = sceneImage->image.getWidth();
     float h = sceneImage->image.getHeight();

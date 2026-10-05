@@ -1,6 +1,7 @@
 #pragma once
-#include "sceneObject.h"
+
 #include "ofMain.h"
+#include "domain/sceneObject.h"
 
 class ScenePrimitive : public SceneObject {
 public:
@@ -8,10 +9,6 @@ public:
 	ofColor lineColor = ofColor::black;
 	float lineWidth = 1.0f;
 	bool filled = true;
-
-	virtual ~ScenePrimitive() = default;
-
-	void setFilled(bool f) { filled = f; }
 
 	protected:
 		void applyStyle() const {

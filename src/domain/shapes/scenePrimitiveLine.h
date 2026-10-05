@@ -1,10 +1,11 @@
 #pragma once
-#include "scenePrimitive.h"
+#include "domain/shapes/scenePrimitive.h"
 #include "ofMain.h"
 
-class ScenePrimitiveEllipse : public ScenePrimitive {
+class ScenePrimitiveLine : public ScenePrimitive {
 public:
 	void draw() const override;
 	ofRectangle getBounds() const override;
+	void setBounds(const ofRectangle & bounds) override;
 	bool contains(float x, float y) const override;
 };

@@ -1,6 +1,7 @@
-#include "scenePrimitiveRect.h"
+#include "domain/shapes/scenePrimitiveRect.h"
 
 void ScenePrimitiveRect::draw() const {
+	ofPushStyle();
 	applyStyle();
 	ofDrawRectangle(position.x, position.y, size.x, size.y);
 	if (filled) {
@@ -8,4 +9,5 @@ void ScenePrimitiveRect::draw() const {
 		ofSetColor(lineColor);
 		ofDrawRectangle(position.x, position.y, size.x, size.y);
 	}
+	ofPopStyle();
 }
