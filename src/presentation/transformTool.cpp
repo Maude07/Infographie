@@ -5,13 +5,6 @@ using namespace std;
 void TransformTool::select(SceneObject* object, bool additive) {
 	isResizing = false;
 	isDragging = false;
-}
-
-void TransformTool::mousePressed(Scene & scene, float x, float y) {
-    if (selection && selection-> isResizable() && getHandleBounds().inside(x, y)) {
-        isResizing = true;
-        return;
-    }
 
 	if (!object) {
 		if (!additive) selection.clear();
@@ -32,10 +25,10 @@ void TransformTool::mousePressed(Scene & scene, float x, float y, bool additive)
 	isDragging = false;
 
     if (SceneObject * only = single()) {
-		  if (getHandleBounds(*only).inside(x, y)) {
-			  isResizing = true;
-			  return;
-		  }
+		if (getHandleBounds(*only).inside(x, y)) {
+			isResizing = true;
+			return;
+		}
     }
 
     SceneObject * hit = scene.hitTest(x, y);
@@ -89,11 +82,6 @@ void TransformTool::drawOverlay() const {
 	for (const SceneObject * object : selection) {
 		ofDrawRectangle(object->getBounds());
 	}
-  
-    if (selection->isResizable()) {
-        ofFill();
-        ofDrawRectangle(getHandleBounds());
-    }
 
 	if (const SceneObject* only = single()) {
 		ofFill();
@@ -105,7 +93,7 @@ void TransformTool::drawOverlay() const {
 ofRectangle TransformTool::getHandleBounds(const SceneObject & object) const {
 	glm::vec2 corner = object.position + object.size;
     return ofRectangle(
-        bounds.getRight() - handleSize / 2.0f,
-        bounds.getBottom() - handleSize / 2.0f,
+        corner.x - handleSize / 2.0f,
+        corner.y - handleSize / 2.0f,
         handleSize, handleSize);
 }

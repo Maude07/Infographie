@@ -15,20 +15,6 @@ ofRectangle ScenePrimitiveLine::getBounds() const {
 	return ofRectangle(minX, minY, maxX - minX, maxY - minY);
 }
 
-void ScenePrimitiveLine::setBounds(const ofRectangle & bounds) {
-	ofRectangle old = getBounds();
-	auto remap = [&](const glm::vec2 & p) {
-		float tx = old.width > 0.0f ? (p.x - old.x) / old.width : 0.0f;
-		float ty = old.height > 0.0f ? (p.y - old.y) / old.height : 0.0f;
-		return glm::vec2(bounds.x + tx * bounds.width, bounds.y + ty * bounds.height);
-	};
-	glm::vec2 start = remap(position);
-	glm::vec2 end = remap(size);
-	position = start;
-	size = end;
-}
-
-
 bool ScenePrimitiveLine::contains(float x, float y) const {
 	glm::vec2 p(x, y);
 	glm::vec2 a = position;
