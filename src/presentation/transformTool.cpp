@@ -159,6 +159,13 @@ void TransformTool::mousePressed(Scene & scene, float x, float y, bool additive)
 			captureDragStart();
 			return;
 		}
+
+		if (only->isRotatable() && getRotateHandle(*only).inside(local.x, local.y)) {
+			isRotating = true;
+			rotateStartAngle = angleFromCenter(*only, lastMouse);
+			rotateStartValue = only->rotation;
+			return;
+		}
 	}
 
 	SceneObject * hit = scene.hitTest(x, y);
@@ -299,7 +306,6 @@ void TransformTool::drawOverlay() const {
 			ofPopMatrix();
 		}
 	}
-
 	ofPopStyle();
 }
 

@@ -233,6 +233,10 @@
     <ClCompile Include="src\domain\commands\removeObjectCommand.cpp" />
     <ClCompile Include="src\domain\commands\transformCommand.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\presentation\ui\defaults.h"
+    <ClCompile Include="src\presentation\ui\theme.h"
+    <ClCompile Include="src\presentation\ui\sceneTreePanel.h" />
+    <ClCompile Include="src\domain\shapes\scenePrimitive.cpp" />
     <ClCompile Include="src\application.cpp" />
     <ClCompile Include="src\domain\histogram.cpp" />
     <ClCompile Include="src\domain\scene\scene.cpp" />

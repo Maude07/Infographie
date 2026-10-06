@@ -12,6 +12,7 @@
 #include "domain/commands/parameterCommand.h"
 #include "domain/commands/compositeCommand.h"
 #include "domain/commands/depthCommand.h"
+#include "domain/commands/rotateYCommand.h"
 #include "presentation/ui/theme.h"
 #include "presentation/ui/defaults.h"
 
@@ -58,6 +59,8 @@ const glm::vec2 collapsedGuiIconOffset(10, 18);
 		case ToolType::Bezier:
 		case ToolType::Model3d:
 		case ToolType::Select:
+		case ToolType::Model3d:
+		case ToolType::Primitive3d:
 			return true;
 		}
 		return true;
@@ -82,6 +85,8 @@ const glm::vec2 collapsedGuiIconOffset(10, 18);
 		case ToolType::Bezier:
 			return "bezier";
 		case ToolType::Select:
+		case ToolType::Model3d:
+		case ToolType::Primitive3d:
 			break;
 		}
 		return "objet";
@@ -338,8 +343,10 @@ void Application::draw() {
 				preview->render();
 				activeCamera().end();
 			}
+		} else if (toolType == ToolType::Primitive3d) {
+			makePrimitive3d(mousePressPos, mouseCurrentPos)->draw();
 		} else if (auto preview = makeShape(toolType, mousePressPos, mouseCurrentPos)) {
-			preview->draw();
+			
 		}
 	}
 
@@ -463,6 +470,8 @@ CursorState Application::currentCursorState(const glm::vec2 & mouse) const {
 	case ToolType::Wave:
 	case ToolType::FunkyCircles:
 	case ToolType::Bezier:
+	case ToolType::Model3d:
+	case ToolType::Primitive3d:
 		return CursorState::Crosshair;
 	case ToolType::Point:
 		return CursorState::Point;
@@ -798,6 +807,19 @@ void Application::onImportModelPressed() {
 
 	currentModelId = id;
 	setToolType(ToolType::Model3d);
+void Application::onTransformChanged(float &) {
+	SceneObject * selection = transformTool.getSelection();
+	if (!selection) return;
+
+	ofRectangle bounds = selection->getBounds();
+	float width = selection->isResizable() ? transformWidth.get() : bounds.width;
+	float height = selection->isResizable() ? transformHeight.get() : bounds.height;
+	bounds.setFromCenter(transformX, transformY, width, height);
+	selection->setBounds(bounds);
+
+	if (selection->isRotatable()) {
+		selection->rotation = transformRotation;
+	}
 }
 
 void Application::onTransformChanged(float &) {
@@ -1170,6 +1192,11 @@ void Application::exit() {
 	cursor.exit();
 
 	ofLog() << "<app::exit>";
+}
+
+array<ofParameter<float> *, 5> Application::transformParameters() {
+	return { &transformX, &transformY, &transformRotation, &transformWidth, &transformHeight };
+
 }
 
 array<ofParameter<float> *, 5> Application::transformParameters() {
