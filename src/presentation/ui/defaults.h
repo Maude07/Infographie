@@ -8,6 +8,7 @@ namespace defaults {
     const ofColor defaultFillColor(31);
     constexpr float defaultStrokeWeight = 4.0f;
     const std::string defaultText = "ift3100";
+    constexpr float defaultModelSize = 150.0f;
 
     std::vector<ofColor> defaultPalette() {
         return {

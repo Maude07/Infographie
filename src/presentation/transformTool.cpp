@@ -85,9 +85,16 @@ void TransformTool::mouseDragged(float x, float y) {
 	} else if (isRotating) {
 		if (SceneObject * only = single()) rotateTo(*only, mouse);
 	} else if (isDragging) {
-		lastMouse = mouse;
+		glm::vec2 delta = mouse - lastMouse;
+		for (SceneObject * object : selection) {
+			object->position += delta;
+		}
+	} else if (isInZone) {
+		zoneEnd = mouse;
 	}
-}	
+		lastMouse = mouse;
+}
+	
 
 void TransformTool::mouseReleased(Scene & scene) {
 	if (isInZone) {
@@ -106,7 +113,8 @@ void TransformTool::mouseReleased(Scene & scene) {
 		for (auto & [object, startBounds] : dragStartBounds) {
 			ofRectangle currentBounds = object->getBounds();
 
-			if (currentBounds.x != startBounds.x || currentBounds.y != startBounds.y || currentBounds.width != startBounds.width || currentBounds.height != startBounds.height) {
+			if (currentBounds.x != startBounds.x || currentBounds.y != startBounds.y || 
+				currentBounds.width != startBounds.width || currentBounds.height != startBounds.height) {
 
 				changes.push_back(make_unique<TransformCommand>(object, startBounds, currentBounds));
 			}
@@ -120,6 +128,7 @@ void TransformTool::mouseReleased(Scene & scene) {
 			}
 		}
 	}
+
 	dragStartBounds.clear();
     isResizing = false;
 	isDragging = false;
@@ -168,15 +177,7 @@ void TransformTool::drawOverlay() const {
 			ofPopMatrix();
 		}
 	}
-
-    if (selection->isRotatable()) {
-        glm::vec2 handle = getRotateHandle().getCenter();
-        ofDrawLine(bounds.getCenter().x, bounds.getTop(), handle.x, handle.y + handleSize / 2.0f);
-        ofFill();
-        ofDrawCircle(handle, handleSize / 2.0f);
-    }
-
-    ofPopMatrix();
+	
     ofPopStyle();
 }
 
