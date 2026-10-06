@@ -144,6 +144,7 @@ private:
 	glm::vec2 mouseCurrentPos;
 	bool isMouseButtonPressed = false;
 	bool histogramRequested = false;
+	bool isSyncingTransformGui = false;
 
 	void setupTheme();
 	void setupImportGui();
