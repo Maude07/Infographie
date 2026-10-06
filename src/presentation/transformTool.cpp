@@ -61,8 +61,8 @@ void TransformTool::mouseReleased() {
 
 void TransformTool::resizeTo(const glm::vec2 & mouse) {
     glm::vec2 local = rotateVector(mouse - resizeAnchor, -selection->rotation);
-    float width = max(minSize, local.x);
-    float height = max(minSize, local.y);
+    float width = max(SceneObject::minSize, local.x);
+    float height = max(SceneObject::minSize, local.y);
 
     if (ofGetKeyPressed(OF_KEY_SHIFT)) {
         if (width / height > aspectRatio) height = width / aspectRatio;

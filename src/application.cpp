@@ -119,8 +119,8 @@ void Application::setupTransformGui() {
 	groupTransform.add(transformX.set("x", 0.0f, 0.0f, 2000.0f));
 	groupTransform.add(transformY.set("y", 0.0f, 0.0f, 2000.0f));
 	groupTransform.add(transformRotation.set("rotation", 0.0f, -180.0f, 180.0f));
-	groupTransform.add(transformWidth.set("largeur", 100.0f, 1.0f, 2000.0f));
-	groupTransform.add(transformHeight.set("hauteur", 100.0f, 1.0f, 2000.0f));
+	groupTransform.add(transformWidth.set("largeur", 100.0f, SceneObject::minSize, 2000.0f));
+	groupTransform.add(transformHeight.set("hauteur", 100.0f, SceneObject::minSize, 2000.0f));
 
 	for (auto * parameter : transformParameters()) {
 		parameter->addListener(this, &Application::onTransformChanged);
@@ -244,11 +244,14 @@ void Application::syncTransformGui() {
 
 	ofRectangle bounds = selection->getBounds();
 	glm::vec2 center = selection->getCenter();
-	transformX.setWithoutEventNotifications(center.x);
-	transformY.setWithoutEventNotifications(center.y);
-	transformRotation.setWithoutEventNotifications(selection->rotation);
-	transformWidth.setWithoutEventNotifications(bounds.width);
-	transformHeight.setWithoutEventNotifications(bounds.height);
+
+	isSyncingTransformGui = true;
+	transformX = center.x;
+	transformY = center.y;
+	transformRotation = selection->rotation;
+	transformWidth = bounds.width;
+	transformHeight = bounds.height;
+	isSyncingTransformGui = false;
 }
 
 void Application::drawSidebarBackground() const {
@@ -468,12 +471,14 @@ void Application::onHistogramPressed() {
 }
 
 void Application::onTransformChanged(float &) {
+	if (isSyncingTransformGui) return;
+
 	SceneObject * selection = transformTool.getSelection();
 	if (!selection) return;
 
 	ofRectangle bounds = selection->getBounds();
-	float width = selection->isResizable() ? transformWidth.get() : bounds.width;
-	float height = selection->isResizable() ? transformHeight.get() : bounds.height;
+	float width = selection->isResizable() ? max(SceneObject::minSize, transformWidth.get()) : bounds.width;
+	float height = selection->isResizable() ? max(SceneObject::minSize, transformHeight.get()) : bounds.height;
 	bounds.setFromCenter(transformX, transformY, width, height);
 	selection->setBounds(bounds);
 

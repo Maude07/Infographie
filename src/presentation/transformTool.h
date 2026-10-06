@@ -27,7 +27,6 @@ private:
     float rotateStartAngle = 0.0f;
     float rotateStartValue = 0.0f;
 
-    float minSize = 20.0f;
     static constexpr float handleSize = 10.0f;
     static constexpr float rotateHandleDistance = 25.0f;
     static constexpr float rotationSnap = 15.0f;

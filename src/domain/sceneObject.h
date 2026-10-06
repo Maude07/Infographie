@@ -16,6 +16,8 @@ public:
     glm::vec2 size;
     float rotation = 0.0f;
 
+    static constexpr float minSize = 20.0f;
+
     virtual ~SceneObject() = default;
     virtual void draw() const = 0;
 
