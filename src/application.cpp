@@ -468,7 +468,7 @@ void Application::onImportPressed() {
 
 	float offset = importCascadeOffset * (scene.size() % importCascadeSteps);
 	image->position = { canvasLeft() + importMarginLeft + offset, importTop + offset };
-	scene.add(move(image));
+	history.execute(make_unique<AddObjectCommand>(&scene, move(image)));
 }
 
 void Application::onRecordPressed() {
@@ -561,7 +561,7 @@ void Application::addVectorShape() {
 	if (!isLargeEnough(drawMode, mousePressPos, mouseCurrentPos)) return;
 
 	if (auto shape = makeShape(drawMode, mousePressPos, mouseCurrentPos)) {
-		scene.add(move(shape));
+		history.execute(make_unique<AddObjectCommand>(&scene, move(shape)));
 	}
 }
 

@@ -12,6 +12,7 @@
 #include "domain/shapes/scenePrimitivePoint.h"
 #include "domain/shapes/scenePrimitiveRect.h"
 #include "domain/shapes/scenePrimitiveEllipse.h"
+#include "commands/addObjectCommand.h"
 
 enum class VectorPrimitiveType { Select, Rect, Line, Point, Ellipse };
 

@@ -26,8 +26,7 @@ private:
     static constexpr float handleSize = 10.0f;
 
 	HistoryManager * history = nullptr;
-	glm::vec2 dragStartPos;
-	glm::vec2 dragStartSize;
+	ofRectangle dragStartBounds;
 
     ofRectangle getHandleBounds() const;
 };

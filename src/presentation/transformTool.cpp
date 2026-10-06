@@ -1,10 +1,12 @@
 #include "presentation/transformTool.h"
+#include "commands/transformCommand.h"
 
 using namespace std;
 
 void TransformTool::mousePressed(Scene & scene, float x, float y) {
     if (selection && selection-> isResizable() && getHandleBounds().inside(x, y)) {
         isResizing = true;
+		dragStartBounds = selection->getBounds();
         return;
     }
 
@@ -13,6 +15,7 @@ void TransformTool::mousePressed(Scene & scene, float x, float y) {
 
     if (selection) {
         dragOffset = glm::vec2(x, y) - glm::vec2(selection->getBounds().getPosition());
+		dragStartBounds = selection->getBounds();
     }
 }
 
@@ -31,6 +34,15 @@ void TransformTool::mouseDragged(float x, float y) {
 
 void TransformTool::mouseReleased() {
     isResizing = false;
+
+	if (selection && history) {
+		ofRectangle currentBounds = selection->getBounds();
+
+		if (currentBounds.x != dragStartBounds.x || currentBounds.y != dragStartBounds.y || currentBounds.width != dragStartBounds.width || currentBounds.height != dragStartBounds.height) {
+
+			history->push(make_unique<TransformCommand>(selection, dragStartBounds, currentBounds));
+		}
+	}
 }
 
 void TransformTool::drawOverlay() const {
