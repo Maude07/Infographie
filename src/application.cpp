@@ -12,43 +12,19 @@
 #include "domain/commands/parameterCommand.h"
 #include "domain/commands/compositeCommand.h"
 #include "domain/commands/depthCommand.h"
+#include "domain/shapes/2d/scenePrimitiveEllipse.h"
+#include "domain/shapes/2d/scenePrimitiveLine.h"
+#include "domain/shapes/2d/scenePrimitivePoint.h"
+#include "domain/shapes/2d/scenePrimitiveRect.h"
+#include "presentation/ui/theme.h"
+#include "presentation/ui/defaults.h"
 
 using namespace std;
 
 namespace {
-
-	//TODO : Default UI should be in another file?
-	// Theme
-	const ofColor sidebarColor(18, 18, 22);
-	const ofColor sidebarBorderColor(60, 60, 68);
-	const ofColor panelColor(24, 24, 28);
-	const ofColor panelBorderColor(45, 45, 50);
-	const ofColor accentColor(90, 140, 240);
-	const ofColor textColor(230, 230, 235);
-	constexpr int guiWidth = 280;
-	constexpr int guiRowHeight = 36;
-	constexpr int guiFontSize = 13;
-	const string guiFontPath = "fonts/static/OpenSans-Regular.ttf";
-
-	// Default values, also restored by the reset button
-	const ofColor defaultBackgroundColor(31);
-	const ofColor defaultStrokeColor(255);
-	const ofColor defaultFillColor(210, 43, 43);
-	constexpr float defaultStrokeWeight = 4.0f;
-	const string defaultText = "ift3100";
-	constexpr float defaultModelSize = 150.0f;
-
-	vector<ofColor> defaultPalette() {
-		return {
-			ofColor(15, 15, 15),
-			ofColor(255, 182, 193),
-			ofColor(143, 131, 216),
-			ofColor(155, 184, 237)
-		};
-	}
-
-	const ofRectangle collapsedGuiButton(10, 10, 30, 30);
-	const glm::vec2 collapsedGuiIconOffset(10, 18);
+// Button shown in the top-left corner while the panel is hidden
+const ofRectangle collapsedGuiButton(10, 10, 30, 30);
+const glm::vec2 collapsedGuiIconOffset(10, 18);
 
 	constexpr float importMarginLeft = 50.0f;
 	constexpr float importTop = 100.0f;
@@ -133,12 +109,13 @@ void Application::setup() {
 	cursor.setup();
 
 	gui.setup("interface", "setting.json", 0, 0);
-	palette = defaultPalette();
+	palette = defaults::defaultPalette();
 
 	transformTool.setHistory(&history);
 
 	setupImportGui();
 	setupDrawGui();
+	setupTransformGui();
 	setupExportGui();
 	setupMiscGui();
 	setupHistoryGui();
@@ -150,14 +127,14 @@ void Application::setup() {
 }
 
 void Application::setupTheme() {
-	ofxGuiSetDefaultWidth(guiWidth);
-	ofxGuiSetDefaultHeight(guiRowHeight);
-	ofxGuiSetFillColor(accentColor);
-	ofxGuiSetBackgroundColor(panelColor);
-	ofxGuiSetBorderColor(panelBorderColor);
-	ofxGuiSetHeaderColor(sidebarColor);
-	ofxGuiSetTextColor(textColor);
-	ofxGuiSetFont(guiFontPath, guiFontSize);
+	ofxGuiSetDefaultWidth(theme::guiWidth);
+	ofxGuiSetDefaultHeight(theme::guiRowHeight);
+	ofxGuiSetFillColor(theme::accentColor);
+	ofxGuiSetBackgroundColor(theme::panelColor);
+	ofxGuiSetBorderColor(theme::panelBorderColor);
+	ofxGuiSetHeaderColor(theme::sidebarColor);
+	ofxGuiSetTextColor(theme::textColor);
+	ofxGuiSetFont(theme::guiFontPath, theme::guiFontSize);
 }
 
 void Application::setupImportGui() {
@@ -173,12 +150,26 @@ void Application::setupImportGui() {
 void Application::setupDrawGui() {
 	groupDraw.setup("outils de dessin");
 
-	addColorPicker(backgroundSlider, backgroundColor, palettePreviews[0], "couleur du canevas", defaultBackgroundColor);
-	addColorPicker(strokeSlider, strokeColor, palettePreviews[1], "couleur du trait", defaultStrokeColor);
-	addColorPicker(fillSlider, fillColor, palettePreviews[2], "couleur de remplissage", defaultFillColor);
-	groupDraw.add(strokeWeight.set("largeur de la ligne", defaultStrokeWeight, 0.0f, 10.0f));
+	addColorPicker(backgroundSlider, backgroundColor, palettePreviews[0], "couleur du canevas", defaults::defaultBackgroundColor);
+	addColorPicker(strokeSlider, strokeColor, palettePreviews[1], "couleur du trait", defaults::defaultStrokeColor);
+	addColorPicker(fillSlider, fillColor, palettePreviews[2], "couleur de remplissage", defaults::defaultFillColor);
+	groupDraw.add(strokeWeight.set("largeur de la ligne", defaults::defaultStrokeWeight, 0.0f, 10.0f));
 
 	gui.add(&groupDraw);
+}
+
+void Application::setupTransformGui() {
+	groupTransform.setup("transformation");
+	groupTransform.add(transformX.set("x", 0.0f, 0.0f, 2000.0f));
+	groupTransform.add(transformY.set("y", 0.0f, 0.0f, 2000.0f));
+	groupTransform.add(transformRotation.set("rotation", 0.0f, -180.0f, 180.0f));
+	groupTransform.add(transformWidth.set("largeur", 100.0f, 1.0f, 2000.0f));
+	groupTransform.add(transformHeight.set("hauteur", 100.0f, 1.0f, 2000.0f));
+
+	for (auto * parameter : transformParameters()) {
+		parameter->addListener(this, &Application::onTransformChanged);
+	}
+	gui.add(&groupTransform);
 }
 
 void Application::addColorPicker(ofxColorSlider & slider, ofParameter<ofColor> & color, PalettePreview & preview,
@@ -208,7 +199,7 @@ void Application::setupExportGui() {
 }
 
 void Application::setupMiscGui() {
-	gui.add(displayText.set("text", defaultText));
+	gui.add(displayText.set("text", defaults::defaultText));
 
 	resetButton.setup("Reinitialiser");
 	resetButton.addListener(this, &Application::onResetPressed);
@@ -228,6 +219,7 @@ void Application::update() {
 	renderer.strokeWeight = strokeWeight;
 	renderer.text = displayText;
 	renderer.update();
+	syncTransformGui();
 
 	cameraController.update(ofGetLastFrameTime());
 	activeCamera().setFov(cameraFov);
@@ -386,12 +378,25 @@ void Application::computeHistogram(const ofRectangle & canvas) {
 	ofLog() << "histogramme calculé";
 }
 
+void Application::syncTransformGui() {
+	SceneObject * selection = transformTool.getSelection();
+	if (!selection) return;
+
+	ofRectangle bounds = selection->getBounds();
+	glm::vec2 center = selection->getCenter();
+	transformX.setWithoutEventNotifications(center.x);
+	transformY.setWithoutEventNotifications(center.y);
+	transformRotation.setWithoutEventNotifications(selection->rotation);
+	transformWidth.setWithoutEventNotifications(bounds.width);
+	transformHeight.setWithoutEventNotifications(bounds.height);
+}
+
 void Application::drawSidebarBackground() const {
 	ofPushStyle();
 	ofFill();
-	ofSetColor(sidebarColor);
+	ofSetColor(theme::sidebarColor);
 	ofDrawRectangle(0, 0, gui.getWidth(), ofGetHeight());
-	ofSetColor(sidebarBorderColor);
+	ofSetColor(theme::sidebarBorderColor);
 	ofDrawLine(gui.getWidth(), 0, gui.getWidth(), ofGetHeight());
 	ofPopStyle();
 }
@@ -399,16 +404,16 @@ void Application::drawSidebarBackground() const {
 void Application::drawCollapsedGuiButton() const {
 	ofPushStyle();
 	ofFill();
-	ofSetColor(panelColor);
+	ofSetColor(theme::panelColor);
 	ofDrawRectangle(collapsedGuiButton);
 
 	ofNoFill();
-	ofSetColor(accentColor);
+	ofSetColor(theme::accentColor);
 	ofSetLineWidth(2);
 	ofDrawRectangle(collapsedGuiButton);
 
 	ofFill();
-	ofSetColor(textColor);
+	ofSetColor(theme::textColor);
 	ofDrawBitmapString(">", collapsedGuiButton.getPosition() + glm::vec3(collapsedGuiIconOffset, 0));
 	ofPopStyle();
 }
@@ -730,13 +735,13 @@ void Application::onResetPressed() {
 	history.clear();
 	syncColorReferences();
 
-	displayText.set(defaultText);
-	backgroundColor = defaultBackgroundColor;
-	strokeColor = defaultStrokeColor;
-	fillColor = defaultFillColor;
-	strokeWeight = defaultStrokeWeight;
+	displayText.set(defaults::defaultText);
+	backgroundColor = defaults::defaultBackgroundColor;
+	strokeColor = defaults::defaultStrokeColor;
+	fillColor = defaults::defaultFillColor;
+	strokeWeight = defaults::defaultStrokeWeight;
 
-	palette = defaultPalette();
+	palette = defaults::defaultPalette();
 	clearPaletteSelection();
 
 	ofLog() << "button pressed>";
@@ -773,13 +778,43 @@ void Application::onImportModelPressed() {
 
 	currentModelId = id;
 	setToolType(ToolType::Model3d);
+void Application::onTransformChanged(float &) {
+	SceneObject * selection = transformTool.getSelection();
+	if (!selection) return;
+
+	ofRectangle bounds = selection->getBounds();
+	float width = selection->isResizable() ? transformWidth.get() : bounds.width;
+	float height = selection->isResizable() ? transformHeight.get() : bounds.height;
+	bounds.setFromCenter(transformX, transformY, width, height);
+	selection->setBounds(bounds);
+
+	if (selection->isRotatable()) {
+		selection->rotation = transformRotation;
+	}
 }
 
 void Application::windowResized(int w, int h) {
 	ofLog() << "<app::windowResized: (" << w << ", " << h << ")>";
 }
 
-unique_ptr<ScenePrimitive> Application::makeShape(ToolType type, const glm::vec2 & start, const glm::vec2 & end) const {
+void Application::exit() {
+	importButton.removeListener(this, &Application::onImportPressed);
+	recordButton.removeListener(this, &Application::onRecordPressed);
+	resetButton.removeListener(this, &Application::onResetPressed);
+	histogramButton.removeListener(this, &Application::onHistogramPressed);
+
+	backgroundColor.removeListener(this, &Application::onColorChanged);
+	strokeColor.removeListener(this, &Application::onColorChanged);
+	fillColor.removeListener(this, &Application::onColorChanged);
+
+	for (auto * parameter : transformParameters()) {
+		parameter->removeListener(this, &Application::onTransformChanged);
+	}
+
+	ofLog() << "<app::exit>";
+}
+
+unique_ptr<ScenePrimitive> Application::makeShape(VectorPrimitiveType type, const glm::vec2& start, const glm::vec2& end) const {
 	unique_ptr<ScenePrimitive> shape;
 
 	switch (type) {
@@ -1094,4 +1129,7 @@ void Application::exit() {
 	cursor.exit();
 
 	ofLog() << "<app::exit>";
+array<ofParameter<float> *, 5> Application::transformParameters() {
+	return { &transformX, &transformY, &transformRotation, &transformWidth, &transformHeight };
+
 }
