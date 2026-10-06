@@ -44,6 +44,7 @@ private:
 	ofxPanel gui;
 	ofxGuiGroup groupDraw;
 	ofxGuiGroup groupExport;
+	ofxGuiGroup groupTransform;
 
 	ofxColorSlider backgroundSlider;
 	ofxColorSlider strokeSlider;
@@ -59,6 +60,12 @@ private:
 	ofParameter<string> displayText;
 	ofParameter<bool> showGui;
 	ofParameter<bool> showSceneTree;
+
+	ofParameter<float> transformX;
+	ofParameter<float> transformY;
+	ofParameter<float> transformRotation;
+	ofParameter<float> transformWidth;
+	ofParameter<float> transformHeight;
 
 	ofxButton importButton;
 	ofxButton recordButton;
@@ -76,6 +83,9 @@ private:
 	void setupDrawGui();
 	void setupExportGui();
 	void setupMiscGui();
+	void setupTransformGui();
+
+	void syncTransformGui();
 	void addColorPicker(ofxColorSlider & slider, ofParameter<ofColor> & color, PalettePreview & preview,
 		const string & name, const ofColor & initialColor);
 
@@ -84,6 +94,7 @@ private:
 	void onRecordPressed();
 	void onResetPressed();
 	void onHistogramPressed();
+	void onTransformChanged(float & value);
 
 	void setDrawMode(VectorPrimitiveType mode);
 	void deleteSelectedObject();
@@ -99,4 +110,6 @@ private:
 	unique_ptr<ScenePrimitive> makeShape(VectorPrimitiveType type, const glm::vec2 & start, const glm::vec2 & end) const;
 	void addVectorShape();
 	void applyDrawStyle(ScenePrimitive & primitive) const;
+
+	array<ofParameter<float> *, 5> transformParameters();
 };

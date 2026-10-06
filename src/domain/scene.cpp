@@ -9,7 +9,7 @@ void Scene::add(unique_ptr<SceneObject> object) {
 
 void Scene::draw() const {
     for (const auto & object : objects) {
-        object->draw();
+        object->render();
     }
 }
 
@@ -27,7 +27,7 @@ void Scene::clear() {
 
 SceneObject * Scene::hitTest(float x, float y) const {
     for (auto it = objects.rbegin(); it != objects.rend(); ++it) {
-        if ((*it)->contains(x, y)) {
+        if ((*it)->hitTest(x, y)) {
             return it->get();
         }
     }

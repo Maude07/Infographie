@@ -226,6 +226,8 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\presentation\ui\defaults.h"
+    <ClCompile Include="src\presentation\ui\theme.h"
     <ClCompile Include="src\presentation\ui\sceneTreePanel.h" />
     <ClCompile Include="src\domain\shapes\scenePrimitive.cpp" />
     <ClCompile Include="src\application.cpp" />
@@ -252,6 +254,8 @@
     <ClCompile Include="src\presentation\transformTool.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\presentation\ui\defaults.h" />
+    <ClInclude Include="src\presentation\ui\theme.h" />
     <ClInclude Include="src\presentation\ui\palettePreview.h" />
     <ClInclude Include="src\presentation\ui\sceneTreePanel.h" />
     <ClInclude Include="src\domain\shapes\scenePrimitive.h" />
