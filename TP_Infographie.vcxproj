@@ -231,6 +231,10 @@
     <ClCompile Include="src\domain\commands\removeObjectCommand.cpp" />
     <ClCompile Include="src\domain\commands\transformCommand.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\presentation\ui\defaults.h"
+    <ClCompile Include="src\presentation\ui\theme.h"
+    <ClCompile Include="src\presentation\ui\sceneTreePanel.h" />
+    <ClCompile Include="src\domain\shapes\scenePrimitive.cpp" />
     <ClCompile Include="src\application.cpp" />
     <ClCompile Include="src\domain\histogram.cpp" />
     <ClCompile Include="src\domain\scene\scene.cpp" />
@@ -292,6 +296,8 @@
     <ClInclude Include="src\presentation\cursorRenderer.h" />
     <ClInclude Include="src\presentation\renderer.h" />
     <ClInclude Include="src\presentation\transformTool.h" />
+    <ClInclude Include="src\presentation\ui\defaults.h" />
+    <ClInclude Include="src\presentation\ui\theme.h" />
     <ClInclude Include="src\presentation\ui\palettePreview.h" />
     <ClInclude Include="src\presentation\ui\sceneTreePanel.h" />
     <ClInclude Include="src\presentation\ui\modelListPanel.h" />

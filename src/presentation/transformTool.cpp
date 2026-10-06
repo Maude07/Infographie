@@ -20,6 +20,7 @@ void TransformTool::select(SceneObject* object, bool additive) {
 	isResizing = false;
 	isDragging = false;
 	isInZone = false;
+	isRotating = false;
 }
 
 void TransformTool::captureDragStart() {
@@ -34,11 +35,24 @@ void TransformTool::mousePressed(Scene & scene, float x, float y, bool additive)
 	isResizing = false;
 	isDragging = false;
 	isInZone = false;
+	isRotating = false;
 
 	if (SceneObject * only = single()) {
-		if (only->isResizable() && getHandleBounds(*only).inside(x, y)) {
+		glm::vec2 local = only->toLocal(x, y);
+
+		if (only->isResizable() && getHandleBounds(*only).inside(local.x, local.y)) {
 			isResizing = true;
+			ofRectangle bounds = only->getBounds();
+			resizeAnchor = only->toWorld({ bounds.x, bounds.y });
+			aspectRatio = bounds.height > 0.0f ? bounds.width / bounds.height : 1.0f;
 			captureDragStart();
+			return;
+		}
+
+		if (only->isRotatable() && getRotateHandle(*only).inside(local.x, local.y)) {
+			isRotating = true;
+			rotateStartAngle = angleFromCenter(*only, lastMouse);
+			rotateStartValue = only->rotation;
 			return;
 		}
 	}
@@ -67,22 +81,13 @@ void TransformTool::mouseDragged(float x, float y) {
 	glm::vec2 mouse(x, y);
 
 	if (isResizing) {
-		if (SceneObject * only = single()) {
-			ofRectangle b = only->getBounds();
-			float newW = max(minSize, x - b.x);
-			float newH = max(minSize, y - b.y);
-			only->setBounds(ofRectangle(b.x, b.y, newW, newH));
-		}
+		if (SceneObject * only = single()) resizeTo(*only, mouse);
+	} else if (isRotating) {
+		if (SceneObject * only = single()) rotateTo(*only, mouse);
 	} else if (isDragging) {
-		glm::vec2 delta = mouse - lastMouse;
-		for (SceneObject* object : selection) {
-			object->position += delta;
-		}
-	} else if (isInZone) {
-		zoneEnd = glm::vec2(x, y);
+		lastMouse = mouse;
 	}
-	lastMouse = mouse;
-}
+}	
 
 void TransformTool::mouseReleased(Scene & scene) {
 	if (isInZone) {
@@ -118,6 +123,7 @@ void TransformTool::mouseReleased(Scene & scene) {
 	dragStartBounds.clear();
     isResizing = false;
 	isDragging = false;
+	isRotating = false;
 }
 
 void TransformTool::drawOverlay() const {
@@ -137,21 +143,40 @@ void TransformTool::drawOverlay() const {
 		ofDrawRectangle(zone);
 	}
 
-	if (!selection.empty()) {
+		if (!selection.empty()) {
 		ofSetColor(255, 255, 0);
 		ofSetLineWidth(1);
-		ofNoFill();
 		for (const SceneObject * object : selection) {
-			ofDrawRectangle(object->getBounds());
-		}
-		if (const SceneObject * only = single()) {
-			if (only->isResizable()) {
-				ofFill();
-				ofDrawRectangle(getHandleBounds(*only));
+			ofPushMatrix();
+			object->applyTransform();
+			ofRectangle bounds = object->getBounds();
+			ofNoFill();
+			ofDrawRectangle(bounds);
+
+			if (object == single()) {
+				if (object->isResizable()) {
+					ofFill();
+					ofDrawRectangle(getHandleBounds(*object));
+				}
+				if (object->isRotatable()) {
+					glm::vec2 handle = getRotateHandle(*object).getCenter();
+					ofDrawLine(bounds.getCenter().x, bounds.getTop(), handle.x, handle.y + handleSize / 2.0f);
+					ofFill();
+					ofDrawCircle(handle, handleSize / 2.0f);
+				}
 			}
+			ofPopMatrix();
 		}
 	}
 
+    if (selection->isRotatable()) {
+        glm::vec2 handle = getRotateHandle().getCenter();
+        ofDrawLine(bounds.getCenter().x, bounds.getTop(), handle.x, handle.y + handleSize / 2.0f);
+        ofFill();
+        ofDrawCircle(handle, handleSize / 2.0f);
+    }
+
+    ofPopMatrix();
     ofPopStyle();
 }
 
@@ -168,3 +193,40 @@ ofRectangle TransformTool::getZoneBounds() const {
 	glm::vec2 size = glm::abs(zoneEnd - zoneStart);
 	return ofRectangle(topLeft.x, topLeft.y, size.x, size.y);
 }
+
+void TransformTool::resizeTo(SceneObject & object, const glm::vec2 & mouse) {
+	glm::vec2 local = rotateVector(mouse - resizeAnchor, -object.rotation);
+	float width = max(minSize, local.x);
+	float height = max(minSize, local.y);
+
+	if (ofGetKeyPressed(OF_KEY_SHIFT)) {
+		if (width / height > aspectRatio) height = width / aspectRatio;
+		else width = height * aspectRatio;
+	}
+
+	glm::vec2 center = resizeAnchor + rotateVector(glm::vec2(width, height) * 0.5f, object.rotation);
+	ofRectangle bounds;
+	bounds.setFromCenter(center.x, center.y, width, height);
+	object.setBounds(bounds);
+}
+
+void TransformTool::rotateTo(SceneObject & object, const glm::vec2 & mouse) {
+	float angle = rotateStartValue + angleFromCenter(object, mouse) - rotateStartAngle;
+	if (ofGetKeyPressed(OF_KEY_SHIFT)) {
+		angle = round(angle / rotationSnap) * rotationSnap;
+	}
+	object.rotation = ofWrapDegrees(angle);
+}
+
+float TransformTool::angleFromCenter(const SceneObject & object, const glm::vec2 & point) const {
+	glm::vec2 fromCenter = point - object.getCenter();
+	return glm::degrees(atan2(fromCenter.y, fromCenter.x));
+}
+
+ofRectangle TransformTool::getRotateHandle(const SceneObject & object) const {
+	ofRectangle bounds = object.getBounds();
+	ofRectangle handle;
+	handle.setFromCenter(bounds.getCenter().x, bounds.getTop() - rotateHandleDistance, handleSize, handleSize);
+	return handle;
+}
+
