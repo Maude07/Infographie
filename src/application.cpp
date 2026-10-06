@@ -162,8 +162,8 @@ void Application::setupTransformGui() {
 	groupTransform.add(transformX.set("x", 0.0f, 0.0f, 2000.0f));
 	groupTransform.add(transformY.set("y", 0.0f, 0.0f, 2000.0f));
 	groupTransform.add(transformRotation.set("rotation", 0.0f, -180.0f, 180.0f));
-	groupTransform.add(transformWidth.set("largeur", 100.0f, 1.0f, 2000.0f));
-	groupTransform.add(transformHeight.set("hauteur", 100.0f, 1.0f, 2000.0f));
+	groupTransform.add(transformWidth.set("largeur", 100.0f, SceneObject::minSize, 2000.0f));
+	groupTransform.add(transformHeight.set("hauteur", 100.0f, SceneObject::minSize, 2000.0f));
 
 	for (auto * parameter : transformParameters()) {
 		parameter->addListener(this, &Application::onTransformChanged);
@@ -376,16 +376,20 @@ void Application::computeHistogram(const ofRectangle & canvas) {
 }
 
 void Application::syncTransformGui() {
-	SceneObject * selection = transformTool.getSelection();
-	if (!selection) return;
+	const auto & selected = transformTool.getSelection();
+	if (selected.size() != 1) return;
+	SceneObject * selection = *selected.begin();
 
 	ofRectangle bounds = selection->getBounds();
 	glm::vec2 center = selection->getCenter();
-	transformX.setWithoutEventNotifications(center.x);
-	transformY.setWithoutEventNotifications(center.y);
-	transformRotation.setWithoutEventNotifications(selection->rotation);
-	transformWidth.setWithoutEventNotifications(bounds.width);
-	transformHeight.setWithoutEventNotifications(bounds.height);
+
+	isSyncingTransformGui = true;
+	transformX = center.x;
+	transformY = center.y;
+	transformRotation = selection->rotation;
+	transformWidth = bounds.width;
+	transformHeight = bounds.height;
+	isSyncingTransformGui = false;
 }
 
 void Application::drawSidebarBackground() const {
@@ -760,13 +764,18 @@ void Application::onImportModelPressed() {
 
 	currentModelId = id;
 	setToolType(ToolType::Model3d);
+}
+
 void Application::onTransformChanged(float &) {
-	SceneObject * selection = transformTool.getSelection();
-	if (!selection) return;
+	if (isSyncingTransformGui) return;
+
+	const auto & selected = transformTool.getSelection();
+	if (selected.size() != 1) return;
+	SceneObject * selection = *selected.begin();
 
 	ofRectangle bounds = selection->getBounds();
-	float width = selection->isResizable() ? transformWidth.get() : bounds.width;
-	float height = selection->isResizable() ? transformHeight.get() : bounds.height;
+	float width = selection->isResizable() ? max(SceneObject::minSize, transformWidth.get()) : bounds.width;
+	float height = selection->isResizable() ? max(SceneObject::minSize, transformHeight.get()) : bounds.height;
 	bounds.setFromCenter(transformX, transformY, width, height);
 	selection->setBounds(bounds);
 
@@ -779,24 +788,8 @@ void Application::windowResized(int w, int h) {
 	ofLog() << "<app::windowResized: (" << w << ", " << h << ")>";
 }
 
-void Application::exit() {
-	importButton.removeListener(this, &Application::onImportPressed);
-	recordButton.removeListener(this, &Application::onRecordPressed);
-	resetButton.removeListener(this, &Application::onResetPressed);
-	histogramButton.removeListener(this, &Application::onHistogramPressed);
-
-	backgroundColor.removeListener(this, &Application::onColorChanged);
-	strokeColor.removeListener(this, &Application::onColorChanged);
-	fillColor.removeListener(this, &Application::onColorChanged);
-
-	for (auto * parameter : transformParameters()) {
-		parameter->removeListener(this, &Application::onTransformChanged);
-	}
-
-	ofLog() << "<app::exit>";
-}
-
-unique_ptr<ScenePrimitive> Application::makeShape(VectorPrimitiveType type, const glm::vec2& start, const glm::vec2& end) const {
+unique_ptr<ScenePrimitive> Application::makeShape(ToolType type, const glm::vec2 & start,
+	 const glm::vec2 & end) const {
 	unique_ptr<ScenePrimitive> shape;
 
 	switch (type) {
@@ -868,6 +861,10 @@ unique_ptr<SceneModel3d> Application::makeModel(const glm::vec2 & start, const g
 
 	glm::vec2 worldStart = sceneCamera.screenToPlane(start, 0.f);
 	glm::vec2 worldEnd = sceneCamera.screenToPlane(end, 0.f);
+	glm::vec2 extent = glm::abs(end - start);
+	glm::vec2 center = (start + end) * 0.5f;
+	float footprint = max(extent.x, extent.y);
+	if (footprint < minShapeSize) footprint = defaults::defaultModelSize;
 
 	glm::vec2 extent = glm::abs(worldEnd - worldStart);
 	glm::vec2 center = (worldStart + worldEnd) * 0.5f;
@@ -979,9 +976,15 @@ void Application::exit() {
 	fillColor.removeListener(this, &Application::onColorChanged);
 	importModelButton.removeListener(this, &Application::onImportModelPressed);
 
+	for (auto * parameter : transformParameters()) {
+		parameter->removeListener(this, &Application::onTransformChanged);
+	}
+
 	cursor.exit();
 
 	ofLog() << "<app::exit>";
+}
+
 array<ofParameter<float> *, 5> Application::transformParameters() {
 	return { &transformX, &transformY, &transformRotation, &transformWidth, &transformHeight };
 
