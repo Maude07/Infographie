@@ -18,6 +18,7 @@ void Scene::draw(SceneCamera* camera) const {
 		} else {
 			object->draw();
 		}
+        object->render();
     }
 }
 
@@ -47,7 +48,7 @@ void Scene::clear() {
 
 SceneObject * Scene::hitTest(float x, float y) const {
     for (auto it = objects.rbegin(); it != objects.rend(); ++it) {
-        if ((*it)->contains(x, y)) {
+        if ((*it)->hitTest(x, y)) {
             return it->get();
         }
     }

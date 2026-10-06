@@ -80,6 +80,7 @@ private:
 	ofxPanel gui;
 	ofxGuiGroup groupDraw;
 	ofxGuiGroup groupExport;
+	ofxGuiGroup groupTransform;
 
 	ofxGuiGroup groupHistory;
 
@@ -106,6 +107,11 @@ private:
 	ofParameter<float> cameraNear;
 	ofParameter<float> cameraFar;
 	ofParameter<bool> cameraOrtho;
+	ofParameter<float> transformX;
+	ofParameter<float> transformY;
+	ofParameter<float> transformRotation;
+	ofParameter<float> transformWidth;
+	ofParameter<float> transformHeight;
 
 	ofxButton importButton;
 	ofxButton recordButton;
@@ -126,6 +132,9 @@ private:
 	void setupDrawGui();
 	void setupExportGui();
 	void setupMiscGui();
+	void setupTransformGui();
+
+	void syncTransformGui();
 	void addColorPicker(ofxColorSlider & slider, ofParameter<ofColor> & color, PalettePreview & preview,
 		const string & name, const ofColor & initialColor);
 	glm::vec2 modelListOrigin() const;
@@ -136,6 +145,7 @@ private:
 	void onResetPressed();
 	void onHistogramPressed();
 	void onImportModelPressed();
+	void onTransformChanged(float & value);
 
 	void setupHistoryGui();
 	void buttonUndoPressed();
@@ -168,4 +178,5 @@ private:
 	void setupCameraGui();
 	void resetCamera();
 	bool isOverUi(int x, int y) const;
+	array<ofParameter<float> *, 5> transformParameters();
 };
