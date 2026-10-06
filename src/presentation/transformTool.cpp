@@ -309,7 +309,6 @@ void TransformTool::drawOverlay() const {
 	ofPopStyle();
 }
 
-
 ofRectangle TransformTool::getHandleBounds(const SceneObject & object) const {
 	ofRectangle bounds = object.getScreenBounds();
     return ofRectangle(

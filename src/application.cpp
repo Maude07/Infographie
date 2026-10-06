@@ -807,13 +807,18 @@ void Application::onImportModelPressed() {
 
 	currentModelId = id;
 	setToolType(ToolType::Model3d);
+}
+
 void Application::onTransformChanged(float &) {
-	SceneObject * selection = transformTool.getSelection();
-	if (!selection) return;
+	if (isSyncingTransformGui) return;
+
+	const auto & selected = transformTool.getSelection();
+	if (selected.size() != 1) return;
+	SceneObject * selection = *selected.begin();
 
 	ofRectangle bounds = selection->getBounds();
-	float width = selection->isResizable() ? transformWidth.get() : bounds.width;
-	float height = selection->isResizable() ? transformHeight.get() : bounds.height;
+	float width = selection->isResizable() ? max(SceneObject::minSize, transformWidth.get()) : bounds.width;
+	float height = selection->isResizable() ? max(SceneObject::minSize, transformHeight.get()) : bounds.height;
 	bounds.setFromCenter(transformX, transformY, width, height);
 	selection->setBounds(bounds);
 
@@ -940,7 +945,6 @@ unique_ptr<SceneModel3d> Application::makeModel(const glm::vec2 & start, const g
 
 	glm::vec2 worldStart = activeCamera().screenToPlane(start, 0.f);
 	glm::vec2 worldEnd = activeCamera().screenToPlane(end, 0.f);
-
 	glm::vec2 extent = glm::abs(worldEnd - worldStart);
 	glm::vec2 center = (worldStart + worldEnd) * 0.5f;
 	float footprint = max(extent.x, extent.y);
@@ -1189,14 +1193,13 @@ void Application::exit() {
 		parameter->removeListener(this, &Application::onTransformChanged);
 	}
 
+	for (auto * parameter : transformParameters()) {
+		parameter->removeListener(this, &Application::onTransformChanged);
+	}
+
 	cursor.exit();
 
 	ofLog() << "<app::exit>";
-}
-
-array<ofParameter<float> *, 5> Application::transformParameters() {
-	return { &transformX, &transformY, &transformRotation, &transformWidth, &transformHeight };
-
 }
 
 array<ofParameter<float> *, 5> Application::transformParameters() {
