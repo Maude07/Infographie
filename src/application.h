@@ -14,6 +14,7 @@
 #include "domain/shapes/scenePrimitivePoint.h"
 #include "domain/shapes/scenePrimitiveRect.h"
 #include "domain/shapes/scenePrimitiveEllipse.h"
+#include "commands/addObjectCommand.h"
 
 enum class VectorPrimitiveType { Select, Rect, Line, Point, Ellipse };
 
@@ -43,10 +44,12 @@ private:
 	vector<ofColor> palette;
 	array<PalettePreview, 3> palettePreviews;
 	ofColor lastActiveColor = ofColor();
+	HistoryManager history;
 
 	ofxPanel gui;
 	ofxGuiGroup groupDraw;
 	ofxGuiGroup groupExport;
+	ofxGuiGroup groupHistory;
 
 	ofxColorSlider backgroundSlider;
 	ofxColorSlider strokeSlider;
@@ -67,6 +70,9 @@ private:
 	ofxButton recordButton;
 	ofxButton resetButton;
 	ofxButton histogramButton;
+
+	ofxButton buttonUndo;
+	ofxButton buttonRedo;
 
 	VectorPrimitiveType drawMode = VectorPrimitiveType::Select;
 	glm::vec2 mousePressPos;
@@ -92,12 +98,16 @@ private:
 	void deleteSelectedObject();
 	void removeSelectedPaletteColor();
 	void clearPaletteSelection();
+	void setupHistoryGui();
 
 	float canvasLeft() const;
 	void computeHistogram(const ofRectangle & canvas);
 	void drawSidebarBackground() const;
 	void drawCollapsedGuiButton() const;
 	void drawRecordingIndicator() const;
+	void buttonUndoPressed();
+	void buttonRedoPressed();
+  
 	CursorState currentCursorState(const glm::vec2 & mouse) const;
 
 	unique_ptr<ScenePrimitive> makeShape(VectorPrimitiveType type, const glm::vec2 & start, const glm::vec2 & end) const;

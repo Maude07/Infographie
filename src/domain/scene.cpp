@@ -13,12 +13,19 @@ void Scene::draw() const {
     }
 }
 
+unique_ptr<SceneObject> Scene::extract(const SceneObject * object) {
+	for (auto it = objects.begin(); it != objects.end(); ++it) {
+		if (it->get() == object) {
+			unique_ptr<SceneObject> extracted = move(*it);
+			objects.erase(it);
+			return extracted;
+		}
+	}
+	return nullptr;
+}
+
 void Scene::remove(const SceneObject * object) {
-    objects.erase(
-    remove_if(objects.begin(), objects.end(),
-        [object](const unique_ptr<SceneObject> & candidate) {
-        return candidate.get() == object; }),
-        objects.end());
+	extract(object);
 }
 
 void Scene::clear() {

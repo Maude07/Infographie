@@ -108,10 +108,13 @@ void Application::setup() {
 	gui.setup("interface", "setting.json", 0, 0);
 	palette = defaultPalette();
 
+	transformTool.setHistory(&history);
+
 	setupImportGui();
 	setupDrawGui();
 	setupExportGui();
 	setupMiscGui();
+	setupHistoryGui();
 }
 
 void Application::setupTheme() {
@@ -228,6 +231,9 @@ void Application::draw() {
 	if (showSceneTree) {
 		sceneTreePanel.draw(scene, transformTool.getSelection(), glm::vec2(ofGetMouseX(), ofGetMouseY()));
 	}
+
+	buttonUndo.setBackgroundColor(history.canUndo() ? ofColor(90, 140, 240) : ofColor(50, 50, 55));
+	buttonRedo.setBackgroundColor(history.canRedo() ? ofColor(90, 140, 240) : ofColor(50, 50, 55));
 
 	if (showGui) {
 		gui.draw();
@@ -369,6 +375,14 @@ void Application::keyPressed(ofKeyEventArgs & args) {
 		palette.push_back(lastActiveColor);
 		ofLog() << "<added color: " << lastActiveColor << ">";
 		break;
+
+	case 'z': // ctrl+z
+		if (ofGetKeyPressed(OF_KEY_CONTROL)) history.undo();
+		break;
+
+	case 'y': // ctrl+y
+		if (ofGetKeyPressed(OF_KEY_CONTROL)) history.redo();
+		break;
 	}
 }
 
@@ -460,6 +474,7 @@ void Application::onResetPressed() {
 	scene.clear();
 	histogram.reset();
 	histogramRequested = false;
+	history.clear();
 
 	displayText.set(defaultText);
 	backgroundColor = defaultBackgroundColor;
@@ -482,7 +497,7 @@ void Application::onImportPressed() {
 
 	float offset = importCascadeOffset * (scene.size() % importCascadeSteps);
 	image->position = { canvasLeft() + importMarginLeft + offset, importTop + offset };
-	scene.add(move(image));
+	history.execute(make_unique<AddObjectCommand>(&scene, move(image)));
 }
 
 void Application::onRecordPressed() {
@@ -491,12 +506,49 @@ void Application::onRecordPressed() {
 	exporter.toggle();
 }
 
+void Application::buttonUndoPressed() {
+	if (history.canUndo()) history.undo();
+}
+
+void Application::buttonRedoPressed() {
+	if (history.canRedo()) history.redo();
+}
+
 void Application::onHistogramPressed() {
 	histogramRequested = true;
 }
 
 void Application::windowResized(int w, int h) {
 	ofLog() << "<app::windowResized: (" << w << ", " << h << ")>";
+}
+
+void Application::exit() {
+	importButton.removeListener(this, &Application::onImportPressed);
+	recordButton.removeListener(this, &Application::onRecordPressed);
+	resetButton.removeListener(this, &Application::onResetPressed);
+	histogramButton.removeListener(this, &Application::onHistogramPressed);
+
+	backgroundColor.removeListener(this, &Application::onColorChanged);
+	strokeColor.removeListener(this, &Application::onColorChanged);
+	fillColor.removeListener(this, &Application::onColorChanged);
+	buttonUndo.removeListener(this, &Application::buttonUndoPressed);
+	buttonRedo.removeListener(this, &Application::buttonRedoPressed);
+
+	ofLog() << "<app::exit>";
+}
+
+void Application::setupHistoryGui() {
+	groupHistory.setup("historique");
+
+	buttonUndo.setup("annuler (ctrl+z)");
+	buttonUndo.addListener(this, &Application::buttonUndoPressed);
+	groupHistory.add(&buttonUndo);
+
+	buttonRedo.setup("refaire (ctrl+y)");
+	buttonRedo.addListener(this, &Application::buttonRedoPressed);
+	groupHistory.add(&buttonRedo);
+
+	gui.add(&groupHistory);
 }
 
 unique_ptr<ScenePrimitive> Application::makeShape(VectorPrimitiveType type, const glm::vec2& start, const glm::vec2& end) const {
@@ -538,7 +590,7 @@ void Application::addVectorShape() {
 	if (!isLargeEnough(drawMode, mousePressPos, mouseCurrentPos)) return;
 
 	if (auto shape = makeShape(drawMode, mousePressPos, mouseCurrentPos)) {
-		scene.add(move(shape));
+		history.execute(make_unique<AddObjectCommand>(&scene, move(shape)));
 	}
 }
 
