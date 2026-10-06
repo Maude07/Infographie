@@ -12,7 +12,11 @@ public:
     void mouseReleased();
     void drawOverlay() const;
 
-    SceneObject * getSelection() const { return selection; } 
+    SceneObject * getSelection() const { return selection; }
+    bool isOverHandle(float x, float y) const {
+        return selection && selection->isResizable() && getHandleBounds().inside(x, y);
+    } 
+    bool isResizingSelection() const { return isResizing; }
     void select(SceneObject * object) { selection = object; isResizing = false; }
     void clearSelection() { selection = nullptr; }
 
