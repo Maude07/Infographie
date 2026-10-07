@@ -21,7 +21,9 @@ public:
 		isInZone = false;
 	}
     bool isOverHandle(float x, float y) const {
-        return selection && selection->isResizable() && getHandleBounds().inside(x, y);
+		if (selection.size() != 1) return false;
+		SceneObject * object = *selection.begin();
+		return object && object->isResizable() && getHandleBounds(*object).inside(x, y);
     } 
     bool isResizingSelection() const { return isResizing; }
 

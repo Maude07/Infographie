@@ -312,7 +312,7 @@ CursorState Application::currentCursorState(const glm::vec2 & mouse) const {
 	if (transformTool.isResizingSelection() || transformTool.isOverHandle(mouse.x, mouse.y)) {
 		return CursorState::Resize;
 	}
-	if (isMouseButtonPressed && transformTool.getSelection()) return CursorState::Move;
+	if (isMouseButtonPressed && transformTool.hasSelection()) return CursorState::Move;
 	if (scene.hitTest(mouse.x , mouse.y)) return CursorState::Hover;
 
 	return CursorState::Default;
