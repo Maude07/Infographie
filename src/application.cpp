@@ -103,6 +103,7 @@ void Application::setup() {
 
 	setupTheme();
 	renderer.setup();
+	cursor.setup();
 
 	gui.setup("interface", "setting.json", 0, 0);
 	palette = defaultPalette();
@@ -233,6 +234,9 @@ void Application::draw() {
 	} else {
 		drawCollapsedGuiButton();
 	}
+
+	glm::vec2 mouse(ofGetMouseX(), ofGetMouseY());
+	cursor.draw(currentCursorState(mouse), mouse);
 }
 
 void Application::computeHistogram(const ofRectangle & canvas) {
@@ -287,6 +291,31 @@ void Application::drawRecordingIndicator() const {
 	ofSetColor(255);
 	ofDrawBitmapString("REC " + ofToString(exporter.frameCount), center + recordingLabelOffset);
 	ofPopStyle();
+}
+
+CursorState Application::currentCursorState(const glm::vec2 & mouse) const {
+	if (showGui && gui.getShape().inside(mouse)) return CursorState::Default;
+	if (!showGui && collapsedGuiButton.inside(mouse)) return CursorState::Default;
+	if (showSceneTree && sceneTreePanel.hitTest(scene, mouse.x, mouse.y)) return CursorState::Hover;
+
+	switch (drawMode) {
+		case VectorPrimitiveType::Rect:
+		case VectorPrimitiveType::Line:
+		case VectorPrimitiveType::Ellipse:
+			return CursorState::Crosshair;
+		case VectorPrimitiveType::Point:
+			return CursorState::Point;
+		case VectorPrimitiveType::Select:
+			break;
+	}
+
+	if (transformTool.isResizingSelection() || transformTool.isOverHandle(mouse.x, mouse.y)) {
+		return CursorState::Resize;
+	}
+	if (isMouseButtonPressed && transformTool.getSelection()) return CursorState::Move;
+	if (scene.hitTest(mouse.x , mouse.y)) return CursorState::Hover;
+
+	return CursorState::Default;
 }
 
 void Application::onColorChanged(ofColor & color) {
@@ -472,19 +501,6 @@ void Application::windowResized(int w, int h) {
 	ofLog() << "<app::windowResized: (" << w << ", " << h << ")>";
 }
 
-void Application::exit() {
-	importButton.removeListener(this, &Application::onImportPressed);
-	recordButton.removeListener(this, &Application::onRecordPressed);
-	resetButton.removeListener(this, &Application::onResetPressed);
-	histogramButton.removeListener(this, &Application::onHistogramPressed);
-
-	backgroundColor.removeListener(this, &Application::onColorChanged);
-	strokeColor.removeListener(this, &Application::onColorChanged);
-	fillColor.removeListener(this, &Application::onColorChanged);
-
-	ofLog() << "<app::exit>";
-}
-
 unique_ptr<ScenePrimitive> Application::makeShape(VectorPrimitiveType type, const glm::vec2& start, const glm::vec2& end) const {
 	unique_ptr<ScenePrimitive> shape;
 
@@ -536,4 +552,20 @@ void Application::applyDrawStyle(ScenePrimitive& primitive) const {
 
 float Application::canvasLeft() const {
 	return showGui ? gui.getWidth() : 0.0f;
+}
+
+
+void Application::exit() {
+	importButton.removeListener(this, &Application::onImportPressed);
+	recordButton.removeListener(this, &Application::onRecordPressed);
+	resetButton.removeListener(this, &Application::onResetPressed);
+	histogramButton.removeListener(this, &Application::onHistogramPressed);
+
+	backgroundColor.removeListener(this, &Application::onColorChanged);
+	strokeColor.removeListener(this, &Application::onColorChanged);
+	fillColor.removeListener(this, &Application::onColorChanged);
+
+	cursor.exit();
+
+	ofLog() << "<app::exit>";
 }

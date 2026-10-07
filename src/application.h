@@ -2,6 +2,8 @@
 
 #include "ofMain.h"
 #include "ofxGui.h"
+
+#include "presentation/cursorRenderer.h"
 #include "presentation/renderer.h"
 #include "infrastructure/imageExporter.h"
 #include "presentation/transformTool.h"
@@ -36,6 +38,7 @@ private:
 	Scene scene;
 	TransformTool transformTool;
 	SceneTreePanel sceneTreePanel;
+	CursorRenderer cursor;
 
 	vector<ofColor> palette;
 	array<PalettePreview, 3> palettePreviews;
@@ -95,6 +98,7 @@ private:
 	void drawSidebarBackground() const;
 	void drawCollapsedGuiButton() const;
 	void drawRecordingIndicator() const;
+	CursorState currentCursorState(const glm::vec2 & mouse) const;
 
 	unique_ptr<ScenePrimitive> makeShape(VectorPrimitiveType type, const glm::vec2 & start, const glm::vec2 & end) const;
 	void addVectorShape();

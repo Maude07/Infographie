@@ -20,6 +20,11 @@ public:
 		isDragging = false;
 		isInZone = false;
 	}
+    bool isOverHandle(float x, float y) const {
+        return selection && selection->isResizable() && getHandleBounds().inside(x, y);
+    } 
+    bool isResizingSelection() const { return isResizing; }
+
 
 private:
 	std::unordered_set<SceneObject *> selection;
