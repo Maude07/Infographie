@@ -8,11 +8,7 @@ void SceneShapeWave::draw() const {
 	int resolution = 50; 
 	float frequency = 3.0f; 
 
-	if (filled) {
-		ofFill();
-	} else {
-		ofNoFill();
-	}
+	filled ? ofFill() : ofNoFill();
 
 	ofBeginShape();
 
