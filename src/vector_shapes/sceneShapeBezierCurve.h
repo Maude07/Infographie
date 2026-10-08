@@ -7,7 +7,6 @@
 #define CLICKPADDING 10
 #define SNAPPADDING 20
 
-
 class SceneShapeBezierCurve : public ScenePrimitive {
 
 		void drawEditableVertex(BezPoint vertex);
@@ -20,7 +19,6 @@ public:
 			HANDLEOUT,
 		};
 		const float normalizedSimplify = 0.5f;
-
 
 		SceneShapeBezierCurve();
 		~SceneShapeBezierCurve();
@@ -54,7 +52,5 @@ public:
 
 		ofPolyline displayLine;
 		vector<BezPoint> bezLine;
-
-
 
 };
