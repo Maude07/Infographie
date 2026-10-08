@@ -1,6 +1,7 @@
 #include "sceneShapeFunkyCircles.h"
 
 void SceneShapeFunkyCircles::draw() const {
+	ofPushStyle();
 	applyStyle();
 	ofDrawEllipse(position.x, position.y, size.x, size.y);
 	if (filled) {
@@ -18,6 +19,7 @@ void SceneShapeFunkyCircles::draw() const {
 
 
 	}
+	ofPopStyle();
 }
 
 ofRectangle SceneShapeFunkyCircles::getBounds() const {
