@@ -66,7 +66,7 @@ void SceneShapeBezierCurve::addVertex(glm::vec3 v) {
 
 void SceneShapeBezierCurve::finishStroke(int smoothness) {
 	displayLine = displayLine.getSmoothed(smoothness);
-	displayLine.simplify(0.5f);
+	displayLine.simplify(normalizedSimplify);
 	updateBezLine();
 	snapEndpoints();
 }
@@ -77,7 +77,6 @@ void SceneShapeBezierCurve::snapEndpoints() {
 	glm::vec3 endpoint1 = displayLine[0];
 	glm::vec3 endpoint2 = *(displayLine.end() - 1);
 
-	// snap endpoints (converted from squareDistance)
 	if (glm::distance(endpoint1, endpoint2) <= SNAPPADDING) {
 		isClosed = true;
 		BezPoint lastPt = bezLine.back();
@@ -88,13 +87,6 @@ void SceneShapeBezierCurve::snapEndpoints() {
 		return;
 	}
 
-	// snap endpoint to line
-	/*if (snapToIntersection(bezLine[0], bezLine[0].handleOut) // snap forward
-		|| snapToIntersection(bezLine[0], bezLine[0].point - bezLine[1].point)) // snap back
-		updateDisplayLine();
-	if(snapToIntersection(bezLine.back(), bezLine.back().handleIn) // snap forward
-		|| snapToIntersection(bezLine.back(), bezLine.back().point - bezLine.rbegin()[1].point)) // snap back
-		updateDisplayLine();*/
 }
 
 bool SceneShapeBezierCurve::snapToIntersection(BezPoint & pt, glm::vec3 & pt2) {
@@ -143,7 +135,7 @@ void SceneShapeBezierCurve::updateDisplayLine(bool simplify) {
 
 	displayLine = newDisplayLine;
 	if (simplify) {
-		//displayLine.simplify(0.5f);
+		displayLine.simplify(normalizedSimplify);
 	}
 }
 
@@ -179,7 +171,6 @@ int SceneShapeBezierCurve::getSelectedVertex(int iSelectedVertex, VertexTypes & 
 			}
 		}
 
-		// if no handle is selected, determine if point is selected
 		if (handle == VertexTypes::INVALID && glm::distance(glm::vec2(s.point.x, s.point.y), glm::vec2(x, y)) < CLICKPADDING) {
 			handle = VertexTypes::POINT;
 		}
