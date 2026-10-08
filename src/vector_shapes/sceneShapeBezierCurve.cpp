@@ -28,18 +28,18 @@ void SceneShapeBezierCurve::drawActive(int smoothness) {
 	displayStroke.draw();
 }
 
-void SceneShapeBezierCurve::drawEditableVertex(BezPoint pt) {
+void SceneShapeBezierCurve::drawEditableVertex(BezPoint bezierPoint) {
 	ofSetColor(255);
-	ofDrawCircle(pt.point, 5);
+	ofDrawCircle(bezierPoint.point, 5);
 	ofNoFill();
-	pt = pt.handlesAbsolute();
-	if (pt.hasHandleIn()) {
-		ofDrawLine(pt.point, pt.handleIn);
-		ofDrawCircle(pt.handleIn, 5);
+	bezierPoint = bezierPoint.handlesAbsolute();
+	if (bezierPoint.hasHandleIn()) {
+		ofDrawLine(bezierPoint.point, bezierPoint.handleIn);
+		ofDrawCircle(bezierPoint.handleIn, 5);
 	}
-	if (pt.hasHandleOut()) {
-		ofDrawLine(pt.point, pt.handleOut);
-		ofDrawCircle(pt.handleOut, 5);
+	if (bezierPoint.hasHandleOut()) {
+		ofDrawLine(bezierPoint.point, bezierPoint.handleOut);
+		ofDrawCircle(bezierPoint.handleOut, 5);
 	}
 	ofFill();
 	ofSetColor(100);
@@ -48,9 +48,9 @@ void SceneShapeBezierCurve::drawEditableVertex(BezPoint pt) {
 void SceneShapeBezierCurve::drawEditable(int iSelectedVertex) {
 	ofSetColor(100);
 	for (int i = 0; i < bezLine.size(); i++) {
-		BezPoint pt = bezLine[i];
+		BezPoint bezierPoint = bezLine[i];
 		if (i != iSelectedVertex) {
-			ofDrawCircle(pt.point, 5);
+			ofDrawCircle(bezierPoint.point, 5);
 		}
 	}
 	if (iSelectedVertex >= 0 && iSelectedVertex < bezLine.size())
@@ -89,10 +89,10 @@ void SceneShapeBezierCurve::snapEndpoints() {
 
 }
 
-bool SceneShapeBezierCurve::snapToIntersection(BezPoint & pt, glm::vec3 & pt2) {
+bool SceneShapeBezierCurve::snapToIntersection(BezPoint & bezierPoint, glm::vec3 & pt2) {
 	glm::vec3 intersection = glm::vec3(-1, -1, -1);
-	if (intersectLineToStroke(pt.point, glm::normalize(pt2) * (float)SNAPPADDING, intersection)) {
-		pt.point = intersection;
+	if (intersectLineToStroke(bezierPoint.point, glm::normalize(pt2) * (float)SNAPPADDING, intersection)) {
+		bezierPoint.point = intersection;
 		return true;
 	}
 	return false;
