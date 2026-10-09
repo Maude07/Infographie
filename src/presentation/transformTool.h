@@ -3,6 +3,8 @@
 #include "domain/sceneObject.h"
 #include "domain/scene.h"
 
+using namespace std;
+
 class TransformTool {
 
 public: 
@@ -11,7 +13,7 @@ public:
     void mouseReleased(Scene & scene);
     void drawOverlay() const;
 
-    const std::unordered_set<SceneObject *> & getSelection() const { return selection; }
+    const unordered_set<SceneObject *> & getSelection() const { return selection; }
 	bool hasSelection() const { return !selection.empty(); }
 	void select(SceneObject * object, bool additive = false);
     void clearSelection() {
@@ -29,7 +31,7 @@ public:
 
 
 private:
-	std::unordered_set<SceneObject *> selection;
+	unordered_set<SceneObject *> selection;
     glm::vec2 dragOffset;
 	glm::vec2 lastMouse;
 	glm::vec2 zoneStart;
