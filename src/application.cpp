@@ -20,16 +20,16 @@ const ofColor textColor(230, 230, 235);
 constexpr int guiWidth = 280;
 constexpr int guiRowHeight = 36;
 constexpr int guiFontSize = 13;
-const std::string guiFontPath = "fonts/static/OpenSans-Regular.ttf";
+const string guiFontPath = "fonts/static/OpenSans-Regular.ttf";
 
 // Default values, also restored by the reset button
 const ofColor defaultBackgroundColor(31);
 const ofColor defaultStrokeColor(255);
 const ofColor defaultFillColor(31);
 constexpr float defaultStrokeWeight = 4.0f;
-const std::string defaultText = "ift3100";
+const string defaultText = "ift3100";
 
-std::vector<ofColor> defaultPalette() {
+vector<ofColor> defaultPalette() {
 	return {
 		ofColor(15, 15, 15),
 		ofColor(255, 182, 193),
