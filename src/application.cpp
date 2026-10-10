@@ -62,28 +62,28 @@ const glm::vec2 recordingLabelOffset(15, 5);
 
 constexpr float minShapeSize = 3.0f;
 
-bool isLargeEnough(VectorPrimitiveType type, const glm::vec2 & start, const glm::vec2 & end) {
+bool isLargeEnough(ToolType type, const glm::vec2 & start, const glm::vec2 & end) {
 	glm::vec2 extent = glm::abs(end - start);
 	switch (type) {
-		case VectorPrimitiveType::Rect:
-		case VectorPrimitiveType::Ellipse:
+		case ToolType::Rect:
+		case ToolType::Ellipse:
 			return extent.x >= minShapeSize && extent.y >= minShapeSize;
-		case VectorPrimitiveType::Line:
+		case ToolType::Line:
 			return glm::length(extent) >= minShapeSize;
-		case VectorPrimitiveType::Point:
-		case VectorPrimitiveType::Select:
+		case ToolType::Point:
+		case ToolType::Select:
 			return true;
 	}
 		return true;
 }
 
-string shapeLabel(VectorPrimitiveType type) {
+string shapeLabel(ToolType type) {
 	switch (type) {
-		case VectorPrimitiveType::Rect: return "rectangle";
-		case VectorPrimitiveType::Line: return "ligne";
-		case VectorPrimitiveType::Point: return "point";
-		case VectorPrimitiveType::Ellipse: return "ellipse";
-		case VectorPrimitiveType::Select: break;;
+		case ToolType::Rect: return "rectangle";
+		case ToolType::Line: return "ligne";
+		case ToolType::Point: return "point";
+		case ToolType::Ellipse: return "ellipse";
+		case ToolType::Select: break;;
 	}
 	return "objet";
 }
@@ -211,7 +211,7 @@ void Application::draw() {
 	transformTool.drawOverlay();
 
 	if (isMouseButtonPressed) {
-		if (auto preview = makeShape(drawMode, mousePressPos, mouseCurrentPos)) {
+		if (auto preview = makeShape(toolType, mousePressPos, mouseCurrentPos)) {
 			preview->draw();
 		}
 	}
@@ -298,14 +298,14 @@ CursorState Application::currentCursorState(const glm::vec2 & mouse) const {
 	if (!showGui && collapsedGuiButton.inside(mouse)) return CursorState::Default;
 	if (showSceneTree && sceneTreePanel.hitTest(scene, mouse.x, mouse.y)) return CursorState::Hover;
 
-	switch (drawMode) {
-		case VectorPrimitiveType::Rect:
-		case VectorPrimitiveType::Line:
-		case VectorPrimitiveType::Ellipse:
+	switch (toolType) {
+		case ToolType::Rect:
+		case ToolType::Line:
+		case ToolType::Ellipse:
 			return CursorState::Crosshair;
-		case VectorPrimitiveType::Point:
+		case ToolType::Point:
 			return CursorState::Point;
-		case VectorPrimitiveType::Select:
+		case ToolType::Select:
 			break;
 	}
 
@@ -341,19 +341,19 @@ void Application::keyPressed(ofKeyEventArgs & args) {
 		break;
 
 	case '1':
-		setDrawMode(VectorPrimitiveType::Select);
+		setDrawMode(ToolType::Select);
 		break;
 	case '2':
-		setDrawMode(VectorPrimitiveType::Rect);
+		setDrawMode(ToolType::Rect);
 		break;
 	case '3':
-		setDrawMode(VectorPrimitiveType::Line);
+		setDrawMode(ToolType::Line);
 		break;
 	case '4':
-		setDrawMode(VectorPrimitiveType::Point);
+		setDrawMode(ToolType::Point);
 		break;
 	case '5':
-		setDrawMode(VectorPrimitiveType::Ellipse);
+		setDrawMode(ToolType::Ellipse);
 		break;
 
 	case OF_KEY_DEL :
@@ -379,8 +379,8 @@ void Application::deleteSelectedObject() {
 	scene.remove(toRemove);
 }
 
-void Application::setDrawMode(VectorPrimitiveType mode) {
-	drawMode = mode;
+void Application::setDrawMode(toolType mode) {
+	toolType = mode;
 	transformTool.clearSelection();
 	isMouseButtonPressed = false;
 }
@@ -417,7 +417,7 @@ void Application::mousePressed(int x, int y, int button) {
 
 	if (showSceneTree) {
 		if (SceneObject * clicked = sceneTreePanel.hitTest(scene, x, y)) {
-			if (drawMode != VectorPrimitiveType::Select) setDrawMode(VectorPrimitiveType::Select);
+			if (toolType != ToolType::Select) setDrawMode(ToolType::Select);
 			transformTool.select(clicked, additive);
 			return;
 		}
@@ -425,7 +425,7 @@ void Application::mousePressed(int x, int y, int button) {
 
 	isMouseButtonPressed = true;
 
-	if (drawMode == VectorPrimitiveType::Select) {
+	if (toolType == ToolType::Select) {
 		transformTool.mousePressed(scene, x, y, additive);
 		return;
 	}
@@ -436,7 +436,7 @@ void Application::mousePressed(int x, int y, int button) {
 void Application::mouseDragged(int x, int y, int button) {
 	if (!isMouseButtonPressed) return;
 
-	if (drawMode == VectorPrimitiveType::Select) {
+	if (toolType == ToolType::Select) {
 		transformTool.mouseDragged(x, y);
 		return;
 	}
@@ -447,7 +447,7 @@ void Application::mouseReleased(int x, int y, int button) {
 	if(!isMouseButtonPressed) return;
 	isMouseButtonPressed = false;
 
-	if (drawMode == VectorPrimitiveType::Select) {
+	if (toolType == ToolType::Select) {
 		transformTool.mouseReleased(scene);
 		return;
 	}
@@ -458,7 +458,7 @@ void Application::mouseReleased(int x, int y, int button) {
 
 void Application::onResetPressed() {
 	if (exporter.isRecording) exporter.stop();
-	setDrawMode(VectorPrimitiveType::Select);
+	setDrawMode(ToolType::Select);
 	scene.clear();
 	histogram.reset();
 	histogramRequested = false;
@@ -501,33 +501,33 @@ void Application::windowResized(int w, int h) {
 	ofLog() << "<app::windowResized: (" << w << ", " << h << ")>";
 }
 
-unique_ptr<ScenePrimitive> Application::makeShape(VectorPrimitiveType type, const glm::vec2& start, const glm::vec2& end) const {
+unique_ptr<ScenePrimitive> Application::makeShape(toolType type, const glm::vec2& start, const glm::vec2& end) const {
 	unique_ptr<ScenePrimitive> shape;
 
 	switch (type) {
-	case VectorPrimitiveType::Line:
+	case ToolType::Line:
 		shape = make_unique<ScenePrimitiveLine>();
 		shape->SceneObject::position = start;
 		shape->size = end;
 		shape->filled = false;
 		break;
-	case VectorPrimitiveType::Point:
+	case ToolType::Point:
 		shape = make_unique<ScenePrimitivePoint>();
 		shape->SceneObject::position = start;
 		shape->size = end;
 		shape->filled = false;
 		break;
-	case VectorPrimitiveType::Rect:
+	case ToolType::Rect:
 		shape = make_unique<ScenePrimitiveRect>();
 		shape->SceneObject::position = glm::min(start, end);
 		shape->size = glm::abs(end - start);
 		break;
-	case VectorPrimitiveType::Ellipse:
+	case ToolType::Ellipse:
 		shape = make_unique<ScenePrimitiveEllipse>();
 		shape->SceneObject::position = (start + end) * 0.5f;
 		shape->size = glm::abs(end - start);
 		break;
-	case VectorPrimitiveType::Select:
+	case ToolType::Select:
 		return nullptr;
 	}
 
@@ -537,9 +537,9 @@ unique_ptr<ScenePrimitive> Application::makeShape(VectorPrimitiveType type, cons
 }
 
 void Application::addVectorShape() {
-	if (!isLargeEnough(drawMode, mousePressPos, mouseCurrentPos)) return;
+	if (!isLargeEnough(toolType, mousePressPos, mouseCurrentPos)) return;
 
-	if (auto shape = makeShape(drawMode, mousePressPos, mouseCurrentPos)) {
+	if (auto shape = makeShape(toolType, mousePressPos, mouseCurrentPos)) {
 		scene.add(move(shape));
 	}
 }

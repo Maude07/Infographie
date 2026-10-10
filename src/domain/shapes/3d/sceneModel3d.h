@@ -12,6 +12,11 @@ public:
 
 	void draw() const override;
 
+	void setBounds(const ofRectangle& b) override {
+		float side = max(b.width, b.height);
+		SceneObject::setBounds(ofRectangle(b.x, b.y, side, side));
+	}
+
 	float rotationY = 0.0f;
 	float depth = 0.0f;
 

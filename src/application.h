@@ -15,7 +15,7 @@
 #include "domain/shapes/2d/scenePrimitiveRect.h"
 #include "domain/shapes/2d/scenePrimitiveEllipse.h"
 
-enum class VectorPrimitiveType { Select, Rect, Line, Point, Ellipse };
+enum class ToolType { Select, Rect, Line, Point, Ellipse };
 
 class Application : public ofBaseApp {
 
@@ -68,7 +68,7 @@ private:
 	ofxButton resetButton;
 	ofxButton histogramButton;
 
-	VectorPrimitiveType drawMode = VectorPrimitiveType::Select;
+	ToolType toolType = ToolType::Select;
 	glm::vec2 mousePressPos;
 	glm::vec2 mouseCurrentPos;
 	bool isMouseButtonPressed = false;
@@ -88,7 +88,7 @@ private:
 	void onResetPressed();
 	void onHistogramPressed();
 
-	void setDrawMode(VectorPrimitiveType mode);
+	void setDrawMode(toolType mode);
 	void deleteSelectedObject();
 	void removeSelectedPaletteColor();
 	void clearPaletteSelection();
@@ -100,7 +100,7 @@ private:
 	void drawRecordingIndicator() const;
 	CursorState currentCursorState(const glm::vec2 & mouse) const;
 
-	unique_ptr<ScenePrimitive> makeShape(VectorPrimitiveType type, const glm::vec2 & start, const glm::vec2 & end) const;
+	unique_ptr<ScenePrimitive> makeShape(toolType type, const glm::vec2 & start, const glm::vec2 & end) const;
 	void addVectorShape();
 	void applyDrawStyle(ScenePrimitive & primitive) const;
 };

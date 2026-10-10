@@ -22,7 +22,10 @@ void SceneModel3d::draw() const {
 	model->setRotation(0, rotationY, 0, 1, 0);
 	model->setRotation(1, 180, 1, 0, 0);
 
+	ofPushStyle();
+	glClear(GL_DEPTH_BUFFER_BIT);
 	ofEnableDepthTest();
 	model->drawFaces();
 	ofDisableDepthTest();
+	ofPopStyle();
 }
