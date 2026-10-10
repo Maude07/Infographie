@@ -64,6 +64,9 @@
     <ClCompile Include="src\presentation\renderer.cpp">
       <Filter>src\presentation</Filter>
     </ClCompile>
+    <ClCompile Include="src\presentation\bezierStrokeTool.cpp">
+      <Filter>src\presentation</Filter>
+    </ClCompile>
     <ClCompile Include="src\presentation\transformTool.cpp">
       <Filter>src\presentation</Filter>
     </ClCompile>
@@ -171,6 +174,9 @@
       <Filter>src\infrastructure</Filter>
     </ClInclude>
     <ClInclude Include="src\presentation\renderer.h">
+      <Filter>src\presentation</Filter>
+    </ClInclude>
+    <ClInclude Include="src\presentation\bezierStrokeTool.h">
       <Filter>src\presentation</Filter>
     </ClInclude>
     <ClInclude Include="src\presentation\transformTool.h">

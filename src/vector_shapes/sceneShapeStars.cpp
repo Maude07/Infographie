@@ -1,34 +1,44 @@
-#include "sceneShapeStars.h"
+#include "vector_shapes/sceneShapeStars.h"
+
+namespace {
+	constexpr int kPointCount = 8;
+	constexpr float kHalf = 0.5f;
+	constexpr float kInnerRadiusScale = 0.4f;
+}
 
 void SceneShapeStars::draw() const {
+	ofPushStyle();
 	applyStyle();
 
-	int numPoints = 8; 
-	float outerRadius = glm::length(size) * 0.5f; 
-	float innerRadius = outerRadius * 0.4f; 
+	float radiusX = size.x * kHalf;
+	float radiusY = size.y * kHalf;
 
 	ofBeginShape();
-	float angleStep = TWO_PI / (numPoints * 2);
+	float angleStep = TWO_PI / (kPointCount * 2);
 
-	for (int i = 0; i < numPoints * 2; i++) {
-		float radius = (i % 2 == 0) ? outerRadius : innerRadius;
+	for (int i = 0; i < kPointCount * 2; i++) {
+		float scale = (i % 2 == 0) ? 1.0f : kInnerRadiusScale;
 		float angle = i * angleStep - HALF_PI;
-
-		float x = position.x + cos(angle) * radius;
-		float y = position.y + sin(angle) * radius;
-
+		float x = position.x + cos(angle) * radiusX * scale;
+		float y = position.y + sin(angle) * radiusY * scale;
 		ofVertex(x, y);
 	}
-	ofEndShape(true); 
+	ofEndShape(true);
+	ofPopStyle();
 }
 
 ofRectangle SceneShapeStars::getBounds() const {
-	return ofRectangle(position.x - size.x / 2.0f, position.y - size.y / 2.0f, size.x, size.y);
+	return ofRectangle(position.x - size.x * kHalf, position.y - size.y * kHalf, size.x, size.y);
+}
+
+void SceneShapeStars::setBounds(const ofRectangle & bounds) {
+	position = { bounds.getCenter().x, bounds.getCenter().y };
+	size = { bounds.width, bounds.height };
 }
 
 bool SceneShapeStars::contains(float x, float y) const {
-	float rx = size.x / 2.0f;
-	float ry = size.y / 2.0f;
+	float rx = size.x * kHalf;
+	float ry = size.y * kHalf;
 	if (rx <= 0.0f || ry <= 0.0f) return false;
 
 	float dx = (x - position.x) / rx;

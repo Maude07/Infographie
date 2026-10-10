@@ -1,10 +1,11 @@
 #pragma once
+#include "domain/shapes/scenePrimitive.h"
 #include "ofMain.h"
-#include "scenePrimitive.h"
 
 class SceneShapeFunkyCircles : public ScenePrimitive {
 public:
 	void draw() const override;
 	ofRectangle getBounds() const override;
+	void setBounds(const ofRectangle & bounds) override;
 	bool contains(float x, float y) const override;
 };

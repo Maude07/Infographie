@@ -4,6 +4,9 @@
 #include "domain/shapes/scenePrimitiveLine.h"
 #include "domain/shapes/scenePrimitivePoint.h"
 #include "domain/shapes/scenePrimitiveRect.h"
+#include "vector_shapes/sceneShapeFunkyCircles.h"
+#include "vector_shapes/sceneShapeStars.h"
+#include "vector_shapes/sceneShapeWave.h"
 
 using namespace std;
 
@@ -67,10 +70,14 @@ bool isLargeEnough(VectorPrimitiveType type, const glm::vec2 & start, const glm:
 	switch (type) {
 		case VectorPrimitiveType::Rect:
 		case VectorPrimitiveType::Ellipse:
+		case VectorPrimitiveType::Stars:
+		case VectorPrimitiveType::Wave:
+		case VectorPrimitiveType::FunkyCircles:
 			return extent.x >= minShapeSize && extent.y >= minShapeSize;
 		case VectorPrimitiveType::Line:
 			return glm::length(extent) >= minShapeSize;
 		case VectorPrimitiveType::Point:
+		case VectorPrimitiveType::Bezier:
 		case VectorPrimitiveType::Select:
 			return true;
 	}
@@ -83,7 +90,11 @@ string shapeLabel(VectorPrimitiveType type) {
 		case VectorPrimitiveType::Line: return "ligne";
 		case VectorPrimitiveType::Point: return "point";
 		case VectorPrimitiveType::Ellipse: return "ellipse";
-		case VectorPrimitiveType::Select: break;;
+		case VectorPrimitiveType::Stars: return "etoile";
+		case VectorPrimitiveType::Wave: return "vague";
+		case VectorPrimitiveType::FunkyCircles: return "cercles funky";
+		case VectorPrimitiveType::Bezier: return "bezier";
+		case VectorPrimitiveType::Select: break;
 	}
 	return "objet";
 }
@@ -211,7 +222,9 @@ void Application::draw() {
 	transformTool.drawOverlay();
 
 	if (isMouseButtonPressed) {
-		if (auto preview = makeShape(drawMode, mousePressPos, mouseCurrentPos)) {
+		if (bezierStrokeTool.isActive()) {
+			bezierStrokeTool.draw();
+		} else if (auto preview = makeShape(drawMode, mousePressPos, mouseCurrentPos)) {
 			preview->draw();
 		}
 	}
@@ -302,6 +315,10 @@ CursorState Application::currentCursorState(const glm::vec2 & mouse) const {
 		case VectorPrimitiveType::Rect:
 		case VectorPrimitiveType::Line:
 		case VectorPrimitiveType::Ellipse:
+		case VectorPrimitiveType::Stars:
+		case VectorPrimitiveType::Wave:
+		case VectorPrimitiveType::FunkyCircles:
+		case VectorPrimitiveType::Bezier:
 			return CursorState::Crosshair;
 		case VectorPrimitiveType::Point:
 			return CursorState::Point;
@@ -355,6 +372,18 @@ void Application::keyPressed(ofKeyEventArgs & args) {
 	case '5':
 		setDrawMode(VectorPrimitiveType::Ellipse);
 		break;
+	case '6':
+		setDrawMode(VectorPrimitiveType::Stars);
+		break;
+	case '7':
+		setDrawMode(VectorPrimitiveType::Wave);
+		break;
+	case '8':
+		setDrawMode(VectorPrimitiveType::FunkyCircles);
+		break;
+	case '9':
+		setDrawMode(VectorPrimitiveType::Bezier);
+		break;
 
 	case OF_KEY_DEL :
 	case OF_KEY_BACKSPACE :
@@ -383,6 +412,7 @@ void Application::setDrawMode(VectorPrimitiveType mode) {
 	drawMode = mode;
 	transformTool.clearSelection();
 	isMouseButtonPressed = false;
+	bezierStrokeTool.cancel();
 }
 
 void Application::removeSelectedPaletteColor() {
@@ -431,6 +461,10 @@ void Application::mousePressed(int x, int y, int button) {
 	}
 
 	mousePressPos = mouseCurrentPos = glm::vec2(x, y);
+	if (drawMode == VectorPrimitiveType::Bezier) {
+		bezierStrokeTool.begin(mousePressPos, fillColor, strokeColor, strokeWeight,
+			shapeLabel(VectorPrimitiveType::Bezier));
+	}
 }
 	
 void Application::mouseDragged(int x, int y, int button) {
@@ -441,6 +475,9 @@ void Application::mouseDragged(int x, int y, int button) {
 		return;
 	}
 	mouseCurrentPos = glm::vec2(x, y);
+	if (drawMode == VectorPrimitiveType::Bezier) {
+		bezierStrokeTool.extend(mouseCurrentPos);
+	}
 }
 
 void Application::mouseReleased(int x, int y, int button) {
@@ -452,8 +489,13 @@ void Application::mouseReleased(int x, int y, int button) {
 		return;
 	}
 	mouseCurrentPos = glm::vec2(x, y);
+	if (drawMode == VectorPrimitiveType::Bezier) {
+		if (auto curve = bezierStrokeTool.commit(mouseCurrentPos)) {
+			scene.add(move(curve));
+		}
+		return;
+	}
 	addVectorShape();
-
 }
 
 void Application::onResetPressed() {
@@ -527,6 +569,22 @@ unique_ptr<ScenePrimitive> Application::makeShape(VectorPrimitiveType type, cons
 		shape->SceneObject::position = (start + end) * 0.5f;
 		shape->size = glm::abs(end - start);
 		break;
+	case VectorPrimitiveType::Stars:
+		shape = make_unique<SceneShapeStars>();
+		shape->SceneObject::position = (start + end) * 0.5f;
+		shape->size = glm::abs(end - start);
+		break;
+	case VectorPrimitiveType::Wave:
+		shape = make_unique<SceneShapeWave>();
+		shape->SceneObject::position = (start + end) * 0.5f;
+		shape->size = glm::abs(end - start);
+		break;
+	case VectorPrimitiveType::FunkyCircles:
+		shape = make_unique<SceneShapeFunkyCircles>();
+		shape->SceneObject::position = (start + end) * 0.5f;
+		shape->size = glm::abs(end - start);
+		break;
+	case VectorPrimitiveType::Bezier:
 	case VectorPrimitiveType::Select:
 		return nullptr;
 	}

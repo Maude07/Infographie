@@ -6,6 +6,7 @@
 #include "presentation/cursorRenderer.h"
 #include "presentation/renderer.h"
 #include "infrastructure/imageExporter.h"
+#include "presentation/bezierStrokeTool.h"
 #include "presentation/transformTool.h"
 #include "presentation/ui/palettePreview.h"
 #include "presentation/ui/sceneTreePanel.h"
@@ -14,8 +15,11 @@
 #include "domain/shapes/scenePrimitivePoint.h"
 #include "domain/shapes/scenePrimitiveRect.h"
 #include "domain/shapes/scenePrimitiveEllipse.h"
+#include "vector_shapes/sceneShapeFunkyCircles.h"
+#include "vector_shapes/sceneShapeStars.h"
+#include "vector_shapes/sceneShapeWave.h"
 
-enum class VectorPrimitiveType { Select, Rect, Line, Point, Ellipse };
+enum class VectorPrimitiveType { Select, Rect, Line, Point, Ellipse, Stars, Wave, FunkyCircles, Bezier };
 
 class Application : public ofBaseApp {
 
@@ -37,6 +41,7 @@ private:
 	Histogram histogram;
 	Scene scene;
 	TransformTool transformTool;
+	BezierStrokeTool bezierStrokeTool;
 	SceneTreePanel sceneTreePanel;
 	CursorRenderer cursor;
 

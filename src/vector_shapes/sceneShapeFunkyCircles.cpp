@@ -1,4 +1,4 @@
-#include "sceneShapeFunkyCircles.h"
+#include "vector_shapes/sceneShapeFunkyCircles.h"
 
 void SceneShapeFunkyCircles::draw() const {
 	ofPushStyle();
@@ -7,7 +7,6 @@ void SceneShapeFunkyCircles::draw() const {
 	if (filled) {
 		ofNoFill();
 		ofSetColor(lineColor);
-		
 		ofDrawEllipse(position.x, position.y, size.x, size.y);
 		for (int i = 0; i < 7; i++) {
 			float offsetX = ofRandom(-size.x / 4.0f, size.x / 4.0f);
@@ -16,14 +15,17 @@ void SceneShapeFunkyCircles::draw() const {
 			float innerHeight = ofRandom(size.y / 8.0f, size.y / 2.0f);
 			ofDrawEllipse(position.x + offsetX, position.y + offsetY, innerWidth, innerHeight);
 		}
-
-
 	}
 	ofPopStyle();
 }
 
 ofRectangle SceneShapeFunkyCircles::getBounds() const {
 	return ofRectangle(position.x - size.x / 2.0f, position.y - size.y / 2.0f, size.x, size.y);
+}
+
+void SceneShapeFunkyCircles::setBounds(const ofRectangle & bounds) {
+	position = { bounds.getCenter().x, bounds.getCenter().y };
+	size = { bounds.width, bounds.height };
 }
 
 bool SceneShapeFunkyCircles::contains(float x, float y) const {

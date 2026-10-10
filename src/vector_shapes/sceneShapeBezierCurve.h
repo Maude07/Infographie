@@ -1,56 +1,62 @@
 #pragma once
-#include "scenePrimitive.h"
+#include "domain/shapes/scenePrimitive.h"
 #include "ofMain.h"
 #include "ofxPathFitter.h"
 
-
-#define CLICKPADDING 10
-#define SNAPPADDING 20
-
 class SceneShapeBezierCurve : public ScenePrimitive {
-
-		void drawEditableVertex(BezPoint vertex);
+	void drawEditableVertex(BezPoint vertex);
+	void bakeToLocal();
+	void translateGeometry(const glm::vec3 & delta);
 
 public:
-		enum VertexTypes {
-			INVALID,
-			POINT,
-			HANDLEIN,
-			HANDLEOUT,
-		};
-		const float normalizedSimplify = 0.5f;
+	enum VertexTypes {
+		INVALID,
+		POINT,
+		HANDLEIN,
+		HANDLEOUT,
+	};
 
-		SceneShapeBezierCurve();
-		~SceneShapeBezierCurve();
-		SceneShapeBezierCurve(int i);
+	static constexpr float kNormalizedSimplify = 0.5f;
+	static constexpr float kClickPadding = 10.0f;
+	static constexpr float kSnapPadding = 20.0f;
+	static constexpr int kStrokeSmoothness = 2;
 
-		bool isClosed;
+	SceneShapeBezierCurve() = default;
 
-		void clear();
+	bool isClosed = false;
 
-		void draw() const override;
-		void drawActive(int smoothness);
-		void drawEditable(int iSelectedVertex);
+	void clear();
 
-		void startStroke();
-		void addVertex(glm::vec3 v);
-		void finishStroke(int smoothness);
+	void draw() const override;
+	ofRectangle getBounds() const override;
+	void setBounds(const ofRectangle & bounds) override;
+	bool contains(float x, float y) const override;
 
-		void updateBezLine();
-		void updateDisplayLine(bool simplify = true);
-		void modifyHandle(int id, VertexTypes selectedHandle, int x, int y);
-		void modifyVertex(int id, int x, int y);
+	void drawActive(int smoothness);
+	void drawEditable(int iSelectedVertex);
 
-		int getSelectedVertex(int iSelectedVertex, VertexTypes & handle, int x, int y);
-		static int getSelectedStroke(vector<SceneShapeBezierCurve> * strokes, glm::vec3 mousePos);
+	void startStroke();
+	void addVertex(glm::vec3 v);
+	void finishStroke(int smoothness = kStrokeSmoothness);
+	bool hasStroke() const;
 
-		void translateLine(glm::vec3 lastMousePos, int x, int y);
+	void updateBezLine();
+	void updateDisplayLine(bool simplify = true);
+	void modifyHandle(int id, VertexTypes selectedHandle, int x, int y);
+	void modifyVertex(int id, int x, int y);
 
-		void snapEndpoints();
-		bool intersectLineToStroke(glm::vec3 lineStart, glm::vec3 lineDelta, glm::vec3 & intersection);
-		bool snapToIntersection(BezPoint & pt, glm::vec3 & pt2);
+	int getSelectedVertex(int iSelectedVertex, VertexTypes & handle, int x, int y);
+	static int getSelectedStroke(std::vector<SceneShapeBezierCurve> * strokes, glm::vec3 mousePos);
 
-		ofPolyline displayLine;
-		vector<BezPoint> bezLine;
+	void translateLine(glm::vec3 lastMousePos, int x, int y);
 
+	void snapEndpoints();
+	bool intersectLineToStroke(glm::vec3 lineStart, glm::vec3 lineDelta, glm::vec3 & intersection);
+	bool snapToIntersection(BezPoint & bezierPoint, glm::vec3 & pt2);
+
+	ofPolyline displayLine;
+	std::vector<BezPoint> bezLine;
+
+private:
+	bool localized = false;
 };

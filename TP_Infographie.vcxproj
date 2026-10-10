@@ -82,7 +82,7 @@
       <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
-      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);src;..\..\..\addons\ofxGui\src</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);src;..\..\..\addons\ofxGui\src;..\..\..\addons\ofxPathFitter\src</AdditionalIncludeDirectories>
       <CompileAs>CompileAsCpp</CompileAs>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <ObjectFileName>$(IntDir)\Build\%(RelativeDir)\$(Configuration)\</ObjectFileName>
@@ -127,7 +127,7 @@
       <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
-      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);src;..\..\..\addons\ofxGui\src</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);src;..\..\..\addons\ofxGui\src;..\..\..\addons\ofxPathFitter\src</AdditionalIncludeDirectories>
       <CompileAs>CompileAsCpp</CompileAs>
       <ObjectFileName>$(IntDir)\Build\%(RelativeDir)\$(Configuration)\</ObjectFileName>
       <LanguageStandard>stdcpplatest</LanguageStandard>
@@ -249,7 +249,13 @@
     <ClCompile Include="src\presentation\renderer.cpp" />
     <ClCompile Include="src\domain\scene.cpp" />
     <ClCompile Include="src\domain\sceneImage.cpp" />
+    <ClCompile Include="src\presentation\bezierStrokeTool.cpp" />
     <ClCompile Include="src\presentation\transformTool.cpp" />
+    <ClCompile Include="..\..\..\addons\ofxPathFitter\src\ofxPathFitter.cpp" />
+    <ClCompile Include="src\vector_shapes\sceneShapeBezierCurve.cpp" />
+    <ClCompile Include="src\vector_shapes\sceneShapeFunkyCircles.cpp" />
+    <ClCompile Include="src\vector_shapes\sceneShapeStars.cpp" />
+    <ClCompile Include="src\vector_shapes\sceneShapeWave.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\presentation\ui\palettePreview.h" />
@@ -279,7 +285,13 @@
     <ClInclude Include="src\domain\scene.h" />
     <ClInclude Include="src\domain\sceneImage.h" />
     <ClInclude Include="src\domain\sceneObject.h" />
+    <ClInclude Include="src\presentation\bezierStrokeTool.h" />
     <ClInclude Include="src\presentation\transformTool.h" />
+    <ClInclude Include="..\..\..\addons\ofxPathFitter\src\ofxPathFitter.h" />
+    <ClInclude Include="src\vector_shapes\sceneShapeBezierCurve.h" />
+    <ClInclude Include="src\vector_shapes\sceneShapeFunkyCircles.h" />
+    <ClInclude Include="src\vector_shapes\sceneShapeStars.h" />
+    <ClInclude Include="src\vector_shapes\sceneShapeWave.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="$(OF_ROOT)\libs\openFrameworksCompiled\project\vs\openframeworksLib.vcxproj">
