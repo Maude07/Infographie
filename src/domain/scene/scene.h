@@ -1,5 +1,5 @@
 #pragma once
-#include "domain/sceneObject.h"
+#include "domain/scene/sceneObject.h"
 #include <unordered_set>
 
 using namespace std;

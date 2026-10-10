@@ -1,9 +1,9 @@
 #include "application.h"
-#include "domain/sceneImage.h"
-#include "domain/shapes/scenePrimitiveEllipse.h"
-#include "domain/shapes/scenePrimitiveLine.h"
-#include "domain/shapes/scenePrimitivePoint.h"
-#include "domain/shapes/scenePrimitiveRect.h"
+#include "domain/scene/sceneImage.h"
+#include "domain/shapes/2d/scenePrimitiveEllipse.h"
+#include "domain/shapes/2d/scenePrimitiveLine.h"
+#include "domain/shapes/2d/scenePrimitivePoint.h"
+#include "domain/shapes/2d/scenePrimitiveRect.h"
 
 using namespace std;
 

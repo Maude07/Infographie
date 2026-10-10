@@ -226,10 +226,14 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\presentation\ui\sceneTreePanel.h" />
-    <ClCompile Include="src\domain\shapes\scenePrimitive.cpp" />
     <ClCompile Include="src\application.cpp" />
     <ClCompile Include="src\domain\histogram.cpp" />
+    <ClCompile Include="src\domain\scene\scene.cpp" />
+    <ClCompile Include="src\domain\scene\sceneImage.cpp" />
+    <ClCompile Include="src\domain\shapes\2d\scenePrimitiveEllipse.cpp" />
+    <ClCompile Include="src\domain\shapes\2d\scenePrimitiveLine.cpp" />
+    <ClCompile Include="src\domain\shapes\2d\scenePrimitivePoint.cpp" />
+    <ClCompile Include="src\domain\shapes\2d\scenePrimitiveRect.cpp" />
     <ClCompile Include="src\infrastructure\imageExporter.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="..\..\..\addons\ofxGui\src\ofxBaseGui.cpp" />
@@ -242,19 +246,23 @@
     <ClCompile Include="..\..\..\addons\ofxGui\src\ofxSlider.cpp" />
     <ClCompile Include="..\..\..\addons\ofxGui\src\ofxSliderGroup.cpp" />
     <ClCompile Include="..\..\..\addons\ofxGui\src\ofxToggle.cpp" />
-    <ClCompile Include="src\domain\shapes\scenePrimitiveEllipse.cpp" />
-    <ClCompile Include="src\domain\shapes\scenePrimitiveLine.cpp" />
-    <ClCompile Include="src\domain\shapes\scenePrimitivePoint.cpp" />
-    <ClCompile Include="src\domain\shapes\scenePrimitiveRect.cpp" />
+    <ClCompile Include="src\presentation\cursorRenderer.cpp" />
     <ClCompile Include="src\presentation\renderer.cpp" />
-    <ClCompile Include="src\domain\scene.cpp" />
-    <ClCompile Include="src\domain\sceneImage.cpp" />
     <ClCompile Include="src\presentation\transformTool.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\domain\scene\scene.h" />
+    <ClInclude Include="src\domain\scene\sceneImage.h" />
+    <ClInclude Include="src\domain\scene\sceneObject.h" />
+    <ClInclude Include="src\domain\shapes\2d\scenePrimitive.h" />
+    <ClInclude Include="src\domain\shapes\2d\scenePrimitiveEllipse.h" />
+    <ClInclude Include="src\domain\shapes\2d\scenePrimitiveLine.h" />
+    <ClInclude Include="src\domain\shapes\2d\scenePrimitivePoint.h" />
+    <ClInclude Include="src\domain\shapes\2d\scenePrimitiveRect.h" />
+    <ClInclude Include="src\presentation\cursorRenderer.h" />
     <ClInclude Include="src\presentation\ui\palettePreview.h" />
     <ClInclude Include="src\presentation\ui\sceneTreePanel.h" />
-    <ClInclude Include="src\domain\shapes\scenePrimitive.h" />
+    <ClCompile Include="src\presentation\ui\sceneTreePanel.cpp" />
     <ClInclude Include="src\application.h" />
     <ClInclude Include="..\..\..\addons\ofxGui\src\ofxBaseGui.h" />
     <ClInclude Include="..\..\..\addons\ofxGui\src\ofxButton.h" />
@@ -270,10 +278,6 @@
     <ClInclude Include="..\..\..\addons\ofxGui\src\ofxToggle.h" />
     <ClInclude Include="src\domain\histogram.h" />
     <ClInclude Include="src\infrastructure\imageExporter.h" />
-    <ClInclude Include="src\domain\shapes\scenePrimitiveEllipse.h" />
-    <ClInclude Include="src\domain\shapes\scenePrimitiveLine.h" />
-    <ClInclude Include="src\domain\shapes\scenePrimitivePoint.h" />
-    <ClInclude Include="src\domain\shapes\scenePrimitiveRect.h" />
     <ClInclude Include="src\presentation\renderer.h" />
     <ClInclude Include="src\domain\scene.h" />
     <ClInclude Include="src\domain\sceneImage.h" />
@@ -290,6 +294,13 @@
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|x64' or '$(Configuration)|$(Platform)'=='Debug|ARM64' or '$(Configuration)|$(Platform)'=='Debug|ARM64EC'">/D_DEBUG %(AdditionalOptions)</AdditionalOptions>
       <AdditionalIncludeDirectories>$(OF_ROOT)\libs\openFrameworksCompiled\project\vs</AdditionalIncludeDirectories>
     </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include=".gitignore" />
+    <None Include="addons.make" />
+    <None Include="config.make" />
+    <None Include="Makefile" />
+    <None Include="README.md" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ProjectExtensions>

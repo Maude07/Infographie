@@ -40,23 +40,8 @@
     <ClCompile Include="src\domain\histogram.cpp">
       <Filter>src\domain</Filter>
     </ClCompile>
-    <ClCompile Include="src\domain\scene.cpp">
-      <Filter>src\domain</Filter>
-    </ClCompile>
     <ClCompile Include="src\domain\sceneImage.cpp">
       <Filter>src\domain</Filter>
-    </ClCompile>
-    <ClCompile Include="src\domain\shapes\scenePrimitiveEllipse.cpp">
-      <Filter>src\domain\shapes</Filter>
-    </ClCompile>
-    <ClCompile Include="src\domain\shapes\scenePrimitiveLine.cpp">
-      <Filter>src\domain\shapes</Filter>
-    </ClCompile>
-    <ClCompile Include="src\domain\shapes\scenePrimitivePoint.cpp">
-      <Filter>src\domain\shapes</Filter>
-    </ClCompile>
-    <ClCompile Include="src\domain\shapes\scenePrimitiveRect.cpp">
-      <Filter>src\domain\shapes</Filter>
     </ClCompile>
     <ClCompile Include="src\infrastructure\imageExporter.cpp">
       <Filter>src\infrastructure</Filter>
@@ -67,9 +52,18 @@
     <ClCompile Include="src\presentation\transformTool.cpp">
       <Filter>src\presentation</Filter>
     </ClCompile>
-    <ClCompile Include="src\SceneGraph\sceneGraph.cpp">
-      <Filter>src\domain</Filter>
+    <ClCompile Include="src\presentation\ui\sceneTreePanel.cpp">
+      <Filter>src\presentation\ui</Filter>
     </ClCompile>
+    <ClCompile Include="src\presentation\cursorRenderer.cpp">
+      <Filter>src\presentation</Filter>
+    </ClCompile>
+    <ClCompile Include="src\domain\shapes\2d\scenePrimitiveEllipse.cpp" />
+    <ClCompile Include="src\domain\shapes\2d\scenePrimitiveLine.cpp" />
+    <ClCompile Include="src\domain\shapes\2d\scenePrimitivePoint.cpp" />
+    <ClCompile Include="src\domain\shapes\2d\scenePrimitiveRect.cpp" />
+    <ClCompile Include="src\domain\scene\scene.cpp" />
+    <ClCompile Include="src\domain\scene\sceneImage.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="src">
@@ -152,21 +146,6 @@
     <ClInclude Include="src\domain\sceneObject.h">
       <Filter>src\domain</Filter>
     </ClInclude>
-    <ClInclude Include="src\domain\shapes\scenePrimitive.h">
-      <Filter>src\domain\shapes</Filter>
-    </ClInclude>
-    <ClInclude Include="src\domain\shapes\scenePrimitiveEllipse.h">
-      <Filter>src\domain\shapes</Filter>
-    </ClInclude>
-    <ClInclude Include="src\domain\shapes\scenePrimitiveLine.h">
-      <Filter>src\domain\shapes</Filter>
-    </ClInclude>
-    <ClInclude Include="src\domain\shapes\scenePrimitivePoint.h">
-      <Filter>src\domain\shapes</Filter>
-    </ClInclude>
-    <ClInclude Include="src\domain\shapes\scenePrimitiveRect.h">
-      <Filter>src\domain\shapes</Filter>
-    </ClInclude>
     <ClInclude Include="src\infrastructure\imageExporter.h">
       <Filter>src\infrastructure</Filter>
     </ClInclude>
@@ -179,14 +158,29 @@
     <ClInclude Include="src\presentation\ui\palettePreview.h">
       <Filter>src\presentation\ui</Filter>
     </ClInclude>
-    <ClInclude Include="src\SceneGraph\sceneEntity.h">
-      <Filter>src\domain</Filter>
+    <ClInclude Include="src\presentation\ui\sceneTreePanel.h">
+      <Filter>src\presentation\ui</Filter>
     </ClInclude>
-    <ClInclude Include="src\SceneGraph\sceneGraph.h">
-      <Filter>src\domain</Filter>
+    <ClInclude Include="src\presentation\cursorRenderer.h">
+      <Filter>src\presentation</Filter>
     </ClInclude>
+    <ClInclude Include="src\domain\shapes\2d\scenePrimitive.h" />
+    <ClInclude Include="src\domain\shapes\2d\scenePrimitiveEllipse.h" />
+    <ClInclude Include="src\domain\shapes\2d\scenePrimitiveLine.h" />
+    <ClInclude Include="src\domain\shapes\2d\scenePrimitivePoint.h" />
+    <ClInclude Include="src\domain\shapes\2d\scenePrimitiveRect.h" />
+    <ClInclude Include="src\domain\scene\scene.h" />
+    <ClInclude Include="src\domain\scene\sceneImage.h" />
+    <ClInclude Include="src\domain\scene\sceneObject.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="icon.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include=".gitignore" />
+    <None Include="addons.make" />
+    <None Include="config.make" />
+    <None Include="Makefile" />
+    <None Include="README.md" />
   </ItemGroup>
 </Project>

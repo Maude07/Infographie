@@ -1,4 +1,4 @@
-#include "domain/shapes/scenePrimitiveEllipse.h"
+#include "domain/shapes/2d/scenePrimitiveEllipse.h"
 
 void ScenePrimitiveEllipse::draw() const {
 	ofPushStyle();
