@@ -20,9 +20,18 @@ void SceneModel3d::draw() const {
 
 	const glm::vec3 c = model->getSceneCenter();
 	const glm::vec2 center = position + size * 0.5f;
-	const float s = min(size.x, size.y) / largest;
+	const float side = min(size.x, size.y);
+	const float s = side / largest;
+
+	static ofLight light;
+	light.setPointLight();
+	light.setDiffuseColor(ofColor(255));
+	light.setPosition(center.x - side, center.y - side, side * 3.0f);
 
 	ofPushStyle();
+	ofEnableLighting();
+	light.enable();
+
 	ofPushMatrix();
 	ofTranslate(center.x, center.y, depth);
 	ofRotateYDeg(rotationY);
@@ -33,7 +42,9 @@ void SceneModel3d::draw() const {
 	ofEnableDepthTest();
 	model->drawFaces();
 	ofDisableDepthTest();
-
 	ofPopMatrix();
+
+	light.disable();
+	ofDisableLighting();
 	ofPopStyle();
 }

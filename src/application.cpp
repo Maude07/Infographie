@@ -63,6 +63,8 @@ namespace {
 
 	constexpr float minShapeSize = 3.0f;
 
+	constexpr float rotationStep = 15.0f;
+
 	bool isLargeEnough(ToolType type, const glm::vec2 & start, const glm::vec2 & end) {
 		glm::vec2 extent = glm::abs(end - start);
 		switch (type) {
@@ -341,6 +343,11 @@ void Application::onColorChanged(ofColor & color) {
 }
 
 void Application::keyPressed(ofKeyEventArgs & args) {
+	if (args.key == OF_KEY_LEFT || args.key == OF_KEY_RIGHT) {
+		rotateSelectedModels(args.key == OF_KEY_LEFT ? -rotationStep : rotationStep);
+		return;
+	}
+
 	if (args.isRepeat) return;
 
 	switch (args.key) {
@@ -621,6 +628,14 @@ void Application::selectNextModel() {
 	currentModelId = ids[next];
 	setToolType(ToolType::Model3d);
 	ofLog() << "<model: " << currentModelId << ">";
+}
+
+void Application::rotateSelectedModels(float degrees) {
+	for (SceneObject * object : transformTool.getSelection()) {
+		if (auto * model = dynamic_cast<SceneModel3d *>(object)) {
+			model->rotationY = fmod(model->rotationY + degrees, 360.0f);
+		}
+	}
 }
 
 float Application::canvasLeft() const {

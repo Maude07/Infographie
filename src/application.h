@@ -120,4 +120,5 @@ private:
 	unique_ptr<SceneModel3d> makeModel(const glm::vec2 & start, const glm::vec2 & end) const;
 	void addModel();
 	void selectNextModel();
+	void rotateSelectedModels(float degrees);
 };
