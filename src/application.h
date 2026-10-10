@@ -14,8 +14,17 @@
 #include "domain/shapes/2d/scenePrimitivePoint.h"
 #include "domain/shapes/2d/scenePrimitiveRect.h"
 #include "domain/shapes/2d/scenePrimitiveEllipse.h"
+#include "infrastructure/modelLibrary.h"
+#include "domain/shapes/3d/sceneModel3D.h"
 
-enum class ToolType { Select, Rect, Line, Point, Ellipse };
+enum class ToolType {
+	Select,
+	Rect,
+	Line,
+	Point,
+	Ellipse,
+	Model3d
+};
 
 class Application : public ofBaseApp {
 
@@ -39,6 +48,8 @@ private:
 	TransformTool transformTool;
 	SceneTreePanel sceneTreePanel;
 	CursorRenderer cursor;
+	ModelLibrary modelLibrary;
+	string currentModelId;
 
 	vector<ofColor> palette;
 	array<PalettePreview, 3> palettePreviews;
@@ -67,6 +78,7 @@ private:
 	ofxButton recordButton;
 	ofxButton resetButton;
 	ofxButton histogramButton;
+	ofxButton importModelButton;
 
 	ToolType toolType = ToolType::Select;
 	glm::vec2 mousePressPos;
@@ -87,8 +99,9 @@ private:
 	void onRecordPressed();
 	void onResetPressed();
 	void onHistogramPressed();
+	void onImportModelPressed();
 
-	void setDrawMode(toolType mode);
+	void setToolType(ToolType mode);
 	void deleteSelectedObject();
 	void removeSelectedPaletteColor();
 	void clearPaletteSelection();
@@ -100,7 +113,11 @@ private:
 	void drawRecordingIndicator() const;
 	CursorState currentCursorState(const glm::vec2 & mouse) const;
 
-	unique_ptr<ScenePrimitive> makeShape(toolType type, const glm::vec2 & start, const glm::vec2 & end) const;
+	unique_ptr<ScenePrimitive> makeShape(ToolType type, const glm::vec2 & start, const glm::vec2 & end) const;
 	void addVectorShape();
 	void applyDrawStyle(ScenePrimitive & primitive) const;
+
+	unique_ptr<SceneModel3d> makeModel(const glm::vec2 & start, const glm::vec2 & end) const;
+	void addModel();
+	void selectNextModel();
 };

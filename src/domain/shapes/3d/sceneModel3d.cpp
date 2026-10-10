@@ -14,18 +14,26 @@ SceneModel3d::SceneModel3d(const string& id,
 void SceneModel3d::draw() const {
 	if (!model) return;
 
-	const glm::vec2 center = position + size * 0.5f;
-	const float s = min(size.x, size.y);
+	const glm::vec3 dims = model->getSceneMax() - model->getSceneMin();
+	const float largest = max({ dims.x, dims.y, dims.z });
+	if (largest <= 0.0f) return;
 
-	model->setPosition(center.x, center.y, depth);
-	model->setScale(s, s, s);
-	model->setRotation(0, rotationY, 0, 1, 0);
-	model->setRotation(1, 180, 1, 0, 0);
+	const glm::vec3 c = model->getSceneCenter();
+	const glm::vec2 center = position + size * 0.5f;
+	const float s = min(size.x, size.y) / largest;
 
 	ofPushStyle();
+	ofPushMatrix();
+	ofTranslate(center.x, center.y, depth);
+	ofRotateYDeg(rotationY);
+	ofScale(s, s, s);
+	ofTranslate(c.x, c.y, -c.z);
+
 	glClear(GL_DEPTH_BUFFER_BIT);
 	ofEnableDepthTest();
 	model->drawFaces();
 	ofDisableDepthTest();
+
+	ofPopMatrix();
 	ofPopStyle();
 }
