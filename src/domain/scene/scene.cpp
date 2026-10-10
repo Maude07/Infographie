@@ -1,5 +1,5 @@
 #include "ofMain.h"
-#include "domain/scene.h"
+#include "domain/scene/scene.h"
 
 using namespace std;
 

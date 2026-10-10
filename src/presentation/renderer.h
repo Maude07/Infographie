@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ofMain.h"
-#include "domain/scene.h"
+#include "domain/scene/scene.h"
 
 class Renderer {
 public:

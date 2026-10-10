@@ -10,10 +10,10 @@
 #include "presentation/ui/palettePreview.h"
 #include "presentation/ui/sceneTreePanel.h"
 #include "domain/histogram.h"
-#include "domain/shapes/scenePrimitiveLine.h"
-#include "domain/shapes/scenePrimitivePoint.h"
-#include "domain/shapes/scenePrimitiveRect.h"
-#include "domain/shapes/scenePrimitiveEllipse.h"
+#include "domain/shapes/2d/scenePrimitiveLine.h"
+#include "domain/shapes/2d/scenePrimitivePoint.h"
+#include "domain/shapes/2d/scenePrimitiveRect.h"
+#include "domain/shapes/2d/scenePrimitiveEllipse.h"
 
 enum class VectorPrimitiveType { Select, Rect, Line, Point, Ellipse };
 

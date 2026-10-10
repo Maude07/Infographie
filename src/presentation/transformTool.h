@@ -1,7 +1,7 @@
 #pragma once
 
-#include "domain/sceneObject.h"
-#include "domain/scene.h"
+#include "domain/scene/sceneObject.h"
+#include "domain/scene/scene.h"
 
 using namespace std;
 
