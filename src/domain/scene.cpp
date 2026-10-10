@@ -13,12 +13,13 @@ void Scene::draw() const {
     }
 }
 
-void Scene::remove(const SceneObject * object) {
-    objects.erase(
-    remove_if(objects.begin(), objects.end(),
-        [object](const unique_ptr<SceneObject> & candidate) {
-        return candidate.get() == object; }),
-        objects.end());
+void Scene::remove(const unordered_set<SceneObject*> & toRemove) {
+	objects.erase(
+		remove_if(objects.begin(), objects.end(),
+			[&toRemove](const unique_ptr<SceneObject> & o) {
+				return toRemove.count(o.get()) > 0;
+			}),
+		objects.end());
 }
 
 void Scene::clear() {

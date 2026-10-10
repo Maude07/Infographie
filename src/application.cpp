@@ -20,16 +20,16 @@ const ofColor textColor(230, 230, 235);
 constexpr int guiWidth = 280;
 constexpr int guiRowHeight = 36;
 constexpr int guiFontSize = 13;
-const std::string guiFontPath = "fonts/static/OpenSans-Regular.ttf";
+const string guiFontPath = "fonts/static/OpenSans-Regular.ttf";
 
 // Default values, also restored by the reset button
 const ofColor defaultBackgroundColor(31);
 const ofColor defaultStrokeColor(255);
 const ofColor defaultFillColor(31);
 constexpr float defaultStrokeWeight = 4.0f;
-const std::string defaultText = "ift3100";
+const string defaultText = "ift3100";
 
-std::vector<ofColor> defaultPalette() {
+vector<ofColor> defaultPalette() {
 	return {
 		ofColor(15, 15, 15),
 		ofColor(255, 182, 193),
@@ -312,7 +312,7 @@ CursorState Application::currentCursorState(const glm::vec2 & mouse) const {
 	if (transformTool.isResizingSelection() || transformTool.isOverHandle(mouse.x, mouse.y)) {
 		return CursorState::Resize;
 	}
-	if (isMouseButtonPressed && transformTool.getSelection()) return CursorState::Move;
+	if (isMouseButtonPressed && transformTool.hasSelection()) return CursorState::Move;
 	if (scene.hitTest(mouse.x , mouse.y)) return CursorState::Hover;
 
 	return CursorState::Default;
@@ -358,7 +358,7 @@ void Application::keyPressed(ofKeyEventArgs & args) {
 
 	case OF_KEY_DEL :
 	case OF_KEY_BACKSPACE :
-		if (transformTool.getSelection()) {
+		if (transformTool.hasSelection()) {
 			deleteSelectedObject();
 		} else {
 			removeSelectedPaletteColor();
@@ -373,10 +373,10 @@ void Application::keyPressed(ofKeyEventArgs & args) {
 }
 
 void Application::deleteSelectedObject() {
-	SceneObject * selection = transformTool.getSelection();
-	ofLog() << "<deleted object: " << selection->name << ">";
+	auto toRemove = transformTool.getSelection();
+	ofLog() << "<deleted objects: " << toRemove.size() << ">";
 	transformTool.clearSelection();
-	scene.remove(selection);
+	scene.remove(toRemove);
 }
 
 void Application::setDrawMode(VectorPrimitiveType mode) {
@@ -413,10 +413,12 @@ void Application::mousePressed(int x, int y, int button) {
 
 	if (showGui && gui.getShape().inside(x, y)) return;
 
+	bool additive = ofGetKeyPressed(OF_KEY_SHIFT) || ofGetKeyPressed(OF_KEY_CONTROL);
+
 	if (showSceneTree) {
 		if (SceneObject * clicked = sceneTreePanel.hitTest(scene, x, y)) {
-			setDrawMode(VectorPrimitiveType::Select);
-			transformTool.select(clicked);
+			if (drawMode != VectorPrimitiveType::Select) setDrawMode(VectorPrimitiveType::Select);
+			transformTool.select(clicked, additive);
 			return;
 		}
 	}
@@ -424,7 +426,7 @@ void Application::mousePressed(int x, int y, int button) {
 	isMouseButtonPressed = true;
 
 	if (drawMode == VectorPrimitiveType::Select) {
-		transformTool.mousePressed(scene, x, y);
+		transformTool.mousePressed(scene, x, y, additive);
 		return;
 	}
 
@@ -446,7 +448,7 @@ void Application::mouseReleased(int x, int y, int button) {
 	isMouseButtonPressed = false;
 
 	if (drawMode == VectorPrimitiveType::Select) {
-		transformTool.mouseReleased();
+		transformTool.mouseReleased(scene);
 		return;
 	}
 	mouseCurrentPos = glm::vec2(x, y);

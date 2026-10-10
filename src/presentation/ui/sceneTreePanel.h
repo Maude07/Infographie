@@ -5,7 +5,7 @@
 
 class SceneTreePanel {
 public: 
-    void draw(const Scene & scene, const SceneObject * selection, const glm::vec2 & mouse) const;
+    void draw(const Scene & scene, const std::unordered_set<SceneObject*> & selection, const glm::vec2 & mouse) const;
     SceneObject * hitTest(const Scene & scene, float x, float y) const;
 
 private:
