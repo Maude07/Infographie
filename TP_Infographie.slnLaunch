@@ -1,0 +1,11 @@
+[
+  {
+    "Name": "TP_Infographie",
+    "Projects": [
+      {
+        "Path": "TP_Infographie.vcxproj",
+        "Action": "Start"
+      }
+    ]
+  }
+]
