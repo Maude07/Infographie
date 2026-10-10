@@ -165,6 +165,10 @@ void Application::addColorPicker(ofxColorSlider & slider, ofParameter<ofColor> &
 	color.addListener(this, &Application::onColorChanged);
 }
 
+glm::vec2 Application::modelListOrigin() const {
+	return glm::vec2(0.0f, gui.getShape().getBottom() + 10.0f);
+}
+
 void Application::setupExportGui() {
 	groupExport.setup("exportation d'images");
 	groupExport.add(exportFps.set("images/sec", 24, 1, 60));
@@ -251,6 +255,9 @@ void Application::draw() {
 
 	if (showGui) {
 		gui.draw();
+		modelListPanel.draw(modelLibrary.ids(),
+			toolType == ToolType::Model3d ? currentModelId : "",
+			modelListOrigin(), gui.getWidth(), glm::vec2(ofGetMouseX(), ofGetMouseY()));
 	} else {
 		drawCollapsedGuiButton();
 	}
@@ -446,6 +453,15 @@ void Application::mousePressed(int x, int y, int button) {
 	}
 
 	if (showGui && gui.getShape().inside(x, y)) return;
+
+	if (showGui) {
+		string clicked = modelListPanel.hitTest(modelLibrary.ids(), modelListOrigin(), gui.getWidth(), x, y);
+		if (!clicked.empty()) {
+			currentModelId = clicked;
+			setToolType(ToolType::Model3d);
+			return;
+		}
+	}
 
 	bool additive = ofGetKeyPressed(OF_KEY_SHIFT) || ofGetKeyPressed(OF_KEY_CONTROL);
 

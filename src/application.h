@@ -9,6 +9,7 @@
 #include "presentation/transformTool.h"
 #include "presentation/ui/palettePreview.h"
 #include "presentation/ui/sceneTreePanel.h"
+#include "presentation/ui/modelListPanel.h"
 #include "domain/histogram.h"
 #include "domain/shapes/2d/scenePrimitiveLine.h"
 #include "domain/shapes/2d/scenePrimitivePoint.h"
@@ -50,6 +51,7 @@ private:
 	CursorRenderer cursor;
 	ModelLibrary modelLibrary;
 	string currentModelId;
+	ModelListPanel modelListPanel;
 
 	vector<ofColor> palette;
 	array<PalettePreview, 3> palettePreviews;
@@ -93,6 +95,7 @@ private:
 	void setupMiscGui();
 	void addColorPicker(ofxColorSlider & slider, ofParameter<ofColor> & color, PalettePreview & preview,
 		const string & name, const ofColor & initialColor);
+	glm::vec2 modelListOrigin() const;
 
 	void onColorChanged(ofColor & color);
 	void onImportPressed();

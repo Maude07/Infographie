@@ -242,6 +242,7 @@
     <ClCompile Include="src\presentation\renderer.cpp" />
     <ClCompile Include="src\presentation\transformTool.cpp" />
     <ClCompile Include="src\presentation\ui\sceneTreePanel.cpp" />
+    <ClCompile Include="src\presentation\ui\modelListPanel.cpp" />
     <ClCompile Include="..\..\..\addons\ofxAssimpModelLoader\src\ofxAssimpAnimation.cpp" />
     <ClCompile Include="..\..\..\addons\ofxAssimpModelLoader\src\ofxAssimpMeshHelper.cpp" />
     <ClCompile Include="..\..\..\addons\ofxAssimpModelLoader\src\ofxAssimpModelLoader.cpp" />
@@ -276,6 +277,7 @@
     <ClInclude Include="src\presentation\transformTool.h" />
     <ClInclude Include="src\presentation\ui\palettePreview.h" />
     <ClInclude Include="src\presentation\ui\sceneTreePanel.h" />
+    <ClInclude Include="src\presentation\ui\modelListPanel.h" />
     <ClInclude Include="..\..\..\addons\ofxAssimpModelLoader\src\ofxAssimpAnimation.h" />
     <ClInclude Include="..\..\..\addons\ofxAssimpModelLoader\src\ofxAssimpMeshHelper.h" />
     <ClInclude Include="..\..\..\addons\ofxAssimpModelLoader\src\ofxAssimpModelLoader.h" />
