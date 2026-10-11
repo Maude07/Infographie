@@ -67,8 +67,11 @@
     <ClCompile Include="src\presentation\transformTool.cpp">
       <Filter>src\presentation</Filter>
     </ClCompile>
-    <ClCompile Include="src\SceneGraph\sceneGraph.cpp">
-      <Filter>src\domain</Filter>
+    <ClCompile Include="src\presentation\ui\sceneTreePanel.cpp">
+      <Filter>src\presentation\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\presentation\cursorRenderer.cpp">
+      <Filter>src\presentation</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -179,11 +182,11 @@
     <ClInclude Include="src\presentation\ui\palettePreview.h">
       <Filter>src\presentation\ui</Filter>
     </ClInclude>
-    <ClInclude Include="src\SceneGraph\sceneEntity.h">
-      <Filter>src\domain</Filter>
+    <ClInclude Include="src\presentation\ui\sceneTreePanel.h">
+      <Filter>src\presentation\ui</Filter>
     </ClInclude>
-    <ClInclude Include="src\SceneGraph\sceneGraph.h">
-      <Filter>src\domain</Filter>
+    <ClInclude Include="src\presentation\cursorRenderer.h">
+      <Filter>src\presentation</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
