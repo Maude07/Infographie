@@ -124,4 +124,5 @@ private:
 	void addModel();
 	void selectNextModel();
 	void rotateSelectedModels(float degrees);
+	void toggleBoundingBoxes();
 };

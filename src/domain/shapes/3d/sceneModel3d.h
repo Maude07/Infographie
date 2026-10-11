@@ -19,6 +19,7 @@ public:
 
 	float rotationY = 0.0f;
 	float depth = 0.0f;
+	bool bShowBoundingBox = false;
 
 private:
 	string modelId;
