@@ -226,8 +226,6 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\presentation\ui\sceneTreePanel.h" />
-    <ClCompile Include="src\domain\shapes\scenePrimitive.cpp" />
     <ClCompile Include="src\application.cpp" />
     <ClCompile Include="src\domain\histogram.cpp" />
     <ClCompile Include="src\infrastructure\imageExporter.cpp" />
@@ -246,12 +244,15 @@
     <ClCompile Include="src\domain\shapes\scenePrimitiveLine.cpp" />
     <ClCompile Include="src\domain\shapes\scenePrimitivePoint.cpp" />
     <ClCompile Include="src\domain\shapes\scenePrimitiveRect.cpp" />
+    <ClCompile Include="src\presentation\cursorRenderer.cpp" />
     <ClCompile Include="src\presentation\renderer.cpp" />
     <ClCompile Include="src\domain\scene.cpp" />
     <ClCompile Include="src\domain\sceneImage.cpp" />
     <ClCompile Include="src\presentation\transformTool.cpp" />
+    <ClCompile Include="src\presentation\ui\sceneTreePanel.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\presentation\cursorRenderer.h" />
     <ClInclude Include="src\presentation\ui\palettePreview.h" />
     <ClInclude Include="src\presentation\ui\sceneTreePanel.h" />
     <ClInclude Include="src\domain\shapes\scenePrimitive.h" />
