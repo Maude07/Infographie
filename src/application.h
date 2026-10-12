@@ -17,6 +17,7 @@
 #include "domain/shapes/2d/scenePrimitiveEllipse.h"
 #include "infrastructure/modelLibrary.h"
 #include "domain/shapes/3d/sceneModel3D.h"
+#include "domain/commands/historyManager.h"
 
 enum class ToolType {
 	Select,
@@ -52,14 +53,22 @@ private:
 	ModelLibrary modelLibrary;
 	string currentModelId;
 	ModelListPanel modelListPanel;
+	HistoryManager history;
 
 	vector<ofColor> palette;
 	array<PalettePreview, 3> palettePreviews;
 	ofColor lastActiveColor = ofColor();
 
+	ofColor colorRefBackground;
+	ofColor colorRefStroke;
+	ofColor colorRefFill;
+	bool wasMousePressedLastFrame = false;
+
 	ofxPanel gui;
 	ofxGuiGroup groupDraw;
 	ofxGuiGroup groupExport;
+
+	ofxGuiGroup groupHistory;
 
 	ofxColorSlider backgroundSlider;
 	ofxColorSlider strokeSlider;
@@ -81,6 +90,8 @@ private:
 	ofxButton resetButton;
 	ofxButton histogramButton;
 	ofxButton importModelButton;
+	ofxButton buttonUndo;
+	ofxButton buttonRedo;
 
 	ToolType toolType = ToolType::Select;
 	glm::vec2 mousePressPos;
@@ -103,6 +114,12 @@ private:
 	void onResetPressed();
 	void onHistogramPressed();
 	void onImportModelPressed();
+
+	void setupHistoryGui();
+	void buttonUndoPressed();
+	void buttonRedoPressed();
+	void commitColorChanges();
+	void syncColorReferences();
 
 	void setToolType(ToolType mode);
 	void deleteSelectedObject();

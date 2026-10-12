@@ -226,6 +226,10 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\domain\commands\addObjectCommand.cpp" />
+    <ClCompile Include="src\domain\commands\historyManager.cpp" />
+    <ClCompile Include="src\domain\commands\removeObjectCommand.cpp" />
+    <ClCompile Include="src\domain\commands\transformCommand.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\application.cpp" />
     <ClCompile Include="src\domain\histogram.cpp" />
@@ -260,6 +264,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\application.h" />
+    <ClInclude Include="src\domain\commands\addObjectCommand.h" />
+    <ClInclude Include="src\domain\commands\command.h" />
+    <ClInclude Include="src\domain\commands\compositeCommand.h" />
+    <ClInclude Include="src\domain\commands\historyManager.h" />
+    <ClInclude Include="src\domain\commands\parameterCommand.h" />
+    <ClInclude Include="src\domain\commands\removeObjectCommand.h" />
+    <ClInclude Include="src\domain\commands\transformCommand.h" />
     <ClInclude Include="src\domain\histogram.h" />
     <ClInclude Include="src\domain\scene\scene.h" />
     <ClInclude Include="src\domain\scene\sceneImage.h" />

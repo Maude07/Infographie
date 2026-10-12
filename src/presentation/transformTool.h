@@ -2,6 +2,8 @@
 
 #include "domain/scene/sceneObject.h"
 #include "domain/scene/scene.h"
+#include "domain/commands/historyManager.h"
+#include <unordered_map>
 
 using namespace std;
 
@@ -29,6 +31,8 @@ public:
     } 
     bool isResizingSelection() const { return isResizing; }
 
+	void setHistory(HistoryManager * history) { this->history = history; }
+
 
 private:
 	unordered_set<SceneObject *> selection;
@@ -41,6 +45,10 @@ private:
 	bool isInZone = false;
     float minSize = 20.0f;
     static constexpr float handleSize = 10.0f;
+
+	HistoryManager * history = nullptr;
+	unordered_map<SceneObject *, ofRectangle> dragStartBounds;
+	void captureDragStart();
 
 	SceneObject * single() const { return selection.size() == 1 ? *selection.begin() : nullptr; }
 	ofRectangle getHandleBounds(const SceneObject & object) const;
