@@ -9,12 +9,17 @@
 - After adding, moving or deleting files in `src/`, update `TP_Infographie.vcxproj`
   (projectGenerator, or by hand).
 
+
+## Installation
+- Installer ofxPathFitter.zip (ajouter un lien vers ce fichier)
+- Dézipper dans \of_v0.12.1_vs_64_release\addons
+
 ## Keyboard shortcuts
 
 | Key | Action |
 |---|---|
 | `1` | Select / move / resize |
-| `2` `3` `4` `5` | Rectangle, line, point, ellipse |
+| `2` `3` `4` `5` `6` `7` `8` `b` | Rectangle, line, point, ellipse, star, waves, funkyCircles, bezier  |
 | `u` | Show / hide the panel |
 | `r` | Start / stop recording |
 | `i` | Show / hide the scene graph |   
