@@ -5,6 +5,7 @@
 #include "domain/shapes/2d/scenePrimitivePoint.h"
 #include "domain/shapes/2d/scenePrimitiveRect.h"
 #include "domain/commands/addObjectCommand.h"
+#include "domain/commands/removeObjectCommand.h"
 
 using namespace std;
 
@@ -468,7 +469,7 @@ void Application::deleteSelectedObject() {
 	auto toRemove = transformTool.getSelection();
 	ofLog() << "<deleted objects: " << toRemove.size() << ">";
 	transformTool.clearSelection();
-	scene.remove(toRemove);
+	history.execute(make_unique<RemoveObjectsCommand>(&scene, toRemove));
 }
 
 void Application::setToolType(ToolType mode) {

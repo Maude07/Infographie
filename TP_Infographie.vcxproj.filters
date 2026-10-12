@@ -103,6 +103,9 @@
     <ClCompile Include="src\domain\commands\transformCommand.cpp">
       <Filter>src\domain\commands</Filter>
     </ClCompile>
+    <ClCompile Include="src\domain\commands\removeObjectCommand.cpp">
+      <Filter>src\domain\commands</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="src">
@@ -546,6 +549,9 @@
       <Filter>src\domain\commands</Filter>
     </ClInclude>
     <ClInclude Include="src\domain\commands\transformCommand.h">
+      <Filter>src\domain\commands</Filter>
+    </ClInclude>
+    <ClInclude Include="src\domain\commands\removeObjectCommand.h">
       <Filter>src\domain\commands</Filter>
     </ClInclude>
   </ItemGroup>

@@ -228,6 +228,7 @@
   <ItemGroup>
     <ClCompile Include="src\domain\commands\addObjectCommand.cpp" />
     <ClCompile Include="src\domain\commands\historyManager.cpp" />
+    <ClCompile Include="src\domain\commands\removeObjectCommand.cpp" />
     <ClCompile Include="src\domain\commands\transformCommand.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\application.cpp" />
@@ -267,6 +268,7 @@
     <ClInclude Include="src\domain\commands\command.h" />
     <ClInclude Include="src\domain\commands\compositeCommand.h" />
     <ClInclude Include="src\domain\commands\historyManager.h" />
+    <ClInclude Include="src\domain\commands\removeObjectCommand.h" />
     <ClInclude Include="src\domain\commands\transformCommand.h" />
     <ClInclude Include="src\domain\histogram.h" />
     <ClInclude Include="src\domain\scene\scene.h" />
