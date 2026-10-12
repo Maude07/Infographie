@@ -164,6 +164,7 @@ void TransformTool::mousePressed(Scene & scene, float x, float y, bool additive)
 			isRotating = true;
 			rotateStartAngle = angleFromCenter(*only, lastMouse);
 			rotateStartValue = only->rotation;
+			captureDragStart();
 			return;
 		}
 	}
