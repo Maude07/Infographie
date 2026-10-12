@@ -6,6 +6,7 @@
 #include "presentation/cursorRenderer.h"
 #include "presentation/renderer.h"
 #include "infrastructure/imageExporter.h"
+#include "presentation/bezierStrokeTool.h"
 #include "presentation/transformTool.h"
 #include "presentation/ui/palettePreview.h"
 #include "presentation/ui/sceneTreePanel.h"
@@ -15,8 +16,11 @@
 #include "domain/shapes/2d/scenePrimitivePoint.h"
 #include "domain/shapes/2d/scenePrimitiveRect.h"
 #include "domain/shapes/2d/scenePrimitiveEllipse.h"
+#include "vector_shapes/sceneShapeFunkyCircles.h"
+#include "vector_shapes/sceneShapeStars.h"
+#include "vector_shapes/sceneShapeWave.h"
 #include "infrastructure/modelLibrary.h"
-#include "domain/shapes/3d/sceneModel3D.h"
+#include "domain/shapes/3d/sceneModel3d.h"
 #include "domain/commands/historyManager.h"
 
 enum class ToolType {
@@ -25,6 +29,10 @@ enum class ToolType {
 	Line,
 	Point,
 	Ellipse,
+	Stars,
+	Wave,
+	FunkyCircles,
+	Bezier,
 	Model3d
 };
 
@@ -48,6 +56,7 @@ private:
 	Histogram histogram;
 	Scene scene;
 	TransformTool transformTool;
+	BezierStrokeTool bezierStrokeTool;
 	SceneTreePanel sceneTreePanel;
 	CursorRenderer cursor;
 	ModelLibrary modelLibrary;

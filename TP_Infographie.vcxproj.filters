@@ -106,6 +106,24 @@
     <ClCompile Include="src\domain\commands\removeObjectCommand.cpp">
       <Filter>src\domain\commands</Filter>
     </ClCompile>
+    <ClCompile Include="src\presentation\bezierStrokeTool.cpp">
+      <Filter>src\presentation</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\addons\ofxPathFitter\src\ofxPathFitter.cpp">
+      <Filter>addons\ofxPathFitter\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vector_shapes\sceneShapeBezierCurve.cpp">
+      <Filter>src\vector_shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vector_shapes\sceneShapeFunkyCircles.cpp">
+      <Filter>src\vector_shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vector_shapes\sceneShapeStars.cpp">
+      <Filter>src\vector_shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vector_shapes\sceneShapeWave.cpp">
+      <Filter>src\vector_shapes</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="src">
@@ -173,6 +191,15 @@
     </Filter>
     <Filter Include="src\domain\commands">
       <UniqueIdentifier>{ae46d9c4-7a0f-4117-b4bb-168e1ef2fc97}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\vector_shapes">
+      <UniqueIdentifier>{b8e4f2a1-3c5d-4e7f-9a1b-2d3c4e5f6a7b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="addons\ofxPathFitter">
+      <UniqueIdentifier>{c9f5a3b2-4d6e-5f8a-0b2c-3e4f5a6b7c8d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="addons\ofxPathFitter\src">
+      <UniqueIdentifier>{d0a6b4c3-5e7f-6a9b-1c3d-4f5a6b7c8d9e}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -533,8 +560,26 @@
     <ClInclude Include="..\..\..\addons\ofxGui\src\ofxToggle.h">
       <Filter>addons\ofxGui\src</Filter>
     </ClInclude>
+    <ClInclude Include="src\presentation\bezierStrokeTool.h">
+      <Filter>src\presentation</Filter>
+    </ClInclude>
     <ClInclude Include="src\presentation\ui\modelListPanel.h">
       <Filter>src\presentation\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\addons\ofxPathFitter\src\ofxPathFitter.h">
+      <Filter>addons\ofxPathFitter\src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\vector_shapes\sceneShapeBezierCurve.h">
+      <Filter>src\vector_shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="src\vector_shapes\sceneShapeFunkyCircles.h">
+      <Filter>src\vector_shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="src\vector_shapes\sceneShapeStars.h">
+      <Filter>src\vector_shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="src\vector_shapes\sceneShapeWave.h">
+      <Filter>src\vector_shapes</Filter>
     </ClInclude>
     <ClInclude Include="src\domain\commands\addObjectCommand.h">
       <Filter>src\domain\commands</Filter>

@@ -4,6 +4,9 @@
 #include "domain/shapes/2d/scenePrimitiveLine.h"
 #include "domain/shapes/2d/scenePrimitivePoint.h"
 #include "domain/shapes/2d/scenePrimitiveRect.h"
+#include "vector_shapes/sceneShapeFunkyCircles.h"
+#include "vector_shapes/sceneShapeStars.h"
+#include "vector_shapes/sceneShapeWave.h"
 #include "domain/commands/addObjectCommand.h"
 #include "domain/commands/removeObjectCommand.h"
 #include "domain/commands/parameterCommand.h"
@@ -29,7 +32,7 @@ namespace {
 	// Default values, also restored by the reset button
 	const ofColor defaultBackgroundColor(31);
 	const ofColor defaultStrokeColor(255);
-	const ofColor defaultFillColor(31);
+	const ofColor defaultFillColor(210, 43, 43);
 	constexpr float defaultStrokeWeight = 4.0f;
 	const string defaultText = "ift3100";
 	constexpr float defaultModelSize = 150.0f;
@@ -74,10 +77,15 @@ namespace {
 		switch (type) {
 		case ToolType::Rect:
 		case ToolType::Ellipse:
+		case ToolType::Stars:
+		case ToolType::Wave:
+		case ToolType::FunkyCircles:
 			return extent.x >= minShapeSize && extent.y >= minShapeSize;
 		case ToolType::Line:
 			return glm::length(extent) >= minShapeSize;
 		case ToolType::Point:
+		case ToolType::Bezier:
+		case ToolType::Model3d:
 		case ToolType::Select:
 			return true;
 		}
@@ -94,9 +102,16 @@ namespace {
 			return "point";
 		case ToolType::Ellipse:
 			return "ellipse";
+		case ToolType::Stars:
+			return "etoile";
+		case ToolType::Wave:
+			return "vague";
+		case ToolType::FunkyCircles:
+			return "cercles funky";
+		case ToolType::Bezier:
+			return "bezier";
 		case ToolType::Select:
 			break;
-			;
 		}
 		return "objet";
 	}
@@ -306,10 +321,9 @@ void Application::draw() {
 	transformTool.drawOverlay();
 
 	if (isMouseButtonPressed) {
-		if (auto preview = makeShape(toolType, mousePressPos, mouseCurrentPos)) {
-			preview->draw();
-		}
-		if (toolType == ToolType::Model3d) {
+		if (toolType == ToolType::Bezier && bezierStrokeTool.isActive()) {
+			bezierStrokeTool.draw();
+		} else if (toolType == ToolType::Model3d) {
 			if (auto preview = makeModel(mousePressPos, mouseCurrentPos)) {
 				preview->draw();
 			}
@@ -410,10 +424,15 @@ CursorState Application::currentCursorState(const glm::vec2 & mouse) const {
 	case ToolType::Rect:
 	case ToolType::Line:
 	case ToolType::Ellipse:
+	case ToolType::Stars:
+	case ToolType::Wave:
+	case ToolType::FunkyCircles:
+	case ToolType::Bezier:
 		return CursorState::Crosshair;
 	case ToolType::Point:
 		return CursorState::Point;
 	case ToolType::Select:
+	case ToolType::Model3d:
 		break;
 	}
 
@@ -477,6 +496,18 @@ void Application::keyPressed(ofKeyEventArgs & args) {
 			ofLog() << "<aucun modele 3d importe>";
 		}
 		break;
+	case '6':
+		setToolType(ToolType::Stars);
+		break;
+	case '7':
+		setToolType(ToolType::Wave);
+		break;
+	case '8':
+		setToolType(ToolType::FunkyCircles);
+		break;
+	case 'b':
+		setToolType(ToolType::Bezier);
+		break;
 
 	case 'z':
 	case 26:
@@ -523,6 +554,7 @@ void Application::setToolType(ToolType mode) {
 	toolType = mode;
 	transformTool.clearSelection();
 	isMouseButtonPressed = false;
+	bezierStrokeTool.cancel();
 }
 
 void Application::removeSelectedPaletteColor() {
@@ -578,6 +610,10 @@ void Application::mousePressed(int x, int y, int button) {
 	}
 
 	mousePressPos = mouseCurrentPos = glm::vec2(x, y);
+	if (toolType == ToolType::Bezier) {
+		bezierStrokeTool.begin(mousePressPos, fillColor, strokeColor, strokeWeight,
+			shapeLabel(ToolType::Bezier));
+	}
 }
 
 void Application::mouseDragged(int x, int y, int button) {
@@ -588,6 +624,9 @@ void Application::mouseDragged(int x, int y, int button) {
 		return;
 	}
 	mouseCurrentPos = glm::vec2(x, y);
+	if (toolType == ToolType::Bezier) {
+		bezierStrokeTool.extend(mouseCurrentPos);
+	}
 }
 
 void Application::mouseReleased(int x, int y, int button) {
@@ -599,6 +638,12 @@ void Application::mouseReleased(int x, int y, int button) {
 		return;
 	}
 	mouseCurrentPos = glm::vec2(x, y);
+	if (toolType == ToolType::Bezier) {
+		if (auto curve = bezierStrokeTool.commit(mouseCurrentPos)) {
+			history.execute(make_unique<AddObjectCommand>(&scene, move(curve)));
+		}
+		return;
+	}
 
 	if (toolType == ToolType::Model3d) {
 		addModel();
@@ -692,6 +737,22 @@ unique_ptr<ScenePrimitive> Application::makeShape(ToolType type, const glm::vec2
 		shape->SceneObject::position = (start + end) * 0.5f;
 		shape->size = glm::abs(end - start);
 		break;
+	case ToolType::Stars:
+		shape = make_unique<SceneShapeStars>();
+		shape->SceneObject::position = (start + end) * 0.5f;
+		shape->size = glm::abs(end - start);
+		break;
+	case ToolType::Wave:
+		shape = make_unique<SceneShapeWave>();
+		shape->SceneObject::position = (start + end) * 0.5f;
+		shape->size = glm::abs(end - start);
+		break;
+	case ToolType::FunkyCircles:
+		shape = make_unique<SceneShapeFunkyCircles>();
+		shape->SceneObject::position = (start + end) * 0.5f;
+		shape->size = glm::abs(end - start);
+		break;
+	case ToolType::Bezier:
 	case ToolType::Model3d:
 	case ToolType::Select:
 		return nullptr;
