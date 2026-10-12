@@ -21,7 +21,19 @@
 #include "vector_shapes/sceneShapeWave.h"
 #include "infrastructure/modelLibrary.h"
 #include "domain/shapes/3d/sceneModel3d.h"
+#include "domain/shapes/3d/scenePrimitiveCube.h"
+#include "domain/shapes/3d/scenePrimitiveSphere.h"
+#include "domain/shapes/3d/scenePrimitiveCylinder.h"
+#include "domain/shapes/3d/scenePrimitiveCone.h"
+#include "domain/shapes/3d/scenePrimitive3d.h"
 #include "domain/commands/historyManager.h"
+
+enum class Primitive3dType {
+	Cube,
+	Sphere,
+	Cylinder,
+	Cone
+};
 
 enum class ToolType {
 	Select,
@@ -33,7 +45,8 @@ enum class ToolType {
 	Wave,
 	FunkyCircles,
 	Bezier,
-	Model3d
+	Model3d,
+	Primitive3d
 };
 
 class Application : public ofBaseApp {
@@ -61,6 +74,7 @@ private:
 	CursorRenderer cursor;
 	ModelLibrary modelLibrary;
 	string currentModelId;
+	Primitive3dType currentPrimitive3d = Primitive3dType::Cube;
 	ModelListPanel modelListPanel;
 	HistoryManager history;
 
@@ -76,6 +90,7 @@ private:
 	ofxPanel gui;
 	ofxGuiGroup groupDraw;
 	ofxGuiGroup groupExport;
+	ofxGuiGroup groupTransform;
 
 	ofxGuiGroup groupHistory;
 
@@ -94,6 +109,12 @@ private:
 	ofParameter<bool> showGui;
 	ofParameter<bool> showSceneTree;
 
+	ofParameter<float> transformX;
+	ofParameter<float> transformY;
+	ofParameter<float> transformRotation;
+	ofParameter<float> transformWidth;
+	ofParameter<float> transformHeight;
+
 	ofxButton importButton;
 	ofxButton recordButton;
 	ofxButton resetButton;
@@ -107,12 +128,16 @@ private:
 	glm::vec2 mouseCurrentPos;
 	bool isMouseButtonPressed = false;
 	bool histogramRequested = false;
+	bool isSyncingTransformGui = false;
 
 	void setupTheme();
 	void setupImportGui();
 	void setupDrawGui();
 	void setupExportGui();
 	void setupMiscGui();
+	void setupTransformGui();
+
+	void syncTransformGui();
 	void addColorPicker(ofxColorSlider & slider, ofParameter<ofColor> & color, PalettePreview & preview,
 		const string & name, const ofColor & initialColor);
 	glm::vec2 modelListOrigin() const;
@@ -123,6 +148,7 @@ private:
 	void onResetPressed();
 	void onHistogramPressed();
 	void onImportModelPressed();
+	void onTransformChanged(float & value);
 
 	void setupHistoryGui();
 	void buttonUndoPressed();
@@ -150,4 +176,10 @@ private:
 	void addModel();
 	void selectNextModel();
 	void rotateSelectedModels(float degrees);
+
+	unique_ptr<ScenePrimitive3d> makePrimitive3d(const glm::vec2 & start, const glm::vec2 & end) const;
+	void addPrimitive3d();
+	void selectPrimitive3d(Primitive3dType type);
+
+	array<ofParameter<float> *, 5> transformParameters();
 };
