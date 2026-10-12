@@ -59,9 +59,9 @@ private:
 	array<PalettePreview, 3> palettePreviews;
 	ofColor lastActiveColor = ofColor();
 
-	ofColor colorDragStartBackground;
-	ofColor colorDragStartStroke;
-	ofColor colorDragStartFill;
+	ofColor colorRefBackground;
+	ofColor colorRefStroke;
+	ofColor colorRefFill;
 	bool wasMousePressedLastFrame = false;
 
 	ofxPanel gui;
@@ -119,6 +119,7 @@ private:
 	void buttonUndoPressed();
 	void buttonRedoPressed();
 	void commitColorChanges();
+	void syncColorReferences();
 
 	void setToolType(ToolType mode);
 	void deleteSelectedObject();

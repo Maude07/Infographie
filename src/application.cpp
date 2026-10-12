@@ -128,6 +128,7 @@ void Application::setup() {
 	setupExportGui();
 	setupMiscGui();
 	setupHistoryGui();
+	syncColorReferences();
 }
 
 void Application::setupTheme() {
@@ -217,9 +218,7 @@ void Application::update() {
 	}
 
 	if (!mouseDown) {
-		colorDragStartBackground = backgroundColor;
-		colorDragStartStroke = strokeColor;
-		colorDragStartFill = fillColor;
+		syncColorReferences();
 	}
 
 	wasMousePressedLastFrame = mouseDown;
@@ -243,6 +242,7 @@ void Application::buttonUndoPressed() {
 	if (history.canUndo()) {
 		history.undo();
 		transformTool.clearSelection();
+		syncColorReferences();
 	}
 }
 
@@ -250,20 +250,27 @@ void Application::buttonRedoPressed() {
 	if (history.canRedo()) {
 		history.redo();
 		transformTool.clearSelection();
+		syncColorReferences();
 	}
+}
+
+void Application::syncColorReferences() {
+	colorRefBackground = backgroundColor;
+	colorRefStroke = strokeColor;
+	colorRefFill = fillColor;
 }
 
 void Application::commitColorChanges() {
 	vector<unique_ptr<Command>> changes;
 
-	if (backgroundColor.get() != colorDragStartBackground) {
-		changes.push_back(make_unique<ParameterCommand<ofColor>>(backgroundColor, colorDragStartBackground, backgroundColor.get()));
+	if (backgroundColor.get() != colorRefBackground) {
+		changes.push_back(make_unique<ParameterCommand<ofColor>>(backgroundColor, colorRefBackground, backgroundColor.get()));
 	}
-	if (strokeColor.get() != colorDragStartStroke) {
-		changes.push_back(make_unique<ParameterCommand<ofColor>>(strokeColor, colorDragStartStroke, strokeColor.get()));
+	if (strokeColor.get() != colorRefStroke) {
+		changes.push_back(make_unique<ParameterCommand<ofColor>>(strokeColor, colorRefStroke, strokeColor.get()));
 	}
-	if (fillColor.get() != colorDragStartFill) {
-		changes.push_back(make_unique<ParameterCommand<ofColor>>(fillColor, colorDragStartFill, fillColor.get()));
+	if (fillColor.get() != colorRefFill) {
+		changes.push_back(make_unique<ParameterCommand<ofColor>>(fillColor, colorRefFill, fillColor.get()));
 	}
 
 	if (changes.empty()) return;
@@ -476,6 +483,7 @@ void Application::keyPressed(ofKeyEventArgs & args) {
 		if (ofGetKeyPressed(OF_KEY_CONTROL) || args.key == 26) {
 			history.undo();
 			transformTool.clearSelection();
+			syncColorReferences();
 		}
 		break;
 
@@ -484,6 +492,7 @@ void Application::keyPressed(ofKeyEventArgs & args) {
 		if (ofGetKeyPressed(OF_KEY_CONTROL) || args.key == 25) {
 			history.redo();
 			transformTool.clearSelection();
+			syncColorReferences();
 		}
 		break;
 
@@ -606,6 +615,7 @@ void Application::onResetPressed() {
 	histogram.reset();
 	histogramRequested = false;
 	history.clear();
+	syncColorReferences();
 
 	displayText.set(defaultText);
 	backgroundColor = defaultBackgroundColor;
