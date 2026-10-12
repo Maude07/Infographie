@@ -36,7 +36,22 @@ void SceneModel3d::draw() const {
 	ofTranslate(center.x, center.y, depth);
 	ofRotateYDeg(rotationY);
 	ofScale(s, s, s);
-	ofTranslate(c.x, c.y, -c.z);
+
+
+	if (bShowBoundingBox) {
+		ofPushStyle();
+		ofDisableLighting();
+		ofNoFill();
+		ofSetColor(255, 172, 28);
+		ofSetLineWidth(2.0f);
+
+		ofDrawBox(0,0,0, dims.x, dims.y, dims.z);
+
+		ofEnableLighting();
+		ofPopStyle();
+	}
+
+	ofTranslate(c.x,c.y, -c.z);
 
 	glClear(GL_DEPTH_BUFFER_BIT);
 	ofEnableDepthTest();
