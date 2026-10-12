@@ -3,6 +3,7 @@
 #include "domain/scene/sceneObject.h"
 #include "domain/scene/scene.h"
 #include "domain/commands/historyManager.h"
+#include "domain/commands/transformCommand.h"
 #include <unordered_map>
 
 using namespace std;
@@ -58,7 +59,7 @@ private:
     static constexpr float rotationSnap = 15.0f;
 
 	HistoryManager * history = nullptr;
-	unordered_map<SceneObject *, ofRectangle> dragStartBounds;
+	unordered_map<SceneObject *, TransformState> dragStartStates;
 	void captureDragStart();
 
 	SceneObject * single() const { return selection.size() == 1 ? *selection.begin() : nullptr; }

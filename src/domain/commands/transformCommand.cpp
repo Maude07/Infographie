@@ -1,14 +1,19 @@
 #include "domain/commands/transformCommand.h"
 
-TransformCommand::TransformCommand(SceneObject * target, ofRectangle oldBounds, ofRectangle newBounds)
+TransformCommand::TransformCommand(SceneObject * target, TransformState oldState, TransformState newState)
 	: target(target)
-	, oldBounds(oldBounds)
-	, newBounds(newBounds) { }
+	, oldState(oldState)
+	, newState(newState) { }
 
 void TransformCommand::undo() {
-	target->setBounds(oldBounds);
+	apply(oldState);
 }
 
 void TransformCommand::redo() {
-	target->setBounds(newBounds);
+	apply(newState);
+}
+
+void TransformCommand::apply(const TransformState & state) {
+	target->setBounds(state.bounds);
+	target->rotation = state.rotation;
 }
