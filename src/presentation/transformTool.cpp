@@ -24,9 +24,9 @@ void TransformTool::select(SceneObject* object, bool additive) {
 }
 
 void TransformTool::captureDragStart() {
-	dragStartBounds.clear();
+	dragStartStates.clear();
 	for (SceneObject * object : selection) {
-		dragStartBounds[object] = object->getBounds();
+		dragStartStates[object] = TransformState::of(*object);
 	}
 }
 
@@ -53,6 +53,7 @@ void TransformTool::mousePressed(Scene & scene, float x, float y, bool additive)
 			isRotating = true;
 			rotateStartAngle = angleFromCenter(*only, lastMouse);
 			rotateStartValue = only->rotation;
+			captureDragStart();
 			return;
 		}
 	}
@@ -120,16 +121,13 @@ void TransformTool::mouseReleased(Scene & scene) {
 		isInZone = false;
 	}
 
-	if ((isResizing || isDragging) && history && !dragStartBounds.empty()) {
+	if ((isResizing || isDragging || isRotating) && history && !dragStartStates.empty()) {
 		vector<unique_ptr<Command>> changes;
 
-		for (auto & [object, startBounds] : dragStartBounds) {
-			ofRectangle currentBounds = object->getBounds();
-
-			if (currentBounds.x != startBounds.x || currentBounds.y != startBounds.y || 
-				currentBounds.width != startBounds.width || currentBounds.height != startBounds.height) {
-
-				changes.push_back(make_unique<TransformCommand>(object, startBounds, currentBounds));
+		for (auto & [object, startState] : dragStartStates) {
+			TransformState currentState = TransformState::of(*object);
+			if (currentState != startState) {
+				changes.push_back(make_unique<TransformCommand>(object, startState, currentState));
 			}
 		}
 
@@ -142,8 +140,8 @@ void TransformTool::mouseReleased(Scene & scene) {
 		}
 	}
 
-	dragStartBounds.clear();
-    isResizing = false;
+	dragStartStates.clear();
+	isResizing = false;
 	isDragging = false;
 	isRotating = false;
 }
@@ -199,7 +197,7 @@ void TransformTool::drawOverlay() const {
 			ofPopMatrix();
 		}
 	}
-	
+
     ofPopStyle();
 }
 
