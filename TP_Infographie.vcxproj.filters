@@ -94,6 +94,15 @@
     <ClCompile Include="src\presentation\ui\modelListPanel.cpp">
       <Filter>src\presentation\ui</Filter>
     </ClCompile>
+    <ClCompile Include="src\domain\commands\addObjectCommand.cpp">
+      <Filter>src\domain\commands</Filter>
+    </ClCompile>
+    <ClCompile Include="src\domain\commands\historyManager.cpp">
+      <Filter>src\domain\commands</Filter>
+    </ClCompile>
+    <ClCompile Include="src\domain\commands\transformCommand.cpp">
+      <Filter>src\domain\commands</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="src">
@@ -158,6 +167,9 @@
     </Filter>
     <Filter Include="addons\ofxGui\src">
       <UniqueIdentifier>{52FF4288--987-1-4C-A8-B-288-A1E2027B5776}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\domain\commands">
+      <UniqueIdentifier>{ae46d9c4-7a0f-4117-b4bb-168e1ef2fc97}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -520,6 +532,21 @@
     </ClInclude>
     <ClInclude Include="src\presentation\ui\modelListPanel.h">
       <Filter>src\presentation\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\domain\commands\addObjectCommand.h">
+      <Filter>src\domain\commands</Filter>
+    </ClInclude>
+    <ClInclude Include="src\domain\commands\command.h">
+      <Filter>src\domain\commands</Filter>
+    </ClInclude>
+    <ClInclude Include="src\domain\commands\compositeCommand.h">
+      <Filter>src\domain\commands</Filter>
+    </ClInclude>
+    <ClInclude Include="src\domain\commands\historyManager.h">
+      <Filter>src\domain\commands</Filter>
+    </ClInclude>
+    <ClInclude Include="src\domain\commands\transformCommand.h">
+      <Filter>src\domain\commands</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

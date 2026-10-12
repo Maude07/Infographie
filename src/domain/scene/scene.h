@@ -8,6 +8,7 @@ class Scene {
 public:
     void add(unique_ptr<SceneObject> object);
 	void remove(const unordered_set<SceneObject *> & toRemove);
+	unique_ptr<SceneObject> extract(const SceneObject * object);
     void draw() const;
 	void clear();
 

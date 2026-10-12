@@ -4,6 +4,7 @@
 #include "domain/shapes/2d/scenePrimitiveLine.h"
 #include "domain/shapes/2d/scenePrimitivePoint.h"
 #include "domain/shapes/2d/scenePrimitiveRect.h"
+#include "domain/commands/addObjectCommand.h"
 
 using namespace std;
 
@@ -117,10 +118,13 @@ void Application::setup() {
 	gui.setup("interface", "setting.json", 0, 0);
 	palette = defaultPalette();
 
+	transformTool.setHistory(&history);
+
 	setupImportGui();
 	setupDrawGui();
 	setupExportGui();
 	setupMiscGui();
+	setupHistoryGui();
 }
 
 void Application::setupTheme() {
@@ -204,6 +208,34 @@ void Application::update() {
 	renderer.update();
 }
 
+void Application::setupHistoryGui() {
+	groupHistory.setup("historique");
+
+	buttonUndo.setup("annuler (ctrl+z)");
+	buttonUndo.addListener(this, &Application::buttonUndoPressed);
+	groupHistory.add(&buttonUndo);
+
+	buttonRedo.setup("refaire (ctrl+y)");
+	buttonRedo.addListener(this, &Application::buttonRedoPressed);
+	groupHistory.add(&buttonRedo);
+
+	gui.add(&groupHistory);
+}
+
+void Application::buttonUndoPressed() {
+	if (history.canUndo()) {
+		history.undo();
+		transformTool.clearSelection();
+	}
+}
+
+void Application::buttonRedoPressed() {
+	if (history.canRedo()) {
+		history.redo();
+		transformTool.clearSelection();
+	}
+}
+
 void Application::draw() {
 	float left = canvasLeft();
 	ofRectangle canvas(left, 0, ofGetWidth() - left, ofGetHeight());
@@ -252,6 +284,9 @@ void Application::draw() {
 	if (showSceneTree) {
 		sceneTreePanel.draw(scene, transformTool.getSelection(), glm::vec2(ofGetMouseX(), ofGetMouseY()));
 	}
+
+	buttonUndo.setBackgroundColor(history.canUndo() ? ofColor(90, 140, 240) : ofColor(50, 50, 55));
+	buttonRedo.setBackgroundColor(history.canRedo() ? ofColor(90, 140, 240) : ofColor(50, 50, 55));
 
 	if (showGui) {
 		gui.draw();
@@ -397,6 +432,20 @@ void Application::keyPressed(ofKeyEventArgs & args) {
 		}
 		break;
 
+	case 'z':
+		if (ofGetKeyPressed(OF_KEY_CONTROL)) {
+			history.undo();
+			transformTool.clearSelection();
+		}
+		break;
+
+	case 'y':
+		if (ofGetKeyPressed(OF_KEY_CONTROL)) {
+			history.redo();
+			transformTool.clearSelection();
+		}
+		break;
+
 	case OF_KEY_DEL:
 	case OF_KEY_BACKSPACE:
 		if (transformTool.hasSelection()) {
@@ -517,6 +566,7 @@ void Application::onResetPressed() {
 	scene.clear();
 	histogram.reset();
 	histogramRequested = false;
+	history.clear();
 
 	displayText.set(defaultText);
 	backgroundColor = defaultBackgroundColor;
@@ -539,7 +589,7 @@ void Application::onImportPressed() {
 
 	float offset = importCascadeOffset * (scene.size() % importCascadeSteps);
 	image->position = { canvasLeft() + importMarginLeft + offset, importTop + offset };
-	scene.add(move(image));
+	history.execute(make_unique<AddObjectCommand>(&scene, move(image)));
 }
 
 void Application::onRecordPressed() {
@@ -607,7 +657,7 @@ void Application::addVectorShape() {
 	if (!isLargeEnough(toolType, mousePressPos, mouseCurrentPos)) return;
 
 	if (auto shape = makeShape(toolType, mousePressPos, mouseCurrentPos)) {
-		scene.add(move(shape));
+		history.execute(make_unique<AddObjectCommand>(&scene, move(shape)));
 	}
 }
 
@@ -631,7 +681,7 @@ unique_ptr<SceneModel3d> Application::makeModel(const glm::vec2 & start, const g
 
 void Application::addModel() {
 	if (auto instance = makeModel(mousePressPos, mouseCurrentPos)) {
-		scene.add(move(instance));
+		history.execute(make_unique<AddObjectCommand>(&scene, move(instance)));
 	}
 }
 
@@ -663,6 +713,8 @@ void Application::exit() {
 	recordButton.removeListener(this, &Application::onRecordPressed);
 	resetButton.removeListener(this, &Application::onResetPressed);
 	histogramButton.removeListener(this, &Application::onHistogramPressed);
+	buttonUndo.removeListener(this, &Application::buttonUndoPressed);
+	buttonRedo.removeListener(this, &Application::buttonRedoPressed);
 
 	backgroundColor.removeListener(this, &Application::onColorChanged);
 	strokeColor.removeListener(this, &Application::onColorChanged);

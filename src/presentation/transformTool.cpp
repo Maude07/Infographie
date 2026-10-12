@@ -1,4 +1,6 @@
 #include "presentation/transformTool.h"
+#include "domain/commands/transformCommand.h"
+#include "domain/commands/compositeCommand.h"
 
 using namespace std;
 
@@ -20,6 +22,13 @@ void TransformTool::select(SceneObject* object, bool additive) {
 	isInZone = false;
 }
 
+void TransformTool::captureDragStart() {
+	dragStartBounds.clear();
+	for (SceneObject * object : selection) {
+		dragStartBounds[object] = object->getBounds();
+	}
+}
+
 void TransformTool::mousePressed(Scene & scene, float x, float y, bool additive) {
 	lastMouse = glm::vec2(x, y);
 	isResizing = false;
@@ -29,6 +38,7 @@ void TransformTool::mousePressed(Scene & scene, float x, float y, bool additive)
 	if (SceneObject * only = single()) {
 		if (only->isResizable() && getHandleBounds(*only).inside(x, y)) {
 			isResizing = true;
+			captureDragStart();
 			return;
 		}
 	}
@@ -49,6 +59,8 @@ void TransformTool::mousePressed(Scene & scene, float x, float y, bool additive)
 		if (selection.count(hit) == 0) select(hit);
 		isDragging = true;
 	}
+
+	if (isDragging) captureDragStart();
 }
 
 void TransformTool::mouseDragged(float x, float y) {
@@ -82,6 +94,28 @@ void TransformTool::mouseReleased(Scene & scene) {
 		}
 		isInZone = false;
 	}
+
+	if ((isResizing || isDragging) && history && !dragStartBounds.empty()) {
+		vector<unique_ptr<Command>> changes;
+
+		for (auto & [object, startBounds] : dragStartBounds) {
+			ofRectangle currentBounds = object->getBounds();
+
+			if (currentBounds.x != startBounds.x || currentBounds.y != startBounds.y || currentBounds.width != startBounds.width || currentBounds.height != startBounds.height) {
+
+				changes.push_back(make_unique<TransformCommand>(object, startBounds, currentBounds));
+			}
+		}
+
+		if (!changes.empty()) {
+			if (changes.size() == 1) {
+				history->push(move(changes.front()));
+			} else {
+				history->push(make_unique<CompositeCommand>(move(changes)));
+			}
+		}
+	}
+	dragStartBounds.clear();
     isResizing = false;
 	isDragging = false;
 }
