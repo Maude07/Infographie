@@ -21,9 +21,19 @@
 #include "vector_shapes/sceneShapeWave.h"
 #include "infrastructure/modelLibrary.h"
 #include "domain/shapes/3d/sceneModel3d.h"
+#include "domain/shapes/3d/scenePrimitiveCube.h"
+#include "domain/shapes/3d/scenePrimitiveSphere.h"
+#include "domain/shapes/3d/scenePrimitiveCylinder.h"
+#include "domain/shapes/3d/scenePrimitiveCone.h"
 #include "domain/shapes/3d/scenePrimitive3d.h"
 #include "domain/commands/historyManager.h"
 
+enum class Primitive3dType {
+	Cube,
+	Sphere,
+	Cylinder,
+	Cone
+};
 
 enum class ToolType {
 	Select,

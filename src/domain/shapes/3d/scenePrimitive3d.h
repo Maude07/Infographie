@@ -1,21 +1,13 @@
 #pragma once
+
 #include "ofMain.h"
 #include "../../scene/sceneObject.h"
 
-enum class Primitive3dType {
-    Cube,
-    Sphere,
-    Cylinder,
-    Cone
-};
-
-string primitive3dLabel(Primitive3dType type);
-
 class ScenePrimitive3d : public SceneObject {
 public: 
-    ScenePrimitive3d(Primitive3dType type,
-        const glm::vec2 & center,
-        float footprint = 150.0f);    
+    ofColor color = ofColor::white;
+    float rotationY = 0.0f;
+    float depth = 0.0f;
 
     void draw() const override;
 
@@ -24,12 +16,15 @@ public:
         SceneObject::setBounds(ofRectangle(bounds.x, bounds.y, side, side));
     }
 
-    Primitive3dType getType() const { return type; }
+protected:
+    static constexpr float half = 0.5f;
+    static constexpr int segments = 32;
 
-    ofColor color = ofColor(255);
-    float rotationY = 0.0f;
-    float depth = 0.0f;
+    virtual const ofMesh & mesh() const = 0;
 
-private:
-    Primitive3dType type;
+    static void addTriangle(ofMesh & mesh,
+        const glm::vec3 & a, const glm::vec3 & b, const glm::vec3 & c,
+        const glm::vec3 & na, const glm::vec3 & nb, const glm::vec3 & nc);
+    static glm::vec3 circlePoint(int segment);
+    static void addCap(ofMesh & mesh, float y, const glm::vec3 & normal);
 };

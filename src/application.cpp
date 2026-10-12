@@ -95,6 +95,20 @@ const glm::vec2 collapsedGuiIconOffset(10, 18);
 		return "objet";
 	}
 
+	string primitive3dLabel(Primitive3dType type) {
+		switch (type) {
+		case Primitive3dType::Cube:
+			return "cube";
+		case Primitive3dType::Sphere:
+			return "sphere";
+		case Primitive3dType::Cylinder:
+			return "cylindre";
+		case Primitive3dType::Cone:
+			return "cone";
+		}
+		return "primitive 3d";
+	}
+
 }
 
 void Application::setup() {
@@ -879,14 +893,34 @@ void Application::rotateSelectedModels(float degrees) {
 }
 
 unique_ptr<ScenePrimitive3d> Application::makePrimitive3d(const glm::vec2 & start, const glm::vec2 & end) const {
+	unique_ptr<ScenePrimitive3d> primitive;
+
+	switch (currentPrimitive3d) {
+	case Primitive3dType::Cube:
+		primitive = make_unique<ScenePrimitiveCube>();
+		break;
+	case Primitive3dType::Sphere:
+		primitive = make_unique<ScenePrimitiveSphere>();
+		break;
+	case Primitive3dType::Cylinder:
+		primitive = make_unique<ScenePrimitiveCylinder>();
+		break;
+	case Primitive3dType::Cone:
+		primitive = make_unique<ScenePrimitiveCone>();
+		break;
+	}
+
 	glm::vec2 extent = glm::abs(end - start);
 	float footprint = max(extent.x, extent.y);
 	if (footprint < minShapeSize) footprint = defaults::defaultModelSize;
 
-	auto primitive = make_unique<ScenePrimitive3d>(currentPrimitive3d, (start + end) * 0.5f, footprint);
+	primitive->size = { footprint, footprint };
+	primitive->position = (start + end) * 0.5f - primitive->size * 0.5f;
+	primitive->name = primitive3dLabel(currentPrimitive3d);
 	primitive->color = fillColor;
 	return primitive;
 }
+
 
 void Application::addPrimitive3d() {
 	history.execute(make_unique<AddObjectCommand>(&scene, makePrimitive3d(mousePressPos, mouseCurrentPos)));
