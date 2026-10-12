@@ -32,7 +32,7 @@ namespace {
 	// Default values, also restored by the reset button
 	const ofColor defaultBackgroundColor(31);
 	const ofColor defaultStrokeColor(255);
-	const ofColor defaultFillColor(31);
+	const ofColor defaultFillColor(210, 43, 43);
 	constexpr float defaultStrokeWeight = 4.0f;
 	const string defaultText = "ift3100";
 	constexpr float defaultModelSize = 150.0f;
