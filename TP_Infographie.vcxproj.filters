@@ -31,6 +31,9 @@
     <ClCompile Include="src\domain\shapes\3d\sceneModel3d.cpp">
       <Filter>src\domain\shapes\3d</Filter>
     </ClCompile>
+    <ClCompile Include="src\domain\shapes\3d\scenePrimitive3d.cpp">
+      <Filter>src\domain\shapes\3d</Filter>
+    </ClCompile>
     <ClCompile Include="src\infrastructure\imageExporter.cpp">
       <Filter>src\infrastructure</Filter>
     </ClCompile>
@@ -245,6 +248,9 @@
     <ClInclude Include="src\domain\shapes\3d\sceneModel3d.h">
       <Filter>src\domain\shapes\3d</Filter>
     </ClInclude>
+    <ClInclude Include="src\domain\shapes\3d\scenePrimitive3d.h">
+      <Filter>src\domain\shapes\3d</Filter>
+    <ClInclude>
     <ClInclude Include="src\infrastructure\imageExporter.h">
       <Filter>src\infrastructure</Filter>
     </ClInclude>
@@ -618,6 +624,7 @@
       <Filter>src\domain\camera</Filter>
     </ClInclude>
     <ClInclude Include="src\domain\commands\depthCommand.h">
+    <ClInclude Include="src\domain\commands\rotateYCommand.h">
       <Filter>src\domain\commands</Filter>
     </ClInclude>
   </ItemGroup>

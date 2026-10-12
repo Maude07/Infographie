@@ -246,6 +246,7 @@
     <ClCompile Include="src\domain\shapes\2d\scenePrimitivePoint.cpp" />
     <ClCompile Include="src\domain\shapes\2d\scenePrimitiveRect.cpp" />
     <ClCompile Include="src\domain\shapes\3d\sceneModel3d.cpp" />
+    <ClCompile Include="src\domain\shapes\3d\scenePrimitive3d.cpp" />
     <ClCompile Include="src\infrastructure\imageExporter.cpp" />
     <ClCompile Include="src\infrastructure\modelLibrary.cpp" />
     <ClCompile Include="src\presentation\cursorRenderer.cpp" />
@@ -285,6 +286,7 @@
     <ClInclude Include="src\domain\commands\historyManager.h" />
     <ClInclude Include="src\domain\commands\parameterCommand.h" />
     <ClInclude Include="src\domain\commands\removeObjectCommand.h" />
+    <ClInclude Include="src\domain\commands\rotateYCommand.h" />
     <ClInclude Include="src\domain\commands\transformCommand.h" />
     <ClInclude Include="src\domain\histogram.h" />
     <ClInclude Include="src\domain\scene\scene.h" />
@@ -296,6 +298,7 @@
     <ClInclude Include="src\domain\shapes\2d\scenePrimitivePoint.h" />
     <ClInclude Include="src\domain\shapes\2d\scenePrimitiveRect.h" />
     <ClInclude Include="src\domain\shapes\3d\sceneModel3d.h" />
+    <ClInclude Include="src\domain\shapes\3d\scenePrimitive3d.h" />
     <ClInclude Include="src\infrastructure\imageExporter.h" />
     <ClInclude Include="src\infrastructure\modelLibrary.h" />
     <ClInclude Include="src\presentation\cursorRenderer.h" />

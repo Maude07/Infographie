@@ -216,7 +216,7 @@ private:
 	void drawCameraLabel() const;
 	bool isOverUi(int x, int y) const;
 
-	unique_ptr<ScenePrimitive3d> makePrimitive3d(const glm::vec2 * start, const glm::vec2 * end) const;
+	unique_ptr<ScenePrimitive3d> makePrimitive3d(const glm::vec2 & start, const glm::vec2 & end) const;
 	void addPrimitive3d();
 	void selectPrimitive3d(Primitive3dType type);
 
