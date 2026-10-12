@@ -10,7 +10,7 @@ namespace defaults {
     const std::string defaultText = "ift3100";
     constexpr float defaultModelSize = 150.0f;
 
-    std::vector<ofColor> defaultPalette() {
+    inline std::vector<ofColor> defaultPalette() {
         return {
             ofColor(15, 15, 15),
             ofColor(255, 182, 193),
