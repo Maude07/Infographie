@@ -63,7 +63,6 @@ const glm::vec2 collapsedGuiIconOffset(10, 18);
 		case ToolType::Bezier:
 		case ToolType::Model3d:
 		case ToolType::Select:
-		case ToolType::Model3d:
 		case ToolType::Primitive3d:
 			return true;
 		}
@@ -326,7 +325,7 @@ void Application::draw() {
 		} else if (toolType == ToolType::Primitive3d) {
 			makePrimitive3d(mousePressPos, mouseCurrentPos)->draw();
 		} else if (auto preview = makeShape(toolType, mousePressPos, mouseCurrentPos)) {
-			
+			preview->draw();
 		}
 	}
 
@@ -449,7 +448,6 @@ CursorState Application::currentCursorState(const glm::vec2 & mouse) const {
 	case ToolType::Point:
 		return CursorState::Point;
 	case ToolType::Select:
-	case ToolType::Model3d:
 		break;
 	}
 
@@ -521,6 +519,13 @@ void Application::keyPressed(ofKeyEventArgs & args) {
 		break;
 	case '8':
 		setToolType(ToolType::FunkyCircles);
+		break;
+	case '9':
+		if (toolType == ToolType::Primitive3d) {
+			selectPrimitive3d(static_cast<Primitive3dType>((static_cast<int>(currentPrimitive3d) + 1) % 4));
+		} else {
+			selectPrimitive3d(currentPrimitive3d);
+		}
 		break;
 	case 'b':
 		setToolType(ToolType::Bezier);
@@ -667,6 +672,11 @@ void Application::mouseReleased(int x, int y, int button) {
 		return;
 	}
 
+	if (toolType == ToolType::Primitive3d) {
+		addPrimitive3d();
+		return;
+	}
+
 	addVectorShape();
 }
 
@@ -790,6 +800,7 @@ unique_ptr<ScenePrimitive> Application::makeShape(ToolType type, const glm::vec2
 		break;
 	case ToolType::Bezier:
 	case ToolType::Model3d:
+	case ToolType::Primitive3d:
 	case ToolType::Select:
 		return nullptr;
 	}
@@ -843,11 +854,48 @@ void Application::selectNextModel() {
 }
 
 void Application::rotateSelectedModels(float degrees) {
+	vector<unique_ptr<Command>> changes;
+
 	for (SceneObject * object : transformTool.getSelection()) {
+		float * rotationY = nullptr;
 		if (auto * model = dynamic_cast<SceneModel3d *>(object)) {
-			model->rotationY = fmod(model->rotationY + degrees, 360.0f);
+			rotationY = &model->rotationY;
+		} else if (auto * primitive = dynamic_cast<ScenePrimitive3d *>(object)) {
+			rotationY = &primitive->rotationY;
 		}
+		if (!rotationY) continue;
+
+		float newValue = fmod(*rotationY + degrees, 360.0f);
+		changes.push_back(make_unique<RotateYCommand>(*rotationY, *rotationY, newValue));
 	}
+
+	if (changes.empty()) return;
+
+	if (changes.size() == 1) {
+		history.execute(move(changes.front()));
+	} else {
+		history.execute(make_unique<CompositeCommand>(move(changes)));
+	}
+}
+
+unique_ptr<ScenePrimitive3d> Application::makePrimitive3d(const glm::vec2 & start, const glm::vec2 & end) const {
+	glm::vec2 extent = glm::abs(end - start);
+	float footprint = max(extent.x, extent.y);
+	if (footprint < minShapeSize) footprint = defaults::defaultModelSize;
+
+	auto primitive = make_unique<ScenePrimitive3d>(currentPrimitive3d, (start + end) * 0.5f, footprint);
+	primitive->color = fillColor;
+	return primitive;
+}
+
+void Application::addPrimitive3d() {
+	history.execute(make_unique<AddObjectCommand>(&scene, makePrimitive3d(mousePressPos, mouseCurrentPos)));
+}
+
+void Application::selectPrimitive3d(Primitive3dType type) {
+	currentPrimitive3d = type;
+	setToolType(ToolType::Primitive3d);
+	ofLog() << "<primitive 3d: " << primitive3dLabel(type) << ">";
 }
 
 float Application::canvasLeft() const {
