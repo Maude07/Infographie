@@ -1,5 +1,5 @@
 #pragma once
-#include "domain/shapes/scenePrimitive.h"
+#include "domain/shapes/2d/scenePrimitive.h"
 #include "ofMain.h"
 
 class ScenePrimitiveRect : public ScenePrimitive {

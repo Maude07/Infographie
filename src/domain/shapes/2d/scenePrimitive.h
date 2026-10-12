@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ofMain.h"
-#include "domain/sceneObject.h"
+#include "domain/scene/sceneObject.h"
 
 class ScenePrimitive : public SceneObject {
 public:

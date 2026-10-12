@@ -1,5 +1,5 @@
 #include "ofMain.h"
-#include "domain/scene.h"
+#include "domain/scene/scene.h"
 
 using namespace std;
 
@@ -11,6 +11,17 @@ void Scene::draw() const {
     for (const auto & object : objects) {
         object->draw();
     }
+}
+
+unique_ptr<SceneObject> Scene::extract(const SceneObject * object) {
+	for (auto it = objects.begin(); it != objects.end(); ++it) {
+		if (it->get() == object) {
+			unique_ptr<SceneObject> extracted = move(*it);
+			objects.erase(it);
+			return extracted;
+		}
+	}
+	return nullptr;
 }
 
 void Scene::remove(const unordered_set<SceneObject*> & toRemove) {

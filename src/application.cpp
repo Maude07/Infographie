@@ -1,103 +1,120 @@
 #include "application.h"
-#include "domain/sceneImage.h"
-#include "domain/shapes/scenePrimitiveEllipse.h"
-#include "domain/shapes/scenePrimitiveLine.h"
-#include "domain/shapes/scenePrimitivePoint.h"
-#include "domain/shapes/scenePrimitiveRect.h"
+#include "domain/scene/sceneImage.h"
+#include "domain/shapes/2d/scenePrimitiveEllipse.h"
+#include "domain/shapes/2d/scenePrimitiveLine.h"
+#include "domain/shapes/2d/scenePrimitivePoint.h"
+#include "domain/shapes/2d/scenePrimitiveRect.h"
 #include "vector_shapes/sceneShapeFunkyCircles.h"
 #include "vector_shapes/sceneShapeStars.h"
 #include "vector_shapes/sceneShapeWave.h"
+#include "domain/commands/addObjectCommand.h"
+#include "domain/commands/removeObjectCommand.h"
+#include "domain/commands/parameterCommand.h"
+#include "domain/commands/compositeCommand.h"
 
 using namespace std;
 
 namespace {
 
 	//TODO : Default UI should be in another file?
-// Theme
-const ofColor sidebarColor(18, 18, 22);
-const ofColor sidebarBorderColor(60, 60, 68);
-const ofColor panelColor(24, 24, 28);
-const ofColor panelBorderColor(45, 45, 50);
-const ofColor accentColor(90, 140, 240);
-const ofColor textColor(230, 230, 235);
-constexpr int guiWidth = 280;
-constexpr int guiRowHeight = 36;
-constexpr int guiFontSize = 13;
-const string guiFontPath = "fonts/static/OpenSans-Regular.ttf";
+	// Theme
+	const ofColor sidebarColor(18, 18, 22);
+	const ofColor sidebarBorderColor(60, 60, 68);
+	const ofColor panelColor(24, 24, 28);
+	const ofColor panelBorderColor(45, 45, 50);
+	const ofColor accentColor(90, 140, 240);
+	const ofColor textColor(230, 230, 235);
+	constexpr int guiWidth = 280;
+	constexpr int guiRowHeight = 36;
+	constexpr int guiFontSize = 13;
+	const string guiFontPath = "fonts/static/OpenSans-Regular.ttf";
 
-// Default values, also restored by the reset button
-const ofColor defaultBackgroundColor(31);
-const ofColor defaultStrokeColor(255);
-const ofColor defaultFillColor(31);
-constexpr float defaultStrokeWeight = 4.0f;
-const string defaultText = "ift3100";
+	// Default values, also restored by the reset button
+	const ofColor defaultBackgroundColor(31);
+	const ofColor defaultStrokeColor(255);
+	const ofColor defaultFillColor(31);
+	constexpr float defaultStrokeWeight = 4.0f;
+	const string defaultText = "ift3100";
+	constexpr float defaultModelSize = 150.0f;
 
-vector<ofColor> defaultPalette() {
-	return {
-		ofColor(15, 15, 15),
-		ofColor(255, 182, 193),
-		ofColor(143, 131, 216),
-		ofColor(155, 184, 237)
-	};
-}
+	vector<ofColor> defaultPalette() {
+		return {
+			ofColor(15, 15, 15),
+			ofColor(255, 182, 193),
+			ofColor(143, 131, 216),
+			ofColor(155, 184, 237)
+		};
+	}
 
-// Button shown in the top-left corner while the panel is hidden
-const ofRectangle collapsedGuiButton(10, 10, 30, 30);
-const glm::vec2 collapsedGuiIconOffset(10, 18);
+	// Button shown in the top-left corner while the panel is hidden
+	const ofRectangle collapsedGuiButton(10, 10, 30, 30);
+	const glm::vec2 collapsedGuiIconOffset(10, 18);
 
-// Imported images are placed in a cascade so they don't land exactly on top of each other
-constexpr float importMarginLeft = 50.0f;
-constexpr float importTop = 100.0f;
-constexpr float importCascadeOffset = 30.0f;
-constexpr size_t importCascadeSteps = 10;
+	// Imported images are placed in a cascade so they don't land exactly on top of each other
+	constexpr float importMarginLeft = 50.0f;
+	constexpr float importTop = 100.0f;
+	constexpr float importCascadeOffset = 30.0f;
+	constexpr size_t importCascadeSteps = 10;
 
-// Histogram overlay, anchored to the bottom-left of the canvas
-constexpr float histogramMargin = 20.0f;
-constexpr float histogramWidth = 300.0f;
-constexpr float histogramHeight = 120.0f;
-constexpr float histogramMarginBottom = 30.0f;
+	// Histogram overlay, anchored to the bottom-left of the canvas
+	constexpr float histogramMargin = 20.0f;
+	constexpr float histogramWidth = 300.0f;
+	constexpr float histogramHeight = 120.0f;
+	constexpr float histogramMarginBottom = 30.0f;
 
-// Recording indicator, anchored to the top-right of the window
-constexpr float recordingIndicatorRight = 120.0f;
-constexpr float recordingIndicatorTop = 30.0f;
-constexpr float recordingIndicatorRadius = 8.0f;
-const glm::vec2 recordingLabelOffset(15, 5);
+	// Recording indicator, anchored to the top-right of the window
+	constexpr float recordingIndicatorRight = 120.0f;
+	constexpr float recordingIndicatorTop = 30.0f;
+	constexpr float recordingIndicatorRadius = 8.0f;
+	const glm::vec2 recordingLabelOffset(15, 5);
 
-constexpr float minShapeSize = 3.0f;
+	constexpr float minShapeSize = 3.0f;
 
-bool isLargeEnough(VectorPrimitiveType type, const glm::vec2 & start, const glm::vec2 & end) {
-	glm::vec2 extent = glm::abs(end - start);
-	switch (type) {
-		case VectorPrimitiveType::Rect:
-		case VectorPrimitiveType::Ellipse:
-		case VectorPrimitiveType::Stars:
-		case VectorPrimitiveType::Wave:
-		case VectorPrimitiveType::FunkyCircles:
+	constexpr float rotationStep = 15.0f;
+
+	bool isLargeEnough(ToolType type, const glm::vec2 & start, const glm::vec2 & end) {
+		glm::vec2 extent = glm::abs(end - start);
+		switch (type) {
+		case ToolType::Rect:
+		case ToolType::Ellipse:
+		case ToolType::Stars:
+		case ToolType::Wave:
+		case ToolType::FunkyCircles:
 			return extent.x >= minShapeSize && extent.y >= minShapeSize;
-		case VectorPrimitiveType::Line:
+		case ToolType::Line:
 			return glm::length(extent) >= minShapeSize;
-		case VectorPrimitiveType::Point:
-		case VectorPrimitiveType::Bezier:
-		case VectorPrimitiveType::Select:
+		case ToolType::Point:
+		case ToolType::Bezier:
+		case ToolType::Model3d:
+		case ToolType::Select:
 			return true;
-	}
+		}
 		return true;
-}
-
-string shapeLabel(VectorPrimitiveType type) {
-	switch (type) {
-		case VectorPrimitiveType::Rect: return "rectangle";
-		case VectorPrimitiveType::Line: return "ligne";
-		case VectorPrimitiveType::Point: return "point";
-		case VectorPrimitiveType::Ellipse: return "ellipse";
-		case VectorPrimitiveType::Stars: return "etoile";
-		case VectorPrimitiveType::Wave: return "vague";
-		case VectorPrimitiveType::FunkyCircles: return "cercles funky";
-		case VectorPrimitiveType::Bezier: return "bezier";
-		case VectorPrimitiveType::Select: break;
 	}
-	return "objet";
-}
+
+	string shapeLabel(ToolType type) {
+		switch (type) {
+		case ToolType::Rect:
+			return "rectangle";
+		case ToolType::Line:
+			return "ligne";
+		case ToolType::Point:
+			return "point";
+		case ToolType::Ellipse:
+			return "ellipse";
+		case ToolType::Stars:
+			return "etoile";
+		case ToolType::Wave:
+			return "vague";
+		case ToolType::FunkyCircles:
+			return "cercles funky";
+		case ToolType::Bezier:
+			return "bezier";
+		case ToolType::Select:
+			break;
+		}
+		return "objet";
+	}
 
 }
 
@@ -119,10 +136,14 @@ void Application::setup() {
 	gui.setup("interface", "setting.json", 0, 0);
 	palette = defaultPalette();
 
+	transformTool.setHistory(&history);
+
 	setupImportGui();
 	setupDrawGui();
 	setupExportGui();
 	setupMiscGui();
+	setupHistoryGui();
+	syncColorReferences();
 }
 
 void Application::setupTheme() {
@@ -140,6 +161,10 @@ void Application::setupImportGui() {
 	importButton.setup("Importer une image");
 	importButton.addListener(this, &Application::onImportPressed);
 	gui.add(&importButton);
+
+	importModelButton.setup("Importer un modele 3D");
+	importModelButton.addListener(this, &Application::onImportModelPressed);
+	gui.add(&importModelButton);
 }
 
 void Application::setupDrawGui() {
@@ -155,19 +180,23 @@ void Application::setupDrawGui() {
 
 void Application::addColorPicker(ofxColorSlider & slider, ofParameter<ofColor> & color, PalettePreview & preview,
 	const string & name, const ofColor & initialColor) {
-		color.set(name, initialColor, ofColor(0, 0), ofColor(255, 255));
-		slider.setup(color);
-		preview.setup(palette, color, groupDraw.getWidth());
-		slider.add(&preview);
-		groupDraw.add(&slider);
-		color.addListener(this, &Application::onColorChanged);
-	}
+	color.set(name, initialColor, ofColor(0, 0), ofColor(255, 255));
+	slider.setup(color);
+	preview.setup(palette, color, groupDraw.getWidth());
+	slider.add(&preview);
+	groupDraw.add(&slider);
+	color.addListener(this, &Application::onColorChanged);
+}
+
+glm::vec2 Application::modelListOrigin() const {
+	return glm::vec2(0.0f, gui.getShape().getBottom() + 10.0f);
+}
 
 void Application::setupExportGui() {
 	groupExport.setup("exportation d'images");
 	groupExport.add(exportFps.set("images/sec", 24, 1, 60));
 	groupExport.add(exportDuration.set("duree (s, 0=illimite)", 5.0f, 0.0f, 60.0f));
-	
+
 	recordButton.setup("enregistrer / arreter (r)");
 	recordButton.addListener(this, &Application::onRecordPressed);
 	groupExport.add(&recordButton);
@@ -196,6 +225,76 @@ void Application::update() {
 	renderer.strokeWeight = strokeWeight;
 	renderer.text = displayText;
 	renderer.update();
+
+	bool mouseDown = ofGetMousePressed();
+
+	if (!mouseDown && wasMousePressedLastFrame) {
+		commitColorChanges();
+	}
+
+	if (!mouseDown) {
+		syncColorReferences();
+	}
+
+	wasMousePressedLastFrame = mouseDown;
+}
+
+void Application::setupHistoryGui() {
+	groupHistory.setup("historique");
+
+	buttonUndo.setup("annuler (ctrl+z)");
+	buttonUndo.addListener(this, &Application::buttonUndoPressed);
+	groupHistory.add(&buttonUndo);
+
+	buttonRedo.setup("refaire (ctrl+y)");
+	buttonRedo.addListener(this, &Application::buttonRedoPressed);
+	groupHistory.add(&buttonRedo);
+
+	gui.add(&groupHistory);
+}
+
+void Application::buttonUndoPressed() {
+	if (history.canUndo()) {
+		history.undo();
+		transformTool.clearSelection();
+		syncColorReferences();
+	}
+}
+
+void Application::buttonRedoPressed() {
+	if (history.canRedo()) {
+		history.redo();
+		transformTool.clearSelection();
+		syncColorReferences();
+	}
+}
+
+void Application::syncColorReferences() {
+	colorRefBackground = backgroundColor;
+	colorRefStroke = strokeColor;
+	colorRefFill = fillColor;
+}
+
+void Application::commitColorChanges() {
+	vector<unique_ptr<Command>> changes;
+
+	if (backgroundColor.get() != colorRefBackground) {
+		changes.push_back(make_unique<ParameterCommand<ofColor>>(backgroundColor, colorRefBackground, backgroundColor.get()));
+	}
+	if (strokeColor.get() != colorRefStroke) {
+		changes.push_back(make_unique<ParameterCommand<ofColor>>(strokeColor, colorRefStroke, strokeColor.get()));
+	}
+	if (fillColor.get() != colorRefFill) {
+		changes.push_back(make_unique<ParameterCommand<ofColor>>(fillColor, colorRefFill, fillColor.get()));
+	}
+
+	if (changes.empty()) return;
+
+	if (changes.size() == 1) {
+		history.push(move(changes.front()));
+	} else {
+		history.push(make_unique<CompositeCommand>(move(changes)));
+	}
 }
 
 void Application::draw() {
@@ -222,9 +321,13 @@ void Application::draw() {
 	transformTool.drawOverlay();
 
 	if (isMouseButtonPressed) {
-		if (bezierStrokeTool.isActive()) {
+		if (toolType == ToolType::Bezier && bezierStrokeTool.isActive()) {
 			bezierStrokeTool.draw();
-		} else if (auto preview = makeShape(drawMode, mousePressPos, mouseCurrentPos)) {
+		} else if (toolType == ToolType::Model3d) {
+			if (auto preview = makeModel(mousePressPos, mouseCurrentPos)) {
+				preview->draw();
+			}
+		} else if (auto preview = makeShape(toolType, mousePressPos, mouseCurrentPos)) {
 			preview->draw();
 		}
 	}
@@ -242,8 +345,14 @@ void Application::draw() {
 		sceneTreePanel.draw(scene, transformTool.getSelection(), glm::vec2(ofGetMouseX(), ofGetMouseY()));
 	}
 
+	buttonUndo.setBackgroundColor(history.canUndo() ? ofColor(90, 140, 240) : ofColor(50, 50, 55));
+	buttonRedo.setBackgroundColor(history.canRedo() ? ofColor(90, 140, 240) : ofColor(50, 50, 55));
+
 	if (showGui) {
 		gui.draw();
+		modelListPanel.draw(modelLibrary.ids(),
+			toolType == ToolType::Model3d ? currentModelId : "",
+			modelListOrigin(), gui.getWidth(), glm::vec2(ofGetMouseX(), ofGetMouseY()));
 	} else {
 		drawCollapsedGuiButton();
 	}
@@ -311,26 +420,27 @@ CursorState Application::currentCursorState(const glm::vec2 & mouse) const {
 	if (!showGui && collapsedGuiButton.inside(mouse)) return CursorState::Default;
 	if (showSceneTree && sceneTreePanel.hitTest(scene, mouse.x, mouse.y)) return CursorState::Hover;
 
-	switch (drawMode) {
-		case VectorPrimitiveType::Rect:
-		case VectorPrimitiveType::Line:
-		case VectorPrimitiveType::Ellipse:
-		case VectorPrimitiveType::Stars:
-		case VectorPrimitiveType::Wave:
-		case VectorPrimitiveType::FunkyCircles:
-		case VectorPrimitiveType::Bezier:
-			return CursorState::Crosshair;
-		case VectorPrimitiveType::Point:
-			return CursorState::Point;
-		case VectorPrimitiveType::Select:
-			break;
+	switch (toolType) {
+	case ToolType::Rect:
+	case ToolType::Line:
+	case ToolType::Ellipse:
+	case ToolType::Stars:
+	case ToolType::Wave:
+	case ToolType::FunkyCircles:
+	case ToolType::Bezier:
+		return CursorState::Crosshair;
+	case ToolType::Point:
+		return CursorState::Point;
+	case ToolType::Select:
+	case ToolType::Model3d:
+		break;
 	}
 
 	if (transformTool.isResizingSelection() || transformTool.isOverHandle(mouse.x, mouse.y)) {
 		return CursorState::Resize;
 	}
 	if (isMouseButtonPressed && transformTool.hasSelection()) return CursorState::Move;
-	if (scene.hitTest(mouse.x , mouse.y)) return CursorState::Hover;
+	if (scene.hitTest(mouse.x, mouse.y)) return CursorState::Hover;
 
 	return CursorState::Default;
 }
@@ -340,6 +450,11 @@ void Application::onColorChanged(ofColor & color) {
 }
 
 void Application::keyPressed(ofKeyEventArgs & args) {
+	if (args.key == OF_KEY_LEFT || args.key == OF_KEY_RIGHT) {
+		rotateSelectedModels(args.key == OF_KEY_LEFT ? -rotationStep : rotationStep);
+		return;
+	}
+
 	if (args.isRepeat) return;
 
 	switch (args.key) {
@@ -347,7 +462,7 @@ void Application::keyPressed(ofKeyEventArgs & args) {
 		showGui = !showGui;
 		ofLog() << "<toggle ui: " << showGui << ">";
 		break;
-	
+
 	case 'i':
 		showSceneTree = !showSceneTree;
 		ofLog() << "<toggle scene tree: " << showSceneTree << ">";
@@ -358,35 +473,62 @@ void Application::keyPressed(ofKeyEventArgs & args) {
 		break;
 
 	case '1':
-		setDrawMode(VectorPrimitiveType::Select);
+		setToolType(ToolType::Select);
 		break;
 	case '2':
-		setDrawMode(VectorPrimitiveType::Rect);
+		setToolType(ToolType::Rect);
 		break;
 	case '3':
-		setDrawMode(VectorPrimitiveType::Line);
+		setToolType(ToolType::Line);
 		break;
 	case '4':
-		setDrawMode(VectorPrimitiveType::Point);
+		setToolType(ToolType::Point);
 		break;
 	case '5':
-		setDrawMode(VectorPrimitiveType::Ellipse);
+		setToolType(ToolType::Ellipse);
+		break;
+	case 'm':
+		if (toolType == ToolType::Model3d) {
+			selectNextModel();
+		} else if (!currentModelId.empty()) {
+			setToolType(ToolType::Model3d);
+		} else {
+			ofLog() << "<aucun modele 3d importe>";
+		}
 		break;
 	case '6':
-		setDrawMode(VectorPrimitiveType::Stars);
+		setToolType(ToolType::Stars);
 		break;
 	case '7':
-		setDrawMode(VectorPrimitiveType::Wave);
+		setToolType(ToolType::Wave);
 		break;
 	case '8':
-		setDrawMode(VectorPrimitiveType::FunkyCircles);
+		setToolType(ToolType::FunkyCircles);
 		break;
-	case '9':
-		setDrawMode(VectorPrimitiveType::Bezier);
+	case 'b':
+		setToolType(ToolType::Bezier);
 		break;
 
-	case OF_KEY_DEL :
-	case OF_KEY_BACKSPACE :
+	case 'z':
+	case 26:
+		if (ofGetKeyPressed(OF_KEY_CONTROL) || args.key == 26) {
+			history.undo();
+			transformTool.clearSelection();
+			syncColorReferences();
+		}
+		break;
+
+	case 'y':
+	case 25:
+		if (ofGetKeyPressed(OF_KEY_CONTROL) || args.key == 25) {
+			history.redo();
+			transformTool.clearSelection();
+			syncColorReferences();
+		}
+		break;
+
+	case OF_KEY_DEL:
+	case OF_KEY_BACKSPACE:
 		if (transformTool.hasSelection()) {
 			deleteSelectedObject();
 		} else {
@@ -405,11 +547,11 @@ void Application::deleteSelectedObject() {
 	auto toRemove = transformTool.getSelection();
 	ofLog() << "<deleted objects: " << toRemove.size() << ">";
 	transformTool.clearSelection();
-	scene.remove(toRemove);
+	history.execute(make_unique<RemoveObjectsCommand>(&scene, toRemove));
 }
 
-void Application::setDrawMode(VectorPrimitiveType mode) {
-	drawMode = mode;
+void Application::setToolType(ToolType mode) {
+	toolType = mode;
 	transformTool.clearSelection();
 	isMouseButtonPressed = false;
 	bezierStrokeTool.cancel();
@@ -441,13 +583,20 @@ void Application::mousePressed(int x, int y, int button) {
 		return;
 	}
 
-	if (showGui && gui.getShape().inside(x, y)) return;
+	if (showGui) {
+		string clicked = modelListPanel.hitTest(modelLibrary.ids(), modelListOrigin(), gui.getWidth(), x, y);
+		if (!clicked.empty()) {
+			currentModelId = clicked;
+			setToolType(ToolType::Model3d);
+			return;
+		}
+	}
 
 	bool additive = ofGetKeyPressed(OF_KEY_SHIFT) || ofGetKeyPressed(OF_KEY_CONTROL);
 
 	if (showSceneTree) {
 		if (SceneObject * clicked = sceneTreePanel.hitTest(scene, x, y)) {
-			if (drawMode != VectorPrimitiveType::Select) setDrawMode(VectorPrimitiveType::Select);
+			if (toolType != ToolType::Select) setToolType(ToolType::Select);
 			transformTool.select(clicked, additive);
 			return;
 		}
@@ -455,55 +604,63 @@ void Application::mousePressed(int x, int y, int button) {
 
 	isMouseButtonPressed = true;
 
-	if (drawMode == VectorPrimitiveType::Select) {
+	if (toolType == ToolType::Select) {
 		transformTool.mousePressed(scene, x, y, additive);
 		return;
 	}
 
 	mousePressPos = mouseCurrentPos = glm::vec2(x, y);
-	if (drawMode == VectorPrimitiveType::Bezier) {
+	if (toolType == ToolType::Bezier) {
 		bezierStrokeTool.begin(mousePressPos, fillColor, strokeColor, strokeWeight,
-			shapeLabel(VectorPrimitiveType::Bezier));
+			shapeLabel(ToolType::Bezier));
 	}
 }
-	
+
 void Application::mouseDragged(int x, int y, int button) {
 	if (!isMouseButtonPressed) return;
 
-	if (drawMode == VectorPrimitiveType::Select) {
+	if (toolType == ToolType::Select) {
 		transformTool.mouseDragged(x, y);
 		return;
 	}
 	mouseCurrentPos = glm::vec2(x, y);
-	if (drawMode == VectorPrimitiveType::Bezier) {
+	if (toolType == ToolType::Bezier) {
 		bezierStrokeTool.extend(mouseCurrentPos);
 	}
 }
 
 void Application::mouseReleased(int x, int y, int button) {
-	if(!isMouseButtonPressed) return;
+	if (!isMouseButtonPressed) return;
 	isMouseButtonPressed = false;
 
-	if (drawMode == VectorPrimitiveType::Select) {
+	if (toolType == ToolType::Select) {
 		transformTool.mouseReleased(scene);
 		return;
 	}
 	mouseCurrentPos = glm::vec2(x, y);
-	if (drawMode == VectorPrimitiveType::Bezier) {
+	if (toolType == ToolType::Bezier) {
 		if (auto curve = bezierStrokeTool.commit(mouseCurrentPos)) {
-			scene.add(move(curve));
+			history.execute(make_unique<AddObjectCommand>(&scene, move(curve)));
 		}
 		return;
 	}
+
+	if (toolType == ToolType::Model3d) {
+		addModel();
+		return;
+	}
+
 	addVectorShape();
 }
 
 void Application::onResetPressed() {
 	if (exporter.isRecording) exporter.stop();
-	setDrawMode(VectorPrimitiveType::Select);
+	setToolType(ToolType::Select);
 	scene.clear();
 	histogram.reset();
 	histogramRequested = false;
+	history.clear();
+	syncColorReferences();
 
 	displayText.set(defaultText);
 	backgroundColor = defaultBackgroundColor;
@@ -520,13 +677,13 @@ void Application::onResetPressed() {
 void Application::onImportPressed() {
 	ofFileDialogResult result = ofSystemLoadDialog("Choisir une image");
 	if (!result.bSuccess) return;
-	
+
 	auto image = SceneImage::load(result.getPath());
 	if (!image) return;
 
 	float offset = importCascadeOffset * (scene.size() % importCascadeSteps);
 	image->position = { canvasLeft() + importMarginLeft + offset, importTop + offset };
-	scene.add(move(image));
+	history.execute(make_unique<AddObjectCommand>(&scene, move(image)));
 }
 
 void Application::onRecordPressed() {
@@ -539,53 +696,65 @@ void Application::onHistogramPressed() {
 	histogramRequested = true;
 }
 
+void Application::onImportModelPressed() {
+	ofFileDialogResult result = ofSystemLoadDialog("Choisir un modele 3D", false, ofToDataPath("models", true));
+	if (!result.bSuccess) return;
+
+	string id = ofFilePath::getBaseName(result.getPath());
+	if (!modelLibrary.load(id, result.getPath())) return;
+
+	currentModelId = id;
+	setToolType(ToolType::Model3d);
+}
+
 void Application::windowResized(int w, int h) {
 	ofLog() << "<app::windowResized: (" << w << ", " << h << ")>";
 }
 
-unique_ptr<ScenePrimitive> Application::makeShape(VectorPrimitiveType type, const glm::vec2& start, const glm::vec2& end) const {
+unique_ptr<ScenePrimitive> Application::makeShape(ToolType type, const glm::vec2 & start, const glm::vec2 & end) const {
 	unique_ptr<ScenePrimitive> shape;
 
 	switch (type) {
-	case VectorPrimitiveType::Line:
+	case ToolType::Line:
 		shape = make_unique<ScenePrimitiveLine>();
 		shape->SceneObject::position = start;
 		shape->size = end;
 		shape->filled = false;
 		break;
-	case VectorPrimitiveType::Point:
+	case ToolType::Point:
 		shape = make_unique<ScenePrimitivePoint>();
 		shape->SceneObject::position = start;
 		shape->size = end;
 		shape->filled = false;
 		break;
-	case VectorPrimitiveType::Rect:
+	case ToolType::Rect:
 		shape = make_unique<ScenePrimitiveRect>();
 		shape->SceneObject::position = glm::min(start, end);
 		shape->size = glm::abs(end - start);
 		break;
-	case VectorPrimitiveType::Ellipse:
+	case ToolType::Ellipse:
 		shape = make_unique<ScenePrimitiveEllipse>();
 		shape->SceneObject::position = (start + end) * 0.5f;
 		shape->size = glm::abs(end - start);
 		break;
-	case VectorPrimitiveType::Stars:
+	case ToolType::Stars:
 		shape = make_unique<SceneShapeStars>();
 		shape->SceneObject::position = (start + end) * 0.5f;
 		shape->size = glm::abs(end - start);
 		break;
-	case VectorPrimitiveType::Wave:
+	case ToolType::Wave:
 		shape = make_unique<SceneShapeWave>();
 		shape->SceneObject::position = (start + end) * 0.5f;
 		shape->size = glm::abs(end - start);
 		break;
-	case VectorPrimitiveType::FunkyCircles:
+	case ToolType::FunkyCircles:
 		shape = make_unique<SceneShapeFunkyCircles>();
 		shape->SceneObject::position = (start + end) * 0.5f;
 		shape->size = glm::abs(end - start);
 		break;
-	case VectorPrimitiveType::Bezier:
-	case VectorPrimitiveType::Select:
+	case ToolType::Bezier:
+	case ToolType::Model3d:
+	case ToolType::Select:
 		return nullptr;
 	}
 
@@ -595,33 +764,72 @@ unique_ptr<ScenePrimitive> Application::makeShape(VectorPrimitiveType type, cons
 }
 
 void Application::addVectorShape() {
-	if (!isLargeEnough(drawMode, mousePressPos, mouseCurrentPos)) return;
+	if (!isLargeEnough(toolType, mousePressPos, mouseCurrentPos)) return;
 
-	if (auto shape = makeShape(drawMode, mousePressPos, mouseCurrentPos)) {
-		scene.add(move(shape));
+	if (auto shape = makeShape(toolType, mousePressPos, mouseCurrentPos)) {
+		history.execute(make_unique<AddObjectCommand>(&scene, move(shape)));
 	}
 }
 
-void Application::applyDrawStyle(ScenePrimitive& primitive) const {
+void Application::applyDrawStyle(ScenePrimitive & primitive) const {
 	primitive.fillColor = fillColor;
 	primitive.lineColor = strokeColor;
 	primitive.lineWidth = strokeWeight;
+}
+
+unique_ptr<SceneModel3d> Application::makeModel(const glm::vec2 & start, const glm::vec2 & end) const {
+	auto model = modelLibrary.get(currentModelId);
+	if (!model) return nullptr;
+
+	glm::vec2 extent = glm::abs(end - start);
+	glm::vec2 center = (start + end) * 0.5f;
+	float footprint = max(extent.x, extent.y);
+	if (footprint < minShapeSize) footprint = defaultModelSize;
+
+	return make_unique<SceneModel3d>(currentModelId, model, center, footprint);
+}
+
+void Application::addModel() {
+	if (auto instance = makeModel(mousePressPos, mouseCurrentPos)) {
+		history.execute(make_unique<AddObjectCommand>(&scene, move(instance)));
+	}
+}
+
+void Application::selectNextModel() {
+	auto ids = modelLibrary.ids();
+	if (ids.empty()) return;
+
+	auto it = find(ids.begin(), ids.end(), currentModelId);
+	size_t next = (it == ids.end()) ? 0 : (it - ids.begin() + 1) % ids.size();
+	currentModelId = ids[next];
+	setToolType(ToolType::Model3d);
+	ofLog() << "<model: " << currentModelId << ">";
+}
+
+void Application::rotateSelectedModels(float degrees) {
+	for (SceneObject * object : transformTool.getSelection()) {
+		if (auto * model = dynamic_cast<SceneModel3d *>(object)) {
+			model->rotationY = fmod(model->rotationY + degrees, 360.0f);
+		}
+	}
 }
 
 float Application::canvasLeft() const {
 	return showGui ? gui.getWidth() : 0.0f;
 }
 
-
 void Application::exit() {
 	importButton.removeListener(this, &Application::onImportPressed);
 	recordButton.removeListener(this, &Application::onRecordPressed);
 	resetButton.removeListener(this, &Application::onResetPressed);
 	histogramButton.removeListener(this, &Application::onHistogramPressed);
+	buttonUndo.removeListener(this, &Application::buttonUndoPressed);
+	buttonRedo.removeListener(this, &Application::buttonRedoPressed);
 
 	backgroundColor.removeListener(this, &Application::onColorChanged);
 	strokeColor.removeListener(this, &Application::onColorChanged);
 	fillColor.removeListener(this, &Application::onColorChanged);
+	importModelButton.removeListener(this, &Application::onImportModelPressed);
 
 	cursor.exit();
 

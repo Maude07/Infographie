@@ -10,16 +10,31 @@
 #include "presentation/transformTool.h"
 #include "presentation/ui/palettePreview.h"
 #include "presentation/ui/sceneTreePanel.h"
+#include "presentation/ui/modelListPanel.h"
 #include "domain/histogram.h"
-#include "domain/shapes/scenePrimitiveLine.h"
-#include "domain/shapes/scenePrimitivePoint.h"
-#include "domain/shapes/scenePrimitiveRect.h"
-#include "domain/shapes/scenePrimitiveEllipse.h"
+#include "domain/shapes/2d/scenePrimitiveLine.h"
+#include "domain/shapes/2d/scenePrimitivePoint.h"
+#include "domain/shapes/2d/scenePrimitiveRect.h"
+#include "domain/shapes/2d/scenePrimitiveEllipse.h"
 #include "vector_shapes/sceneShapeFunkyCircles.h"
 #include "vector_shapes/sceneShapeStars.h"
 #include "vector_shapes/sceneShapeWave.h"
+#include "infrastructure/modelLibrary.h"
+#include "domain/shapes/3d/sceneModel3d.h"
+#include "domain/commands/historyManager.h"
 
-enum class VectorPrimitiveType { Select, Rect, Line, Point, Ellipse, Stars, Wave, FunkyCircles, Bezier };
+enum class ToolType {
+	Select,
+	Rect,
+	Line,
+	Point,
+	Ellipse,
+	Stars,
+	Wave,
+	FunkyCircles,
+	Bezier,
+	Model3d
+};
 
 class Application : public ofBaseApp {
 
@@ -44,14 +59,25 @@ private:
 	BezierStrokeTool bezierStrokeTool;
 	SceneTreePanel sceneTreePanel;
 	CursorRenderer cursor;
+	ModelLibrary modelLibrary;
+	string currentModelId;
+	ModelListPanel modelListPanel;
+	HistoryManager history;
 
 	vector<ofColor> palette;
 	array<PalettePreview, 3> palettePreviews;
 	ofColor lastActiveColor = ofColor();
 
+	ofColor colorRefBackground;
+	ofColor colorRefStroke;
+	ofColor colorRefFill;
+	bool wasMousePressedLastFrame = false;
+
 	ofxPanel gui;
 	ofxGuiGroup groupDraw;
 	ofxGuiGroup groupExport;
+
+	ofxGuiGroup groupHistory;
 
 	ofxColorSlider backgroundSlider;
 	ofxColorSlider strokeSlider;
@@ -72,8 +98,11 @@ private:
 	ofxButton recordButton;
 	ofxButton resetButton;
 	ofxButton histogramButton;
+	ofxButton importModelButton;
+	ofxButton buttonUndo;
+	ofxButton buttonRedo;
 
-	VectorPrimitiveType drawMode = VectorPrimitiveType::Select;
+	ToolType toolType = ToolType::Select;
 	glm::vec2 mousePressPos;
 	glm::vec2 mouseCurrentPos;
 	bool isMouseButtonPressed = false;
@@ -86,14 +115,22 @@ private:
 	void setupMiscGui();
 	void addColorPicker(ofxColorSlider & slider, ofParameter<ofColor> & color, PalettePreview & preview,
 		const string & name, const ofColor & initialColor);
+	glm::vec2 modelListOrigin() const;
 
 	void onColorChanged(ofColor & color);
 	void onImportPressed();
 	void onRecordPressed();
 	void onResetPressed();
 	void onHistogramPressed();
+	void onImportModelPressed();
 
-	void setDrawMode(VectorPrimitiveType mode);
+	void setupHistoryGui();
+	void buttonUndoPressed();
+	void buttonRedoPressed();
+	void commitColorChanges();
+	void syncColorReferences();
+
+	void setToolType(ToolType mode);
 	void deleteSelectedObject();
 	void removeSelectedPaletteColor();
 	void clearPaletteSelection();
@@ -105,7 +142,12 @@ private:
 	void drawRecordingIndicator() const;
 	CursorState currentCursorState(const glm::vec2 & mouse) const;
 
-	unique_ptr<ScenePrimitive> makeShape(VectorPrimitiveType type, const glm::vec2 & start, const glm::vec2 & end) const;
+	unique_ptr<ScenePrimitive> makeShape(ToolType type, const glm::vec2 & start, const glm::vec2 & end) const;
 	void addVectorShape();
 	void applyDrawStyle(ScenePrimitive & primitive) const;
+
+	unique_ptr<SceneModel3d> makeModel(const glm::vec2 & start, const glm::vec2 & end) const;
+	void addModel();
+	void selectNextModel();
+	void rotateSelectedModels(float degrees);
 };
