@@ -59,6 +59,11 @@ private:
 	array<PalettePreview, 3> palettePreviews;
 	ofColor lastActiveColor = ofColor();
 
+	ofColor colorDragStartBackground;
+	ofColor colorDragStartStroke;
+	ofColor colorDragStartFill;
+	bool wasMousePressedLastFrame = false;
+
 	ofxPanel gui;
 	ofxGuiGroup groupDraw;
 	ofxGuiGroup groupExport;
@@ -113,6 +118,7 @@ private:
 	void setupHistoryGui();
 	void buttonUndoPressed();
 	void buttonRedoPressed();
+	void commitColorChanges();
 
 	void setToolType(ToolType mode);
 	void deleteSelectedObject();

@@ -6,6 +6,8 @@
 #include "domain/shapes/2d/scenePrimitiveRect.h"
 #include "domain/commands/addObjectCommand.h"
 #include "domain/commands/removeObjectCommand.h"
+#include "domain/commands/parameterCommand.h"
+#include "domain/commands/compositeCommand.h"
 
 using namespace std;
 
@@ -207,6 +209,20 @@ void Application::update() {
 	renderer.strokeWeight = strokeWeight;
 	renderer.text = displayText;
 	renderer.update();
+
+	bool mouseDown = ofGetMousePressed();
+
+	if (!mouseDown && wasMousePressedLastFrame) {
+		commitColorChanges();
+	}
+
+	if (!mouseDown) {
+		colorDragStartBackground = backgroundColor;
+		colorDragStartStroke = strokeColor;
+		colorDragStartFill = fillColor;
+	}
+
+	wasMousePressedLastFrame = mouseDown;
 }
 
 void Application::setupHistoryGui() {
@@ -234,6 +250,28 @@ void Application::buttonRedoPressed() {
 	if (history.canRedo()) {
 		history.redo();
 		transformTool.clearSelection();
+	}
+}
+
+void Application::commitColorChanges() {
+	vector<unique_ptr<Command>> changes;
+
+	if (backgroundColor.get() != colorDragStartBackground) {
+		changes.push_back(make_unique<ParameterCommand<ofColor>>(backgroundColor, colorDragStartBackground, backgroundColor.get()));
+	}
+	if (strokeColor.get() != colorDragStartStroke) {
+		changes.push_back(make_unique<ParameterCommand<ofColor>>(strokeColor, colorDragStartStroke, strokeColor.get()));
+	}
+	if (fillColor.get() != colorDragStartFill) {
+		changes.push_back(make_unique<ParameterCommand<ofColor>>(fillColor, colorDragStartFill, fillColor.get()));
+	}
+
+	if (changes.empty()) return;
+
+	if (changes.size() == 1) {
+		history.push(move(changes.front()));
+	} else {
+		history.push(make_unique<CompositeCommand>(move(changes)));
 	}
 }
 
@@ -503,8 +541,6 @@ void Application::mousePressed(int x, int y, int button) {
 		showGui = true;
 		return;
 	}
-
-	if (showGui && gui.getShape().inside(x, y)) return;
 
 	if (showGui) {
 		string clicked = modelListPanel.hitTest(modelLibrary.ids(), modelListOrigin(), gui.getWidth(), x, y);
