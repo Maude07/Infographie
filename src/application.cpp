@@ -433,14 +433,16 @@ void Application::keyPressed(ofKeyEventArgs & args) {
 		break;
 
 	case 'z':
-		if (ofGetKeyPressed(OF_KEY_CONTROL)) {
+	case 26:
+		if (ofGetKeyPressed(OF_KEY_CONTROL) || args.key == 26) {
 			history.undo();
 			transformTool.clearSelection();
 		}
 		break;
 
 	case 'y':
-		if (ofGetKeyPressed(OF_KEY_CONTROL)) {
+	case 25:
+		if (ofGetKeyPressed(OF_KEY_CONTROL) || args.key == 25) {
 			history.redo();
 			transformTool.clearSelection();
 		}
