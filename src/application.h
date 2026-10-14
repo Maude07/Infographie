@@ -49,6 +49,7 @@ public:
 	void mouseDragged(int x, int y, int button) override;
 	void mouseReleased(int x, int y, int button) override;
 	void windowResized(int w, int h) override;
+	void mouseScrolled(int x, int y, float scrollX, float scrollY) override;
 
 private:
 	Renderer renderer;
@@ -63,9 +64,19 @@ private:
 	string currentModelId;
 	ModelListPanel modelListPanel;
 	HistoryManager history;
+	ModelVariant currentVariant;
+
+	ofParameter<int> variantIndex;
+	float scrollOffset = 0.0f;
+	float maxScroll = 0.0f;
+	static constexpr float scrollSpeed = 40.0f;
+	static constexpr float scrollbarTrackWidth = 24.0f;
+	static constexpr float scrollbarThumbWidth = 10.0f;
+	bool isDraggingScrollbar = false;
+	float scrollbarDragOffsetY = 0.0f;
 
 	vector<ofColor> palette;
-	array<PalettePreview, 3> palettePreviews;
+	array<PalettePreview, 4> palettePreviews;
 	ofColor lastActiveColor = ofColor();
 
 	ofColor colorRefBackground;
@@ -76,8 +87,17 @@ private:
 	ofxPanel gui;
 	ofxGuiGroup groupDraw;
 	ofxGuiGroup groupExport;
-
 	ofxGuiGroup groupHistory;
+	ofxGuiGroup groupVariants;
+	ofParameter<bool> variantStretchVertical;
+	ofParameter<float> variantVerticalFactor;
+	ofParameter<bool> variantStretchHorizontal;
+	ofParameter<float> variantHorizontalFactor;
+	ofParameter<bool> variantTinted;
+	ofParameter<ofColor> variantTintColor;
+	ofxColorSlider variantTintSlider;
+	ofParameter<bool> variantMetallic;
+	ofParameter<float> variantMetalness;
 
 	ofxColorSlider backgroundSlider;
 	ofxColorSlider strokeSlider;
@@ -129,6 +149,15 @@ private:
 	void buttonRedoPressed();
 	void commitColorChanges();
 	void syncColorReferences();
+
+	void setupVariantGui();
+	void resetVariantGui();
+	ModelVariant variantFromGui() const;
+
+	void updateSidebarScroll();
+	void drawSidebarScrollbar() const;
+	bool isOverScrollbarThumb(int x, int y) const;
+	void setScrollFromThumbY(float thumbScreenY);
 
 	void setToolType(ToolType mode);
 	void deleteSelectedObject();
