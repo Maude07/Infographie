@@ -21,8 +21,12 @@ public:
         size = { bounds.width, bounds.height };
     }
 
+    virtual ofRectangle getScreenBounds() const { return getBounds(); }
+
+    virtual glm::vec2 toLocal(const glm::vec2 & screen) const { return screen; }
+
     virtual bool contains(float x, float y) const { 
-        return getBounds().inside(x, y); 
+        return getScreenBounds().inside(x, y); 
     }
 
     virtual bool isResizable() const { return true; }

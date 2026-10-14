@@ -144,6 +144,9 @@ void Application::setup() {
 	setupMiscGui();
 	setupHistoryGui();
 	syncColorReferences();
+
+	setupCameraGui();
+	sceneCamera.reset();
 }
 
 void Application::setupTheme() {
@@ -226,6 +229,11 @@ void Application::update() {
 	renderer.text = displayText;
 	renderer.update();
 
+	cameraController.update(ofGetLastFrameTime());
+	sceneCamera.setFov(cameraFov);
+	sceneCamera.setClip(cameraNear, cameraFar);
+	sceneCamera.setOrtho(cameraOrtho);
+
 	bool mouseDown = ofGetMousePressed();
 
 	if (!mouseDown && wasMousePressedLastFrame) {
@@ -302,7 +310,7 @@ void Application::draw() {
 	ofRectangle canvas(left, 0, ofGetWidth() - left, ofGetHeight());
 
 	renderer.visibleOffsetX = left;
-	renderer.draw(scene);
+	renderer.draw(scene, sceneCamera);
 
 	if (histogramRequested) {
 		computeHistogram(canvas);
@@ -457,6 +465,8 @@ void Application::keyPressed(ofKeyEventArgs & args) {
 
 	if (args.isRepeat) return;
 
+	cameraController.keyPressed(args.key);
+
 	switch (args.key) {
 	case 'u':
 		showGui = !showGui;
@@ -540,7 +550,17 @@ void Application::keyPressed(ofKeyEventArgs & args) {
 		palette.push_back(lastActiveColor);
 		ofLog() << "<added color: " << lastActiveColor << ">";
 		break;
+	case 'c':
+		resetCamera();
+		break;
+	case 'p':
+		cameraOrtho = !cameraOrtho;
+		break;
 	}
+}
+
+void Application::keyReleased(ofKeyEventArgs & args) {
+	cameraController.keyReleased(args.key);
 }
 
 void Application::deleteSelectedObject() {
@@ -578,6 +598,11 @@ void Application::clearPaletteSelection() {
 }
 
 void Application::mousePressed(int x, int y, int button) {
+	if (button != OF_MOUSE_BUTTON_LEFT) {
+		cameraController.mousePressed(x, y, button, isOverUi(x, y));
+		return;
+	}
+
 	if (!showGui && collapsedGuiButton.inside(x, y)) {
 		showGui = true;
 		return;
@@ -617,6 +642,11 @@ void Application::mousePressed(int x, int y, int button) {
 }
 
 void Application::mouseDragged(int x, int y, int button) {
+	if (button != OF_MOUSE_BUTTON_LEFT) {
+		cameraController.mouseDragged(x, y, button);
+		return;
+	}
+
 	if (!isMouseButtonPressed) return;
 
 	if (toolType == ToolType::Select) {
@@ -630,6 +660,11 @@ void Application::mouseDragged(int x, int y, int button) {
 }
 
 void Application::mouseReleased(int x, int y, int button) {
+	if (button != OF_MOUSE_BUTTON_LEFT) {
+		cameraController.mouseReleased(x, y, button);
+		return;
+	}
+
 	if (!isMouseButtonPressed) return;
 	isMouseButtonPressed = false;
 
@@ -651,6 +686,11 @@ void Application::mouseReleased(int x, int y, int button) {
 	}
 
 	addVectorShape();
+}
+
+void Application::mouseScrolled(int x, int y, float scrollX, float scrollY) {
+	if (isOverUi(x, y)) return;
+	cameraController.mouseScrolled(scrollY);
 }
 
 void Application::onResetPressed() {
@@ -781,12 +821,17 @@ unique_ptr<SceneModel3d> Application::makeModel(const glm::vec2 & start, const g
 	auto model = modelLibrary.get(currentModelId);
 	if (!model) return nullptr;
 
-	glm::vec2 extent = glm::abs(end - start);
-	glm::vec2 center = (start + end) * 0.5f;
-	float footprint = max(extent.x, extent.y);
-	if (footprint < minShapeSize) footprint = defaultModelSize;
+	glm::vec2 worldStart = sceneCamera.screenToPlane(start, 0.f);
+	glm::vec2 worldEnd = sceneCamera.screenToPlane(end, 0.f);
 
-	return make_unique<SceneModel3d>(currentModelId, model, center, footprint);
+	glm::vec2 extent = glm::abs(worldEnd - worldStart);
+	glm::vec2 center = (worldStart + worldEnd) * 0.5f;
+	float footprint = max(extent.x, extent.y);
+	if (glm::length(end - start) < minShapeSize) footprint = defaultModelSize;
+
+	auto instance = make_unique<SceneModel3d>(currentModelId, model, center, footprint);
+	instance->camera = &sceneCamera;
+	return instance;
 }
 
 void Application::addModel() {
@@ -812,6 +857,32 @@ void Application::rotateSelectedModels(float degrees) {
 			model->rotationY = fmod(model->rotationY + degrees, 360.0f);
 		}
 	}
+}
+
+void Application::setupCameraGui() {
+	groupCamera.setup("camera");
+	groupCamera.add(cameraFov.set("champ de vision (deg)", SceneCamera::DEFAULT_FOV, 10.f, 120.f));
+	groupCamera.add(cameraNear.set("plan proche", SceneCamera::DEFAULT_NEAR, 0.1f, 3000.f));
+	groupCamera.add(cameraFar.set("plan eloigne", SceneCamera::DEFAULT_FAR, 10.f, 20000.f));
+	groupCamera.add(cameraOrtho.set("orthographique (p)", false));
+
+	resetCameraButton.setup("reinitialiser la camera (c)");
+	resetCameraButton.addListener(this, &Application::resetCamera);
+	groupCamera.add(&resetCameraButton);
+
+	gui.add(&groupCamera);
+}
+
+void Application::resetCamera() {
+	cameraFov = SceneCamera::DEFAULT_FOV;
+	cameraNear = SceneCamera::DEFAULT_NEAR;
+	cameraFar = SceneCamera::DEFAULT_FAR;
+	cameraOrtho = false;
+	sceneCamera.reset();
+}
+
+bool Application::isOverUi(int x, int y) const {
+	return showGui ? x < gui.getWidth() : collapsedGuiButton.inside(x, y);
 }
 
 float Application::canvasLeft() const {

@@ -7,9 +7,16 @@ void Scene::add(unique_ptr<SceneObject> object) {
     objects.push_back(move(object));
 }
 
-void Scene::draw() const {
+void Scene::draw(SceneCamera* camera) const {
     for (const auto & object : objects) {
-        object->draw();
+		bool is3d = dynamic_cast<const SceneModel3d *>(object.get()) != nullptr;
+		if (is3d && camera) {
+			camera->begin();
+			object->draw();
+			camera->end();
+		} else {
+			object->draw();
+		}
     }
 }
 

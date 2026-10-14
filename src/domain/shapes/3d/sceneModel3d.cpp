@@ -11,6 +11,34 @@ SceneModel3d::SceneModel3d(const string& id,
 	position = center - size * 0.5f;
 }
 
+ofRectangle SceneModel3d::getScreenBounds() const {
+	if (!camera) return getBounds();
+
+	const glm::vec2 c2 = position + size * 0.5f;
+	const float h = min(size.x, size.y) * 0.5f;
+	ofRectangle r;
+	bool first = true;
+	for (int i = 0; i < 8; ++i) {
+		glm::vec3 corner(
+			c2.x + ((i & 1) ? h : -h),
+			c2.y + ((i & 2) ? h : -h),
+			depth + ((i & 4) ? h : -h));
+		glm::vec3 s = camera->worldToScreen(corner);
+		if (first) {
+			r.set(s.x, s.y, 0, 0);
+			first = false;
+		} else {
+			r.growToInclude(s.x, s.y);
+		}
+	}
+	return r;
+}
+
+glm::vec2 SceneModel3d::toLocal(const glm::vec2 & screen) const {
+	if (!camera) return screen;
+	return camera->screenToPlane(screen, depth);
+}
+
 void SceneModel3d::draw() const {
 	if (!model) return;
 
