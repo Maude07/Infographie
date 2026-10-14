@@ -11,6 +11,7 @@
 #include "domain/commands/removeObjectCommand.h"
 #include "domain/commands/parameterCommand.h"
 #include "domain/commands/compositeCommand.h"
+#include "domain/commands/depthCommand.h"
 
 using namespace std;
 
@@ -861,15 +862,35 @@ void Application::selectNextModel() {
 }
 
 bool Application::moveSelectedModelsDepth(float delta) {
-	bool moved = false;
+	vector<DepthCommand::Change> changes;
 	for (SceneObject * object : transformTool.getSelection()) {
 		if (auto * model = dynamic_cast<SceneModel3d *>(object)) {
-			model->depth = ofClamp(model->depth + delta, -depthLimit, depthLimit);
-			moved = true;
+			float newDepth = ofClamp(model->depth + delta, -depthLimit, depthLimit);
+			if (newDepth != model->depth) {
+				changes.push_back({ model, model->depth, newDepth });
+			}
 		}
 	}
-	if (moved) ofLog() << "<profondeur: " << delta << ">";
-	return moved;
+
+	sort(changes.begin(), changes.end(),
+		[](const DepthCommand::Change & a, const DepthCommand::Change & b) { return a.model < b.model; });
+
+	bool hadModels = !changes.empty();
+	if (!hadModels) {
+		for (SceneObject * object : transformTool.getSelection()) {
+			if (dynamic_cast<SceneModel3d *>(object)) return true;
+		}
+		return false;
+	}
+
+	for (auto & c : changes) c.model->depth = c.newDepth;
+
+	auto * last = dynamic_cast<DepthCommand *>(history.lastUndo());
+	if (!last || history.canRedo() || !last->tryMerge(changes)) {
+		history.push(make_unique<DepthCommand>(move(changes)));
+	}
+	ofLog() << "<profondeur: " << delta << ">";
+	return true;
 }
 
 void Application::rotateSelectedModels(float degrees) {

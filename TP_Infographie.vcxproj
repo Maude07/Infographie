@@ -277,6 +277,7 @@
     <ClInclude Include="src\domain\commands\addObjectCommand.h" />
     <ClInclude Include="src\domain\commands\command.h" />
     <ClInclude Include="src\domain\commands\compositeCommand.h" />
+    <ClInclude Include="src\domain\commands\depthCommand.h" />
     <ClInclude Include="src\domain\commands\historyManager.h" />
     <ClInclude Include="src\domain\commands\parameterCommand.h" />
     <ClInclude Include="src\domain\commands\removeObjectCommand.h" />

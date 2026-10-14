@@ -617,6 +617,9 @@
     <ClInclude Include="src\domain\camera\sceneCamera.h">
       <Filter>src\domain\camera</Filter>
     </ClInclude>
+    <ClInclude Include="src\domain\commands\depthCommand.h">
+      <Filter>src\domain\commands</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="icon.rc" />
