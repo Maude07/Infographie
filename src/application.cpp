@@ -37,6 +37,12 @@ namespace {
 	const string defaultText = "ift3100";
 	constexpr float defaultModelSize = 150.0f;
 
+	constexpr float minStretchFactor = 1.0f;
+	constexpr float maxStretchFactor = 3.0f;
+	constexpr float defaultStretchFactor = 1.5f;
+	constexpr float defaultMetalness = 0.7f;
+	const ofColor defaultTintColor(255, 140, 90);
+
 	vector<ofColor> defaultPalette() {
 		return {
 			ofColor(15, 15, 15),
@@ -175,7 +181,55 @@ void Application::setupDrawGui() {
 	addColorPicker(fillSlider, fillColor, palettePreviews[2], "couleur de remplissage", defaultFillColor);
 	groupDraw.add(strokeWeight.set("largeur de la ligne", defaultStrokeWeight, 0.0f, 10.0f));
 
+	setupVariantGui();
+	groupDraw.add(&groupVariants);
+
 	gui.add(&groupDraw);
+}
+
+void Application::setupVariantGui() {
+	groupVariants.setup("variantes 3D");
+
+	groupVariants.add(variantStretchVertical.set("etirement vertical", false));
+	groupVariants.add(variantVerticalFactor.set("degre vertical", defaultStretchFactor, minStretchFactor, maxStretchFactor));
+
+	groupVariants.add(variantStretchHorizontal.set("etirement horizontal", false));
+	groupVariants.add(variantHorizontalFactor.set("degre horizontal", defaultStretchFactor, minStretchFactor, maxStretchFactor));
+
+	groupVariants.add(variantTinted.set("teinte", false));
+	variantTintColor.set("couleur de teinte", defaultTintColor, ofColor(0, 0), ofColor(255, 255));
+	variantTintSlider.setup(variantTintColor);
+	palettePreviews[3].setup(palette, variantTintColor, groupVariants.getWidth());
+	variantTintSlider.add(&palettePreviews[3]);
+	groupVariants.add(&variantTintSlider);
+	variantTintColor.addListener(this, &Application::onColorChanged);
+
+	groupVariants.add(variantMetallic.set("metallique", false));
+	groupVariants.add(variantMetalness.set("degre metallique", defaultMetalness, 0.0f, 1.0f));
+}
+
+void Application::resetVariantGui() {
+	variantStretchVertical = false;
+	variantVerticalFactor = defaultStretchFactor;
+	variantStretchHorizontal = false;
+	variantHorizontalFactor = defaultStretchFactor;
+	variantTinted = false;
+	variantTintColor = defaultTintColor;
+	variantMetallic = false;
+	variantMetalness = defaultMetalness;
+}
+
+ModelVariant Application::variantFromGui() const {
+	ModelVariant v;
+	v.stretchVertical = variantStretchVertical;
+	v.verticalFactor = variantVerticalFactor;
+	v.stretchHorizontal = variantStretchHorizontal;
+	v.horizontalFactor = variantHorizontalFactor;
+	v.tinted = variantTinted;
+	v.tint = variantTintColor;
+	v.metallic = variantMetallic;
+	v.metalness = variantMetalness;
+	return v;
 }
 
 void Application::addColorPicker(ofxColorSlider & slider, ofParameter<ofColor> & color, PalettePreview & preview,
@@ -226,6 +280,8 @@ void Application::update() {
 	renderer.text = displayText;
 	renderer.update();
 
+	currentVariant = variantFromGui();
+
 	bool mouseDown = ofGetMousePressed();
 
 	if (!mouseDown && wasMousePressedLastFrame) {
@@ -237,6 +293,68 @@ void Application::update() {
 	}
 
 	wasMousePressedLastFrame = mouseDown;
+}
+
+void Application::updateSidebarScroll() {
+	float contentHeight = gui.getHeight();
+	float visibleHeight = static_cast<float>(ofGetHeight());
+
+	maxScroll = max(0.0f, contentHeight - visibleHeight);
+	scrollOffset = ofClamp(scrollOffset, 0.0f, maxScroll);
+
+	gui.setPosition(0, -scrollOffset);
+}
+
+void Application::drawSidebarScrollbar() const {
+	float trackHeight = static_cast<float>(ofGetHeight());
+	float contentHeight = max(gui.getHeight(), trackHeight);
+	float trackX = gui.getWidth() + (scrollbarTrackWidth - scrollbarThumbWidth) * 0.5f;
+
+	float thumbHeight = ofClamp(trackHeight * (trackHeight / contentHeight), 20.0f, trackHeight);
+	float thumbY = maxScroll > 0.0f ? (scrollOffset / maxScroll) * (trackHeight - thumbHeight) : 0.0f;
+
+	ofPushStyle();
+	ofFill();
+	ofSetColor(panelColor);
+	ofDrawRectangle(trackX, 0, scrollbarThumbWidth, trackHeight);
+
+	ofSetColor(maxScroll > 0.0f ? accentColor : panelBorderColor);
+	ofDrawRectangle(trackX, thumbY, scrollbarThumbWidth, thumbHeight);
+	ofPopStyle();
+}
+
+void Application::mouseScrolled(int x, int y, float scrollX, float scrollY) {
+	if (!showGui) return;
+	if (x > canvasLeft()) return;
+
+	scrollOffset -= scrollY * scrollSpeed;
+	scrollOffset = ofClamp(scrollOffset, 0.0f, maxScroll);
+}
+
+bool Application::isOverScrollbarThumb(int x, int y) const {
+	if (maxScroll <= 0.0f) return false;
+
+	float trackHeight = static_cast<float>(ofGetHeight());
+	float contentHeight = max(gui.getHeight(), trackHeight);
+	float trackX = gui.getWidth() + (scrollbarTrackWidth - scrollbarThumbWidth) * 0.5f;
+
+	float thumbHeight = ofClamp(trackHeight * (trackHeight / contentHeight), 20.0f, trackHeight);
+	float thumbY = (scrollOffset / maxScroll) * (trackHeight - thumbHeight);
+
+	return x >= trackX && x <= trackX + scrollbarThumbWidth
+		&& y >= thumbY && y <= thumbY + thumbHeight;
+}
+
+void Application::setScrollFromThumbY(float thumbScreenY) {
+	float trackHeight = static_cast<float>(ofGetHeight());
+	float contentHeight = max(gui.getHeight(), trackHeight);
+	float thumbHeight = ofClamp(trackHeight * (trackHeight / contentHeight), 20.0f, trackHeight);
+
+	float usableTrack = trackHeight - thumbHeight;
+	if (usableTrack <= 0.0f) return;
+
+	float ratio = ofClamp((thumbScreenY - scrollbarDragOffsetY) / usableTrack, 0.0f, 1.0f);
+	scrollOffset = ratio * maxScroll;
 }
 
 void Application::setupHistoryGui() {
@@ -336,6 +454,11 @@ void Application::draw() {
 		drawRecordingIndicator();
 	}
 
+	if (toolType == ToolType::Model3d) {
+		ofDrawBitmapString("variante: " + currentVariant.label(),
+			canvasLeft() + 10, ofGetHeight() - 10);
+	}
+
 	if (histogram.is_computed()) {
 		histogram.draw(ofRectangle(left + histogramMargin, ofGetHeight() - histogramMarginBottom - histogramHeight,
 			histogramWidth, histogramHeight));
@@ -349,7 +472,17 @@ void Application::draw() {
 	buttonRedo.setBackgroundColor(history.canRedo() ? ofColor(90, 140, 240) : ofColor(50, 50, 55));
 
 	if (showGui) {
+		updateSidebarScroll();
+
+		glEnable(GL_SCISSOR_TEST);
+		glScissor(0, 0, static_cast<int>(gui.getWidth()), ofGetHeight());
+
 		gui.draw();
+
+		glDisable(GL_SCISSOR_TEST);
+
+		drawSidebarScrollbar();
+
 		modelListPanel.draw(modelLibrary.ids(),
 			toolType == ToolType::Model3d ? currentModelId : "",
 			modelListOrigin(), gui.getWidth(), glm::vec2(ofGetMouseX(), ofGetMouseY()));
@@ -380,9 +513,9 @@ void Application::drawSidebarBackground() const {
 	ofPushStyle();
 	ofFill();
 	ofSetColor(sidebarColor);
-	ofDrawRectangle(0, 0, gui.getWidth(), ofGetHeight());
+	ofDrawRectangle(0, 0, canvasLeft(), ofGetHeight());
 	ofSetColor(sidebarBorderColor);
-	ofDrawLine(gui.getWidth(), 0, gui.getWidth(), ofGetHeight());
+	ofDrawLine(canvasLeft(), 0, canvasLeft(), ofGetHeight());
 	ofPopStyle();
 }
 
@@ -416,7 +549,7 @@ void Application::drawRecordingIndicator() const {
 }
 
 CursorState Application::currentCursorState(const glm::vec2 & mouse) const {
-	if (showGui && gui.getShape().inside(mouse)) return CursorState::Default;
+	if (showGui && mouse.x <= canvasLeft()) return CursorState::Default;
 	if (!showGui && collapsedGuiButton.inside(mouse)) return CursorState::Default;
 	if (showSceneTree && sceneTreePanel.hitTest(scene, mouse.x, mouse.y)) return CursorState::Hover;
 
@@ -583,6 +716,20 @@ void Application::mousePressed(int x, int y, int button) {
 		return;
 	}
 
+	if (showGui && isOverScrollbarThumb(x, y)) {
+		isDraggingScrollbar = true;
+
+		float trackHeight = static_cast<float>(ofGetHeight());
+		float contentHeight = max(gui.getHeight(), trackHeight);
+		float thumbHeight = ofClamp(trackHeight * (trackHeight / contentHeight), 20.0f, trackHeight);
+		float thumbY = (scrollOffset / maxScroll) * (trackHeight - thumbHeight);
+
+		scrollbarDragOffsetY = y - thumbY;
+		return;
+	}
+
+	if (showGui && x <= canvasLeft()) return;
+
 	if (showGui) {
 		string clicked = modelListPanel.hitTest(modelLibrary.ids(), modelListOrigin(), gui.getWidth(), x, y);
 		if (!clicked.empty()) {
@@ -617,6 +764,10 @@ void Application::mousePressed(int x, int y, int button) {
 }
 
 void Application::mouseDragged(int x, int y, int button) {
+	if (isDraggingScrollbar) {
+		setScrollFromThumbY(static_cast<float>(y));
+		return;
+	}
 	if (!isMouseButtonPressed) return;
 
 	if (toolType == ToolType::Select) {
@@ -630,6 +781,10 @@ void Application::mouseDragged(int x, int y, int button) {
 }
 
 void Application::mouseReleased(int x, int y, int button) {
+	if (isDraggingScrollbar) {
+		isDraggingScrollbar = false;
+		return;
+	}
 	if (!isMouseButtonPressed) return;
 	isMouseButtonPressed = false;
 
@@ -667,6 +822,8 @@ void Application::onResetPressed() {
 	strokeColor = defaultStrokeColor;
 	fillColor = defaultFillColor;
 	strokeWeight = defaultStrokeWeight;
+
+	resetVariantGui();
 
 	palette = defaultPalette();
 	clearPaletteSelection();
@@ -786,7 +943,7 @@ unique_ptr<SceneModel3d> Application::makeModel(const glm::vec2 & start, const g
 	float footprint = max(extent.x, extent.y);
 	if (footprint < minShapeSize) footprint = defaultModelSize;
 
-	return make_unique<SceneModel3d>(currentModelId, model, center, footprint);
+	return make_unique<SceneModel3d>(currentModelId, model, center, footprint, currentVariant);
 }
 
 void Application::addModel() {
@@ -815,7 +972,7 @@ void Application::rotateSelectedModels(float degrees) {
 }
 
 float Application::canvasLeft() const {
-	return showGui ? gui.getWidth() : 0.0f;
+	return showGui ? (gui.getWidth() + scrollbarTrackWidth) : 0.0f;
 }
 
 void Application::exit() {
@@ -825,6 +982,7 @@ void Application::exit() {
 	histogramButton.removeListener(this, &Application::onHistogramPressed);
 	buttonUndo.removeListener(this, &Application::buttonUndoPressed);
 	buttonRedo.removeListener(this, &Application::buttonRedoPressed);
+	variantTintColor.removeListener(this, &Application::onColorChanged);
 
 	backgroundColor.removeListener(this, &Application::onColorChanged);
 	strokeColor.removeListener(this, &Application::onColorChanged);
