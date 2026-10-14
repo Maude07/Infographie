@@ -46,23 +46,19 @@ namespace {
 		};
 	}
 
-	// Button shown in the top-left corner while the panel is hidden
 	const ofRectangle collapsedGuiButton(10, 10, 30, 30);
 	const glm::vec2 collapsedGuiIconOffset(10, 18);
 
-	// Imported images are placed in a cascade so they don't land exactly on top of each other
 	constexpr float importMarginLeft = 50.0f;
 	constexpr float importTop = 100.0f;
 	constexpr float importCascadeOffset = 30.0f;
 	constexpr size_t importCascadeSteps = 10;
 
-	// Histogram overlay, anchored to the bottom-left of the canvas
 	constexpr float histogramMargin = 20.0f;
 	constexpr float histogramWidth = 300.0f;
 	constexpr float histogramHeight = 120.0f;
 	constexpr float histogramMarginBottom = 30.0f;
 
-	// Recording indicator, anchored to the top-right of the window
 	constexpr float recordingIndicatorRight = 120.0f;
 	constexpr float recordingIndicatorTop = 30.0f;
 	constexpr float recordingIndicatorRadius = 8.0f;
@@ -71,6 +67,8 @@ namespace {
 	constexpr float minShapeSize = 3.0f;
 
 	constexpr float rotationStep = 15.0f;
+	constexpr float depthStep = 10.0f;
+	constexpr float depthLimit = 5000.0f;
 
 	bool isLargeEnough(ToolType type, const glm::vec2 & start, const glm::vec2 & end) {
 		glm::vec2 extent = glm::abs(end - start);
@@ -463,6 +461,12 @@ void Application::keyPressed(ofKeyEventArgs & args) {
 		return;
 	}
 
+	if (args.key == OF_KEY_UP || args.key == OF_KEY_DOWN) {
+		float step = depthStep;
+		moveSelectedModelsDepth(args.key == OF_KEY_UP ? step : -step);
+		return;
+	}
+
 	if (args.isRepeat) return;
 
 	cameraController.keyPressed(args.key);
@@ -690,6 +694,11 @@ void Application::mouseReleased(int x, int y, int button) {
 
 void Application::mouseScrolled(int x, int y, float scrollX, float scrollY) {
 	if (isOverUi(x, y)) return;
+
+	if (ofGetKeyPressed(OF_KEY_ALT) && scrollY != 0.f) {
+		float step = depthStep;
+		if (moveSelectedModelsDepth(scrollY > 0.f ? step : -step)) return;
+	}
 	cameraController.mouseScrolled(scrollY);
 }
 
@@ -849,6 +858,18 @@ void Application::selectNextModel() {
 	currentModelId = ids[next];
 	setToolType(ToolType::Model3d);
 	ofLog() << "<model: " << currentModelId << ">";
+}
+
+bool Application::moveSelectedModelsDepth(float delta) {
+	bool moved = false;
+	for (SceneObject * object : transformTool.getSelection()) {
+		if (auto * model = dynamic_cast<SceneModel3d *>(object)) {
+			model->depth = ofClamp(model->depth + delta, -depthLimit, depthLimit);
+			moved = true;
+		}
+	}
+	if (moved) ofLog() << "<profondeur: " << delta << ">";
+	return moved;
 }
 
 void Application::rotateSelectedModels(float degrees) {

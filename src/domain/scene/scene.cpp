@@ -8,6 +8,7 @@ void Scene::add(unique_ptr<SceneObject> object) {
 }
 
 void Scene::draw(SceneCamera* camera) const {
+	glClear(GL_DEPTH_BUFFER_BIT);
     for (const auto & object : objects) {
 		bool is3d = dynamic_cast<const SceneModel3d *>(object.get()) != nullptr;
 		if (is3d && camera) {

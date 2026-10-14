@@ -163,6 +163,7 @@ private:
 	void addModel();
 	void selectNextModel();
 	void rotateSelectedModels(float degrees);
+	bool moveSelectedModelsDepth(float delta);
 
 	void setupCameraGui();
 	void resetCamera();

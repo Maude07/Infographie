@@ -54,7 +54,7 @@ void SceneModel3d::draw() const {
 	static ofLight light;
 	light.setPointLight();
 	light.setDiffuseColor(ofColor(255));
-	light.setPosition(center.x - side, center.y - side, side * 3.0f);
+	light.setPosition(center.x - side, center.y - side, depth + side * 3.0f);
 
 	ofPushStyle();
 	ofEnableLighting();
@@ -66,7 +66,6 @@ void SceneModel3d::draw() const {
 	ofScale(s, s, s);
 	ofTranslate(c.x, c.y, -c.z);
 
-	glClear(GL_DEPTH_BUFFER_BIT);
 	ofEnableDepthTest();
 	model->drawFaces();
 	ofDisableDepthTest();
