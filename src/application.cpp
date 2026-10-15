@@ -123,6 +123,7 @@ void Application::setup() {
 
 	setupCameraGui();
 	sceneCamera.reset();
+	placeInspector();
 }
 
 void Application::setupTheme() {
@@ -158,6 +159,7 @@ void Application::setupDrawGui() {
 }
 
 void Application::setupTransformGui() {
+	inspector.setup("inspecteur", "inspector.json", 0, 0);
 	groupTransform.setup("transformation");
 	groupTransform.add(transformX.set("x", 0.0f, 0.0f, 2000.0f));
 	groupTransform.add(transformY.set("y", 0.0f, 0.0f, 2000.0f));
@@ -169,6 +171,11 @@ void Application::setupTransformGui() {
 		parameter->addListener(this, &Application::onTransformChanged);
 	}
 	gui.add(&groupTransform);
+	inspector.add(&groupTransform);
+}
+
+void Application::placeInspector() {
+	inspector.setPosition(ofGetWidth() - inspector.getWidth(), 0);
 }
 
 void Application::addColorPicker(ofxColorSlider & slider, ofParameter<ofColor> & color, PalettePreview & preview,
@@ -219,6 +226,7 @@ void Application::update() {
 	renderer.text = displayText;
 	renderer.update();
 	syncTransformGui();
+	sceneTreePanel.rightOffset = ofGetWidth() - canvasRight();
 
 	cameraController.update(ofGetLastFrameTime());
 	sceneCamera.setFov(cameraFov);
@@ -298,9 +306,11 @@ void Application::commitColorChanges() {
 
 void Application::draw() {
 	float left = canvasLeft();
-	ofRectangle canvas(left, 0, ofGetWidth() - left, ofGetHeight());
+	float right = canvasRight();
+	ofRectangle canvas(left, 0, right - left, ofGetHeight());
 
 	renderer.visibleOffsetX = left;
+	renderer.visibleRightX = right;
 	renderer.draw(scene, sceneCamera);
 
 	if (histogramRequested) {
@@ -349,6 +359,7 @@ void Application::draw() {
 
 	if (showGui) {
 		gui.draw();
+		inspector.draw();
 		modelListPanel.draw(modelLibrary.ids(),
 			toolType == ToolType::Model3d ? currentModelId : "",
 			modelListOrigin(), gui.getWidth(), glm::vec2(ofGetMouseX(), ofGetMouseY()));
@@ -377,6 +388,9 @@ void Application::computeHistogram(const ofRectangle & canvas) {
 
 void Application::syncTransformGui() {
 	const auto & selected = transformTool.getSelection();
+	string title = selected.size() == 1 ? "inspecteur : " + (*selected.begin())->name : "inspecteur";
+	if (inspector.getName() != title) inspector.setName(title);
+
 	if (selected.size() != 1) return;
 	SceneObject * selection = *selected.begin();
 
@@ -397,8 +411,10 @@ void Application::drawSidebarBackground() const {
 	ofFill();
 	ofSetColor(theme::sidebarColor);
 	ofDrawRectangle(0, 0, gui.getWidth(), ofGetHeight());
+	ofDrawRectangle(canvasRight(), 0, ofGetWidth() - canvasRight(), ofGetHeight());
 	ofSetColor(theme::sidebarBorderColor);
 	ofDrawLine(gui.getWidth(), 0, gui.getWidth(), ofGetHeight());
+	ofDrawLine(canvasRight(), 0, canvasRight(), ofGetHeight());
 	ofPopStyle();
 }
 
@@ -420,7 +436,7 @@ void Application::drawCollapsedGuiButton() const {
 }
 
 void Application::drawRecordingIndicator() const {
-	glm::vec2 center(ofGetWidth() - recordingIndicatorRight, recordingIndicatorTop);
+	glm::vec2 center(canvasRight() - recordingIndicatorRight, recordingIndicatorTop);
 
 	ofPushStyle();
 	ofFill();
@@ -433,6 +449,7 @@ void Application::drawRecordingIndicator() const {
 
 CursorState Application::currentCursorState(const glm::vec2 & mouse) const {
 	if (showGui && gui.getShape().inside(mouse)) return CursorState::Default;
+	if (showGui && inspector.getShape().inside(mouse)) return CursorState::Default;
 	if (!showGui && collapsedGuiButton.inside(mouse)) return CursorState::Default;
 	if (showSceneTree && sceneTreePanel.hitTest(scene, mouse.x, mouse.y)) return CursorState::Hover;
 
@@ -786,6 +803,7 @@ void Application::onTransformChanged(float &) {
 
 void Application::windowResized(int w, int h) {
 	ofLog() << "<app::windowResized: (" << w << ", " << h << ")>";
+	placeInspector();
 }
 
 unique_ptr<ScenePrimitive> Application::makeShape(ToolType type, const glm::vec2 & start,
@@ -953,10 +971,16 @@ void Application::resetCamera() {
 
 bool Application::isOverUi(int x, int y) const {
 	return showGui ? x < gui.getWidth() : collapsedGuiButton.inside(x, y);
+	if (!showGui) return collapsedGuiButton.inside(x, y);
+	return x< canvasLeft() || x >= canvasRight();
 }
 
 float Application::canvasLeft() const {
 	return showGui ? gui.getWidth() : 0.0f;
+}
+
+float Application::canvasRight() const {
+	return showGui ? ofGetWidth() - inspector.getWidth() : ofGetWidth();
 }
 
 void Application::exit() {

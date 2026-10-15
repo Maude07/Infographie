@@ -78,6 +78,7 @@ private:
 	bool wasMousePressedLastFrame = false;
 
 	ofxPanel gui;
+	ofxPanel inspector;
 	ofxGuiGroup groupDraw;
 	ofxGuiGroup groupExport;
 	ofxGuiGroup groupTransform;
@@ -134,6 +135,7 @@ private:
 	void setupExportGui();
 	void setupMiscGui();
 	void setupTransformGui();
+	void placeInspector();
 
 	void syncTransformGui();
 	void addColorPicker(ofxColorSlider & slider, ofParameter<ofColor> & color, PalettePreview & preview,
@@ -160,6 +162,7 @@ private:
 	void clearPaletteSelection();
 
 	float canvasLeft() const;
+	float canvasRight() const;
 	void computeHistogram(const ofRectangle & canvas);
 	void drawSidebarBackground() const;
 	void drawCollapsedGuiButton() const;
