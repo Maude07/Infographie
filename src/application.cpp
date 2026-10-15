@@ -861,15 +861,11 @@ unique_ptr<SceneModel3d> Application::makeModel(const glm::vec2 & start, const g
 
 	glm::vec2 worldStart = sceneCamera.screenToPlane(start, 0.f);
 	glm::vec2 worldEnd = sceneCamera.screenToPlane(end, 0.f);
-	glm::vec2 extent = glm::abs(end - start);
-	glm::vec2 center = (start + end) * 0.5f;
-	float footprint = max(extent.x, extent.y);
-	if (footprint < minShapeSize) footprint = defaults::defaultModelSize;
 
 	glm::vec2 extent = glm::abs(worldEnd - worldStart);
 	glm::vec2 center = (worldStart + worldEnd) * 0.5f;
 	float footprint = max(extent.x, extent.y);
-	if (glm::length(end - start) < minShapeSize) footprint = defaultModelSize;
+	if (glm::length(end - start) < minShapeSize) footprint = defaults::defaultModelSize;
 
 	auto instance = make_unique<SceneModel3d>(currentModelId, model, center, footprint);
 	instance->camera = &sceneCamera;

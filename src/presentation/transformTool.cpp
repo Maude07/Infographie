@@ -51,7 +51,7 @@ void TransformTool::mousePressed(Scene & scene, float x, float y, bool additive)
 
 		if (only->isRotatable() && getRotateHandle(*only).inside(local.x, local.y)) {
 			isRotating = true;
-			rotateStartAngle = angleFromCenter(*only, lastMouse);
+			rotateStartAngle = angleFromCenter(*only, only->toLocal(lastMouse));
 			rotateStartValue = only->rotation;
 			captureDragStart();
 			return;
@@ -82,31 +82,17 @@ void TransformTool::mouseDragged(float x, float y) {
 	glm::vec2 mouse(x, y);
 
 	if (isResizing) {
-		if (SceneObject * only = single()) {
-			ofRectangle b = only->getBounds();
-			glm::vec2 p = only->toLocal(mouse);
-			float newW = max(minSize, p.x - b.x);
-			float newH = max(minSize, p.y - b.y);
-			only->setBounds(ofRectangle(b.x, b.y, newW, newH));
-		}
+		if (SceneObject * only = single()) resizeTo(*only, only->toLocal(mouse)); 
+	} else if (isRotating) {
+		if (SceneObject * only = single()) rotateTo(*only, only->toLocal(mouse));
 	} else if (isDragging) {
 		for (SceneObject* object : selection) {
 			object->position += object->toLocal(mouse) - object->toLocal(lastMouse);
 		}
 	} else if (isInZone) {
-		zoneEnd = glm::vec2(x, y);
-		if (SceneObject * only = single()) resizeTo(*only, mouse);
-	} else if (isRotating) {
-		if (SceneObject * only = single()) rotateTo(*only, mouse);
-	} else if (isDragging) {
-		glm::vec2 delta = mouse - lastMouse;
-		for (SceneObject * object : selection) {
-			object->position += delta;
-		}
-	} else if (isInZone) {
 		zoneEnd = mouse;
 	}
-		lastMouse = mouse;
+	lastMouse = mouse;
 }
 	
 
@@ -163,21 +149,17 @@ void TransformTool::drawOverlay() const {
 		ofDrawRectangle(zone);
 	}
 
-		if (!selection.empty()) {
+			if (!selection.empty()) {
 		ofSetColor(255, 255, 0);
 		ofSetLineWidth(1);
 		for (const SceneObject * object : selection) {
-<<<<<<< HEAD
-			ofDrawRectangle(object->getScreenBounds());
-		}
-		if (const SceneObject * only = single()) {
-			if (only->isResizable()) {
-				ofFill();
-				ofDrawRectangle(getHandleBounds(*only));
-=======
+			ofRectangle bounds = object->getScreenBounds();
+
 			ofPushMatrix();
-			object->applyTransform();
-			ofRectangle bounds = object->getBounds();
+			ofTranslate(bounds.getCenter());
+			ofRotateDeg(object->rotation);
+			ofTranslate(-bounds.getCenter());
+
 			ofNoFill();
 			ofDrawRectangle(bounds);
 
@@ -192,14 +174,14 @@ void TransformTool::drawOverlay() const {
 					ofFill();
 					ofDrawCircle(handle, handleSize / 2.0f);
 				}
->>>>>>> c1ba15a (feat(transform): [3.3] - Add transformations interactives)
 			}
 			ofPopMatrix();
 		}
 	}
 
-    ofPopStyle();
+	ofPopStyle();
 }
+
 
 ofRectangle TransformTool::getHandleBounds(const SceneObject & object) const {
 	ofRectangle bounds = object.getScreenBounds();
@@ -245,7 +227,7 @@ float TransformTool::angleFromCenter(const SceneObject & object, const glm::vec2
 }
 
 ofRectangle TransformTool::getRotateHandle(const SceneObject & object) const {
-	ofRectangle bounds = object.getBounds();
+	ofRectangle bounds = object.getScreenBounds();
 	ofRectangle handle;
 	handle.setFromCenter(bounds.getCenter().x, bounds.getTop() - rotateHandleDistance, handleSize, handleSize);
 	return handle;
