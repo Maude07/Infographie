@@ -14,12 +14,11 @@ void Scene::draw(SceneCamera* camera) const {
 		bool is3d = dynamic_cast<const SceneModel3d *>(object.get()) != nullptr;
 		if (is3d && camera) {
 			camera->begin();
-			object->draw();
+			object->render();
 			camera->end();
 		} else {
-			object->draw();
+			object->render();
 		}
-        object->render();
     }
 }
 
