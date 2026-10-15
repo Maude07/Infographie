@@ -12,6 +12,7 @@ public:
 	float strokeWeight = 1.0f;
 	string text;
 	float visibleOffsetX = 0.0f;
+	float visibleRightX = 0.0f;
 
 	void setup();
 	void update();

@@ -14,7 +14,7 @@ void Renderer::draw(const Scene & scene, SceneCamera & camera) const {
 	ofClear(backgroundColor);
 	scene.draw(&camera);
 
-	float centerX = visibleOffsetX + (ofGetWidth() - visibleOffsetX) / 2.0f;
+	float centerX = (visibleOffsetX + visibleRightX) / 2.0f;
 	float left = centerX - textBounds.getWidth() / 2.0f;
 	float right = centerX + textBounds.getWidth() / 2.0f;
 	float baseline = ofGetHeight() / 2.0f + textBounds.getHeight() / 2.0f;
