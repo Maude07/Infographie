@@ -2,6 +2,7 @@
 #include "ofMain.h"
 #include "ofxAssimpModelLoader.h"
 #include "../../scene/sceneObject.h"
+#include "../../camera/sceneCamera.h"
 
 class SceneModel3d : public SceneObject {
 public:
@@ -17,8 +18,12 @@ public:
 		SceneObject::setBounds(ofRectangle(b.x, b.y, side, side));
 	}
 
+	ofRectangle getScreenBounds() const override;
+	glm::vec2 toLocal(const glm::vec2 & screen) const override;
+
 	float rotationY = 0.0f;
 	float depth = 0.0f;
+	const SceneCamera * camera = nullptr; // camera qui dessine ce modele
 
 private:
 	string modelId;

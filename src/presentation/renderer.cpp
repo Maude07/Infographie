@@ -10,9 +10,9 @@ void Renderer::update() {
 	textBounds = font.getStringBoundingBox(text, 0, 0);
 }
 
-void Renderer::draw(const Scene & scene) const {
+void Renderer::draw(const Scene & scene, SceneCamera & camera) const {
 	ofClear(backgroundColor);
-	scene.draw();
+	scene.draw(&camera);
 
 	float centerX = visibleOffsetX + (ofGetWidth() - visibleOffsetX) / 2.0f;
 	float left = centerX - textBounds.getWidth() / 2.0f;

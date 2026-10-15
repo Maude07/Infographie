@@ -69,14 +69,14 @@ void TransformTool::mouseDragged(float x, float y) {
 	if (isResizing) {
 		if (SceneObject * only = single()) {
 			ofRectangle b = only->getBounds();
-			float newW = max(minSize, x - b.x);
-			float newH = max(minSize, y - b.y);
+			glm::vec2 p = only->toLocal(mouse);
+			float newW = max(minSize, p.x - b.x);
+			float newH = max(minSize, p.y - b.y);
 			only->setBounds(ofRectangle(b.x, b.y, newW, newH));
 		}
 	} else if (isDragging) {
-		glm::vec2 delta = mouse - lastMouse;
 		for (SceneObject* object : selection) {
-			object->position += delta;
+			object->position += object->toLocal(mouse) - object->toLocal(lastMouse);
 		}
 	} else if (isInZone) {
 		zoneEnd = glm::vec2(x, y);
@@ -88,7 +88,7 @@ void TransformTool::mouseReleased(Scene & scene) {
 	if (isInZone) {
 		ofRectangle zone = getZoneBounds();
 		for (const auto& object : scene.getObjects()) {
-			if (zone.intersects(object->getBounds())) {
+			if (zone.intersects(object->getScreenBounds())) {
 				selection.insert(object.get());
 			}
 		}
@@ -142,7 +142,7 @@ void TransformTool::drawOverlay() const {
 		ofSetLineWidth(1);
 		ofNoFill();
 		for (const SceneObject * object : selection) {
-			ofDrawRectangle(object->getBounds());
+			ofDrawRectangle(object->getScreenBounds());
 		}
 		if (const SceneObject * only = single()) {
 			if (only->isResizable()) {
@@ -156,7 +156,7 @@ void TransformTool::drawOverlay() const {
 }
 
 ofRectangle TransformTool::getHandleBounds(const SceneObject & object) const {
-	ofRectangle bounds = object.getBounds();
+	ofRectangle bounds = object.getScreenBounds();
     return ofRectangle(
         bounds.getRight() - handleSize / 2.0f,
         bounds.getBottom() - handleSize / 2.0f,

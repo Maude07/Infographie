@@ -124,6 +124,12 @@
     <ClCompile Include="src\vector_shapes\sceneShapeWave.cpp">
       <Filter>src\vector_shapes</Filter>
     </ClCompile>
+    <ClCompile Include="src\domain\camera\cameraController.cpp">
+      <Filter>src\domain\camera</Filter>
+    </ClCompile>
+    <ClCompile Include="src\domain\camera\sceneCamera.cpp">
+      <Filter>src\domain\camera</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="src">
@@ -200,6 +206,9 @@
     </Filter>
     <Filter Include="addons\ofxPathFitter\src">
       <UniqueIdentifier>{d0a6b4c3-5e7f-6a9b-1c3d-4f5a6b7c8d9e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\domain\camera">
+      <UniqueIdentifier>{53a209e6-2e18-4eac-a9d1-8779766bca66}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -600,6 +609,15 @@
       <Filter>src\domain\commands</Filter>
     </ClInclude>
     <ClInclude Include="src\domain\commands\parameterCommand.h">
+      <Filter>src\domain\commands</Filter>
+    </ClInclude>
+    <ClInclude Include="src\domain\camera\cameraController.h">
+      <Filter>src\domain\camera</Filter>
+    </ClInclude>
+    <ClInclude Include="src\domain\camera\sceneCamera.h">
+      <Filter>src\domain\camera</Filter>
+    </ClInclude>
+    <ClInclude Include="src\domain\commands\depthCommand.h">
       <Filter>src\domain\commands</Filter>
     </ClInclude>
   </ItemGroup>

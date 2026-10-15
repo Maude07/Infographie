@@ -2,6 +2,7 @@
 
 #include "ofMain.h"
 #include "domain/scene/scene.h"
+#include "domain/camera/sceneCamera.h"
 
 class Renderer {
 public:
@@ -14,7 +15,7 @@ public:
 
 	void setup();
 	void update();
-	void draw(const Scene & scene) const;
+	void draw(const Scene & scene, SceneCamera & camera) const;
 
 private:
 

@@ -226,6 +226,8 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\domain\camera\cameraController.cpp" />
+    <ClCompile Include="src\domain\camera\sceneCamera.cpp" />
     <ClCompile Include="src\domain\commands\addObjectCommand.cpp" />
     <ClCompile Include="src\domain\commands\historyManager.cpp" />
     <ClCompile Include="src\domain\commands\removeObjectCommand.cpp" />
@@ -270,9 +272,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\application.h" />
+    <ClInclude Include="src\domain\camera\cameraController.h" />
+    <ClInclude Include="src\domain\camera\sceneCamera.h" />
     <ClInclude Include="src\domain\commands\addObjectCommand.h" />
     <ClInclude Include="src\domain\commands\command.h" />
     <ClInclude Include="src\domain\commands\compositeCommand.h" />
+    <ClInclude Include="src\domain\commands\depthCommand.h" />
     <ClInclude Include="src\domain\commands\historyManager.h" />
     <ClInclude Include="src\domain\commands\parameterCommand.h" />
     <ClInclude Include="src\domain\commands\removeObjectCommand.h" />

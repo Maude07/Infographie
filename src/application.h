@@ -12,6 +12,8 @@
 #include "presentation/ui/sceneTreePanel.h"
 #include "presentation/ui/modelListPanel.h"
 #include "domain/histogram.h"
+#include "domain/camera/sceneCamera.h"
+#include "domain/camera/cameraController.h"
 #include "domain/shapes/2d/scenePrimitiveLine.h"
 #include "domain/shapes/2d/scenePrimitivePoint.h"
 #include "domain/shapes/2d/scenePrimitiveRect.h"
@@ -45,9 +47,11 @@ public:
 	void exit() override;
 
 	void keyPressed(ofKeyEventArgs & args) override;
+	void keyReleased(ofKeyEventArgs & args) override;
 	void mousePressed(int x, int y, int button) override;
 	void mouseDragged(int x, int y, int button) override;
 	void mouseReleased(int x, int y, int button) override;
+	void mouseScrolled(int x, int y, float scrollX, float scrollY) override;
 	void windowResized(int w, int h) override;
 
 private:
@@ -93,6 +97,15 @@ private:
 	ofParameter<string> displayText;
 	ofParameter<bool> showGui;
 	ofParameter<bool> showSceneTree;
+
+	SceneCamera sceneCamera;
+	CameraController cameraController { sceneCamera };
+	ofxGuiGroup groupCamera;
+	ofxButton resetCameraButton;
+	ofParameter<float> cameraFov;
+	ofParameter<float> cameraNear;
+	ofParameter<float> cameraFar;
+	ofParameter<bool> cameraOrtho;
 
 	ofxButton importButton;
 	ofxButton recordButton;
@@ -150,4 +163,9 @@ private:
 	void addModel();
 	void selectNextModel();
 	void rotateSelectedModels(float degrees);
+	bool moveSelectedModelsDepth(float delta);
+
+	void setupCameraGui();
+	void resetCamera();
+	bool isOverUi(int x, int y) const;
 };
