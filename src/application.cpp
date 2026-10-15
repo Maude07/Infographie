@@ -170,7 +170,6 @@ void Application::setupTransformGui() {
 	for (auto * parameter : transformParameters()) {
 		parameter->addListener(this, &Application::onTransformChanged);
 	}
-	gui.add(&groupTransform);
 	inspector.add(&groupTransform);
 }
 
@@ -970,7 +969,6 @@ void Application::resetCamera() {
 }
 
 bool Application::isOverUi(int x, int y) const {
-	return showGui ? x < gui.getWidth() : collapsedGuiButton.inside(x, y);
 	if (!showGui) return collapsedGuiButton.inside(x, y);
 	return x< canvasLeft() || x >= canvasRight();
 }
