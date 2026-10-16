@@ -39,6 +39,24 @@ glm::vec2 SceneModel3d::toLocal(const glm::vec2 & screen) const {
 	return camera->screenToPlane(screen, depth);
 }
 
+glm::vec3 SceneModel3d::worldCenter() const {
+	const glm::vec2 center = position + size * 0.5f;
+	return { center.x, center.y, depth };
+}
+
+float SceneModel3d::worldBoundingRadius() const {
+	const float side = min(size.x, size.y);
+	const float footprint = side * 0.5f;
+	if (!model) return footprint;
+
+	const glm::vec3 dims = model->getSceneMax() - model->getSceneMin();
+	const float largest = max({ dims.x, dims.y, dims.z });
+	if (largest <= 0.0f) return footprint;
+
+	const float scale = side / largest;
+	return glm::length(dims) * 0.5f * scale;
+}
+
 void SceneModel3d::draw() const {
 	if (!model) return;
 

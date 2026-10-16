@@ -78,8 +78,10 @@ private:
 	bool wasMousePressedLastFrame = false;
 
 	ofxPanel gui;
+	ofxPanel inspector;
 	ofxGuiGroup groupDraw;
 	ofxGuiGroup groupExport;
+	ofxGuiGroup groupTransform;
 
 	ofxGuiGroup groupHistory;
 
@@ -106,6 +108,11 @@ private:
 	ofParameter<float> cameraNear;
 	ofParameter<float> cameraFar;
 	ofParameter<bool> cameraOrtho;
+	ofParameter<float> transformX;
+	ofParameter<float> transformY;
+	ofParameter<float> transformRotation;
+	ofParameter<float> transformWidth;
+	ofParameter<float> transformHeight;
 
 	ofxButton importButton;
 	ofxButton recordButton;
@@ -120,12 +127,17 @@ private:
 	glm::vec2 mouseCurrentPos;
 	bool isMouseButtonPressed = false;
 	bool histogramRequested = false;
+	bool isSyncingTransformGui = false;
 
 	void setupTheme();
 	void setupImportGui();
 	void setupDrawGui();
 	void setupExportGui();
 	void setupMiscGui();
+	void setupTransformGui();
+	void placeInspector();
+
+	void syncTransformGui();
 	void addColorPicker(ofxColorSlider & slider, ofParameter<ofColor> & color, PalettePreview & preview,
 		const string & name, const ofColor & initialColor);
 	glm::vec2 modelListOrigin() const;
@@ -135,7 +147,9 @@ private:
 	void onRecordPressed();
 	void onResetPressed();
 	void onHistogramPressed();
+	void onFocusPressed();
 	void onImportModelPressed();
+	void onTransformChanged(float & value);
 
 	void setupHistoryGui();
 	void buttonUndoPressed();
@@ -149,6 +163,7 @@ private:
 	void clearPaletteSelection();
 
 	float canvasLeft() const;
+	float canvasRight() const;
 	void computeHistogram(const ofRectangle & canvas);
 	void drawSidebarBackground() const;
 	void drawCollapsedGuiButton() const;
@@ -168,4 +183,5 @@ private:
 	void setupCameraGui();
 	void resetCamera();
 	bool isOverUi(int x, int y) const;
+	array<ofParameter<float> *, 5> transformParameters();
 };
