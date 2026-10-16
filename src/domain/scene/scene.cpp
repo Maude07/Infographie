@@ -13,10 +13,10 @@ void Scene::draw(SceneCamera* camera) const {
 		bool is3d = dynamic_cast<const SceneModel3d *>(object.get()) != nullptr;
 		if (is3d && camera) {
 			camera->begin();
-			object->draw();
+			object->render();
 			camera->end();
 		} else {
-			object->draw();
+			object->render();
 		}
     }
 }
@@ -47,7 +47,7 @@ void Scene::clear() {
 
 SceneObject * Scene::hitTest(float x, float y) const {
     for (auto it = objects.rbegin(); it != objects.rend(); ++it) {
-        if ((*it)->contains(x, y)) {
+        if ((*it)->hitTest(x, y)) {
             return it->get();
         }
     }
