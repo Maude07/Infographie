@@ -337,7 +337,9 @@ void Application::draw() {
 			bezierStrokeTool.draw();
 		} else if (toolType == ToolType::Model3d) {
 			if (auto preview = makeModel(mousePressPos, mouseCurrentPos)) {
-				preview->draw();
+				sceneCamera.begin();
+				preview->render();
+				sceneCamera.end();
 			}
 		} else if (auto preview = makeShape(toolType, mousePressPos, mouseCurrentPos)) {
 			preview->draw();
