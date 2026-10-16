@@ -512,7 +512,9 @@ void Application::keyPressed(ofKeyEventArgs & args) {
 	case 'r':
 		onRecordPressed();
 		break;
-
+	case 'f':
+		onFocusPressed();
+		break;
 	case '1':
 		setToolType(ToolType::Select);
 		break;
@@ -770,6 +772,16 @@ void Application::onRecordPressed() {
 
 void Application::onHistogramPressed() {
 	histogramRequested = true;
+}
+
+void Application::onFocusPressed() {
+	if (transformTool.hasSelection()) {
+		auto selectedObject = transformTool.getSelection().cbegin();
+		sceneCamera.focusOnObject(*selectedObject);
+	} else {
+		//Focuser sur point 0,0,0 de la scène 
+		//sceneCamera.focus(sceneOrigin);
+	}
 }
 
 void Application::onImportModelPressed() {

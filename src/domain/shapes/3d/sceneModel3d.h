@@ -21,6 +21,9 @@ public:
 	ofRectangle getScreenBounds() const override;
 	glm::vec2 toLocal(const glm::vec2 & screen) const override;
 
+	glm::vec3 worldCenter() const;
+	float worldBoundingRadius() const;
+
 	float rotationY = 0.0f;
 	float depth = 0.0f;
 	const SceneCamera * camera = nullptr; // camera qui dessine ce modele

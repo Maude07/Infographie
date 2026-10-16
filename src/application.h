@@ -147,6 +147,7 @@ private:
 	void onRecordPressed();
 	void onResetPressed();
 	void onHistogramPressed();
+	void onFocusPressed();
 	void onImportModelPressed();
 	void onTransformChanged(float & value);
 
