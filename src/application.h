@@ -98,9 +98,27 @@ private:
 	ofParameter<bool> showGui;
 	ofParameter<bool> showSceneTree;
 
-	SceneCamera sceneCamera;
-	CameraController cameraController { sceneCamera };
+	// 6 cameras distinctes autour de l'objet, chacune avec ses propres attributs
+	static constexpr size_t cameraCount = 6;
+	array<SceneCamera, cameraCount> cameras { {
+		SceneCamera("face", 0.f, 0.f),
+		SceneCamera("arriere", 180.f, 0.f),
+		SceneCamera("cote gauche", -90.f, 0.f),
+		SceneCamera("cote droit", 90.f, 0.f),
+		SceneCamera("dessus", 0.f, 89.f),
+		SceneCamera("dessous", 0.f, -89.f),
+	} };
+	size_t activeCameraIndex = 0;
+	SceneCamera & activeCamera() { return cameras[activeCameraIndex]; }
+	const SceneCamera & activeCamera() const { return cameras[activeCameraIndex]; }
+
+	CameraController cameraController { cameras[0] };
 	ofxGuiGroup groupCamera;
+	ofParameter<int> cameraSelector;
+	ofParameter<string> cameraNameLabel;
+	ofxLabel cameraNameLabelGui;
+	ofxButton frameCameraButton;
+	ofxButton showAllButton;
 	ofxButton resetCameraButton;
 	ofParameter<float> cameraFov;
 	ofParameter<float> cameraNear;
@@ -167,5 +185,13 @@ private:
 
 	void setupCameraGui();
 	void resetCamera();
+	void selectCamera(size_t index);
+	void onCameraSelectorChanged(int & value);
+	void loadCameraAttributesToGui();
+	void frameCameraOnObject();
+	bool isolateSelection();
+	void showWholeScene();
+	void syncModelCameras();
+	void drawCameraLabel() const;
 	bool isOverUi(int x, int y) const;
 };

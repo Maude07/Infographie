@@ -7,6 +7,8 @@ class CameraController {
 public:
 	explicit CameraController(SceneCamera & camera);
 
+	void setCamera(SceneCamera & camera);
+
 	void update(float dt);
 
 	void mousePressed(int x, int y, int button, bool overGui);
@@ -18,7 +20,7 @@ public:
 	void keyReleased(int key);
 
 private:
-	SceneCamera & cam;
+	SceneCamera * cam;
 
 	bool dragging = false;
 	int lastX = 0;
