@@ -145,7 +145,8 @@ void Application::setup() {
 	syncColorReferences();
 
 	setupCameraGui();
-	sceneCamera.reset();
+	for (auto & camera : cameras) camera.reset();
+	selectCamera(0);
 }
 
 void Application::setupTheme() {
@@ -229,9 +230,10 @@ void Application::update() {
 	renderer.update();
 
 	cameraController.update(ofGetLastFrameTime());
-	sceneCamera.setFov(cameraFov);
-	sceneCamera.setClip(cameraNear, cameraFar);
-	sceneCamera.setOrtho(cameraOrtho);
+	activeCamera().setFov(cameraFov);
+	activeCamera().setClip(cameraNear, cameraFar);
+	activeCamera().setOrtho(cameraOrtho);
+	syncModelCameras();
 
 	bool mouseDown = ofGetMousePressed();
 
@@ -309,7 +311,7 @@ void Application::draw() {
 	ofRectangle canvas(left, 0, ofGetWidth() - left, ofGetHeight());
 
 	renderer.visibleOffsetX = left;
-	renderer.draw(scene, sceneCamera);
+	renderer.draw(scene, activeCamera());
 
 	if (histogramRequested) {
 		computeHistogram(canvas);
@@ -326,6 +328,7 @@ void Application::draw() {
 	}
 
 	transformTool.drawOverlay();
+	drawCameraLabel();
 
 	if (isMouseButtonPressed) {
 		if (toolType == ToolType::Bezier && bezierStrokeTool.isActive()) {
@@ -557,6 +560,21 @@ void Application::keyPressed(ofKeyEventArgs & args) {
 		break;
 	case 'c':
 		resetCamera();
+		break;
+	case 'f':
+		frameCameraOnObject();
+		break;
+	case OF_KEY_F1:
+	case OF_KEY_F2:
+	case OF_KEY_F3:
+	case OF_KEY_F4:
+	case OF_KEY_F5:
+	case OF_KEY_F6:
+		isolateSelection();
+		selectCamera(static_cast<size_t>(args.key - OF_KEY_F1));
+		break;
+	case '0':
+		showWholeScene();
 		break;
 	case 'p':
 		cameraOrtho = !cameraOrtho;
@@ -831,8 +849,8 @@ unique_ptr<SceneModel3d> Application::makeModel(const glm::vec2 & start, const g
 	auto model = modelLibrary.get(currentModelId);
 	if (!model) return nullptr;
 
-	glm::vec2 worldStart = sceneCamera.screenToPlane(start, 0.f);
-	glm::vec2 worldEnd = sceneCamera.screenToPlane(end, 0.f);
+	glm::vec2 worldStart = activeCamera().screenToPlane(start, 0.f);
+	glm::vec2 worldEnd = activeCamera().screenToPlane(end, 0.f);
 
 	glm::vec2 extent = glm::abs(worldEnd - worldStart);
 	glm::vec2 center = (worldStart + worldEnd) * 0.5f;
@@ -840,7 +858,7 @@ unique_ptr<SceneModel3d> Application::makeModel(const glm::vec2 & start, const g
 	if (glm::length(end - start) < minShapeSize) footprint = defaultModelSize;
 
 	auto instance = make_unique<SceneModel3d>(currentModelId, model, center, footprint);
-	instance->camera = &sceneCamera;
+	instance->camera = &activeCamera();
 	return instance;
 }
 
@@ -902,7 +920,12 @@ void Application::rotateSelectedModels(float degrees) {
 }
 
 void Application::setupCameraGui() {
-	groupCamera.setup("camera");
+	groupCamera.setup("cameras");
+	groupCamera.add(cameraSelector.set("camera active (F1-F6)", 1, 1, static_cast<int>(cameraCount)));
+	cameraNameLabel.set("vue", cameras[0].getName());
+	cameraNameLabelGui.setup(cameraNameLabel);
+	groupCamera.add(&cameraNameLabelGui);
+	cameraSelector.addListener(this, &Application::onCameraSelectorChanged);
 	groupCamera.add(cameraFov.set("champ de vision (deg)", SceneCamera::DEFAULT_FOV, 10.f, 120.f));
 	groupCamera.add(cameraNear.set("plan proche", SceneCamera::DEFAULT_NEAR, 0.1f, 3000.f));
 	groupCamera.add(cameraFar.set("plan eloigne", SceneCamera::DEFAULT_FAR, 10.f, 20000.f));
@@ -912,6 +935,14 @@ void Application::setupCameraGui() {
 	resetCameraButton.addListener(this, &Application::resetCamera);
 	groupCamera.add(&resetCameraButton);
 
+	frameCameraButton.setup("centrer sur l'objet (f)");
+	frameCameraButton.addListener(this, &Application::frameCameraOnObject);
+	groupCamera.add(&frameCameraButton);
+
+	showAllButton.setup("afficher toute la scene (0)");
+	showAllButton.addListener(this, &Application::showWholeScene);
+	groupCamera.add(&showAllButton);
+
 	gui.add(&groupCamera);
 }
 
@@ -920,7 +951,120 @@ void Application::resetCamera() {
 	cameraNear = SceneCamera::DEFAULT_NEAR;
 	cameraFar = SceneCamera::DEFAULT_FAR;
 	cameraOrtho = false;
-	sceneCamera.reset();
+	activeCamera().reset();
+	frameCameraOnObject();
+}
+
+void Application::selectCamera(size_t index) {
+	if (index >= cameraCount) return;
+
+	activeCameraIndex = index;
+	cameraController.setCamera(activeCamera());
+	loadCameraAttributesToGui();
+	frameCameraOnObject();
+	syncModelCameras();
+
+	ofLog() << "<camera: " << activeCamera().getName() << ">";
+}
+
+void Application::onCameraSelectorChanged(int & value) {
+	size_t index = static_cast<size_t>(value - 1);
+	if (index != activeCameraIndex) selectCamera(index);
+}
+
+void Application::loadCameraAttributesToGui() {
+	const SceneCamera & camera = activeCamera();
+	cameraFov = camera.getFov();
+	cameraNear = camera.getNearClip();
+	cameraFar = camera.getFarClip();
+	cameraOrtho = camera.isOrtho();
+	cameraNameLabel = camera.getName();
+
+	int selectorValue = static_cast<int>(activeCameraIndex) + 1;
+	if (cameraSelector.get() != selectorValue) cameraSelector = selectorValue;
+}
+
+void Application::frameCameraOnObject() {
+	auto centerOf = [](const SceneModel3d & model) {
+		glm::vec2 c = model.position + model.size * 0.5f;
+		return glm::vec3(c.x, c.y, model.depth);
+	};
+
+	glm::vec3 sum(0.f);
+	int count = 0;
+	float largest = 0.f;
+	auto accumulate = [&](const unordered_set<SceneObject *> & objects) {
+		for (SceneObject * object : objects) {
+			if (auto * model = dynamic_cast<SceneModel3d *>(object)) {
+				sum += centerOf(*model);
+				largest = max(largest, max(model->size.x, model->size.y));
+				++count;
+			}
+		}
+	};
+
+	// En isolation, toutes les vues tournent autour de l'objet isole et le cadrent
+	if (scene.isIsolating()) {
+		accumulate(scene.getIsolated());
+		if (count > 0) {
+			activeCamera().frame(sum / static_cast<float>(count), largest);
+			return;
+		}
+	}
+
+	accumulate(transformTool.getSelection());
+	if (count == 0) {
+		for (const auto & object : scene.getObjects()) {
+			if (auto * model = dynamic_cast<SceneModel3d *>(object.get())) {
+				sum += centerOf(*model);
+				++count;
+			}
+		}
+	}
+	if (count == 0) return;
+
+	activeCamera().setTarget(sum / static_cast<float>(count));
+}
+
+bool Application::isolateSelection() {
+	unordered_set<SceneObject *> models;
+	for (SceneObject * object : transformTool.getSelection()) {
+		if (dynamic_cast<SceneModel3d *>(object)) models.insert(object);
+	}
+	if (models.empty()) return false;
+	if (models == scene.getIsolated()) return true;
+
+	scene.isolate(models);
+	ofLog() << "<isolation: " << models.size() << " modele(s)>";
+	return true;
+}
+
+void Application::showWholeScene() {
+	if (!scene.isIsolating()) return;
+	scene.clearIsolation();
+	frameCameraOnObject();
+	ofLog() << "<isolation terminee>";
+}
+
+void Application::syncModelCameras() {
+	for (const auto & object : scene.getObjects()) {
+		if (auto * model = dynamic_cast<SceneModel3d *>(object.get())) {
+			model->camera = &activeCamera();
+		}
+	}
+}
+
+void Application::drawCameraLabel() const {
+	const SceneCamera & camera = activeCamera();
+	string text = "camera " + ofToString(activeCameraIndex + 1) + "/" + ofToString(cameraCount)
+		+ " : " + camera.getName() + (camera.isOrtho() ? " (orthogonale)" : " (perspective)");
+	if (scene.isIsolating()) {
+		const auto & isolated = scene.getIsolated();
+		text += isolated.size() == 1 ? " | isole : " + (*isolated.begin())->name + " (0 = tout)"
+									 : " | isole : " + ofToString(isolated.size()) + " objets (0 = tout)";
+	}
+	ofDrawBitmapStringHighlight(text, ofGetWidth() - 8 * static_cast<int>(text.size()) - 20, 24,
+		ofColor(0, 0, 0, 160), ofColor(255));
 }
 
 bool Application::isOverUi(int x, int y) const {
@@ -943,6 +1087,9 @@ void Application::exit() {
 	strokeColor.removeListener(this, &Application::onColorChanged);
 	fillColor.removeListener(this, &Application::onColorChanged);
 	importModelButton.removeListener(this, &Application::onImportModelPressed);
+	cameraSelector.removeListener(this, &Application::onCameraSelectorChanged);
+	frameCameraButton.removeListener(this, &Application::frameCameraOnObject);
+	showAllButton.removeListener(this, &Application::showWholeScene);
 
 	cursor.exit();
 

@@ -1,15 +1,20 @@
 #include "CameraController.h"
 
 CameraController::CameraController(SceneCamera & camera)
-	: cam(camera) { }
+	: cam(&camera) { }
+
+void CameraController::setCamera(SceneCamera & camera) {
+	cam = &camera;
+	dragging = false;
+}
 
 void CameraController::update(float dt) {
 	float dx = (keyRight ? 1.f : 0.f) - (keyLeft ? 1.f : 0.f);
 	float dy = (keyUp ? 1.f : 0.f) - (keyDown ? 1.f : 0.f);
 
 	if (dx != 0.f || dy != 0.f) {
-		float step = KEY_PAN_SPEED * cam.getRadius() * dt;
-		cam.pan(dx * step, dy * step);
+		float step = KEY_PAN_SPEED * cam->getRadius() * dt;
+		cam->pan(dx * step, dy * step);
 	}
 }
 
@@ -33,10 +38,10 @@ void CameraController::mouseDragged(int x, int y, int button) {
 
 	bool shift = ofGetKeyPressed(OF_KEY_SHIFT);
 	if (button == OF_MOUSE_BUTTON_RIGHT && !shift) {
-		cam.orbit(-dx * ORBIT_SENSITIVITY, dy * ORBIT_SENSITIVITY);
+		cam->orbit(-dx * ORBIT_SENSITIVITY, dy * ORBIT_SENSITIVITY);
 	} else if (button == OF_MOUSE_BUTTON_MIDDLE || (button == OF_MOUSE_BUTTON_RIGHT && shift)) {
-		float scale = PAN_SENSITIVITY * cam.getRadius();
-		cam.pan(-dx * scale, dy * scale);
+		float scale = PAN_SENSITIVITY * cam->getRadius();
+		cam->pan(-dx * scale, dy * scale);
 	}
 }
 
@@ -46,9 +51,9 @@ void CameraController::mouseReleased(int x, int y, int button) {
 
 void CameraController::mouseScrolled(float scrollY) {
 	if (scrollY > 0.f) {
-		cam.zoom(ZOOM_STEP);
+		cam->zoom(ZOOM_STEP);
 	} else if (scrollY < 0.f) {
-		cam.zoom(1.f / ZOOM_STEP);
+		cam->zoom(1.f / ZOOM_STEP);
 	}
 }
 
