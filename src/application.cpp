@@ -122,6 +122,7 @@ void Application::setup() {
 
 	setupTheme();
 	renderer.setup();
+	depthOfField.setup();
 	cursor.setup();
 
 	gui.setup("interface", "setting.json", 0, 0);
@@ -141,6 +142,7 @@ void Application::setup() {
 	for (auto & camera : cameras) camera.reset();
 	selectCamera(0);
 	placeInspector();
+	setupDepthOfFieldGui();
 }
 
 void Application::setupTheme() {
@@ -441,6 +443,14 @@ void Application::draw() {
 	renderer.visibleOffsetX = left;
 	renderer.visibleRightX = right;
 	renderer.draw(scene, activeCamera());
+	if (depthOfFieldEnabled) {
+		depthOfField.begin();
+		renderer.draw(scene, activeCamera());
+		depthOfField.end();
+		depthOfField.draw(activeCamera(), focusDistance, focusRange, maxBlur);
+	} else {
+		renderer.draw(scene, activeCamera());
+	}
 
 	if (histogramRequested) {
 		computeHistogram(canvas);
@@ -1270,6 +1280,15 @@ void Application::setupCameraGui() {
 	groupCamera.add(&showAllButton);
 
 	gui.add(&groupCamera);
+}
+
+void Application::setupDepthOfFieldGui() {
+	groupDepthOfField.setup("profondeur de champ");
+	groupDepthOfField.add(depthOfFieldEnabled.set("activer", false));
+	groupDepthOfField.add(focusDistance.set("distance nette", activeCamera().getRadius(), 1.0f, 5000.0f));
+	groupDepthOfField.add(focusRange.set("zone nette", 200.0f, 10.0f, 2000.0f));
+	groupDepthOfField.add(maxBlur.set("flou maximal (px)", 8.0f, 0.0f, 20.0f));
+	gui.add(&groupDepthOfField);
 }
 
 void Application::resetCamera() {
