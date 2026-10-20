@@ -146,6 +146,8 @@ private:
 	bool isMouseButtonPressed = false;
 	bool histogramRequested = false;
 	bool isSyncingTransformGui = false;
+	SceneObject * transformEditTarget = nullptr;
+	TransformState transformEditStart;
 
 	void setupTheme();
 	void setupImportGui();
@@ -172,6 +174,7 @@ private:
 	void buttonUndoPressed();
 	void buttonRedoPressed();
 	void commitColorChanges();
+	void commitTransformChanges();
 	void syncColorReferences();
 
 	void setToolType(ToolType mode);

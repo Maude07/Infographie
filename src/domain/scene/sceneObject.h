@@ -40,6 +40,7 @@ public:
 
     virtual bool isResizable() const { return true; }
     virtual bool isRotatable() const { return true; }
+    virtual bool isSquare() const { return false; }
     
     glm::vec2 getCenter() const {
         auto center = getBounds().getCenter();
@@ -61,7 +62,7 @@ public:
     }
 
     glm::vec2 toLocal(float x, float y) const {
-        glm::vec2 center = getCenter();
+        glm::vec2 center = getScreenBounds().getCenter();
         return center + rotateVector(glm::vec2(x, y) - center, -rotation);
     }
 

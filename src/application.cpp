@@ -124,7 +124,6 @@ void Application::setup() {
 	setupCameraGui();
 	for (auto & camera : cameras) camera.reset();
 	selectCamera(0);
-	sceneCamera.reset();
 	placeInspector();
 }
 
@@ -228,6 +227,7 @@ void Application::update() {
 	renderer.update();
 	syncTransformGui();
 	sceneTreePanel.rightOffset = ofGetWidth() - canvasRight();
+	transformTool.setCanvas(ofRectangle(canvasLeft(), 0, canvasRight() - canvasLeft(), ofGetHeight()));
 
 	cameraController.update(ofGetLastFrameTime());
 	activeCamera().setFov(cameraFov);
@@ -243,6 +243,7 @@ void Application::update() {
 
 	if (!mouseDown) {
 		syncColorReferences();
+		commitTransformChanges();
 	}
 
 	wasMousePressedLastFrame = mouseDown;
@@ -313,7 +314,7 @@ void Application::draw() {
 
 	renderer.visibleOffsetX = left;
 	renderer.visibleRightX = right;
-	renderer.draw(scene, activeCamera);
+	renderer.draw(scene, activeCamera());
 
 	if (histogramRequested) {
 		computeHistogram(canvas);
@@ -337,9 +338,9 @@ void Application::draw() {
 			bezierStrokeTool.draw();
 		} else if (toolType == ToolType::Model3d) {
 			if (auto preview = makeModel(mousePressPos, mouseCurrentPos)) {
-				sceneCamera.begin();
+				activeCamera().begin();
 				preview->render();
-				sceneCamera.end();
+				activeCamera().end();
 			}
 		} else if (auto preview = makeShape(toolType, mousePressPos, mouseCurrentPos)) {
 			preview->draw();
@@ -809,16 +810,38 @@ void Application::onTransformChanged(float &) {
 	const auto & selected = transformTool.getSelection();
 	if (selected.size() != 1) return;
 	SceneObject * selection = *selected.begin();
+	if (transformEditTarget != selection) {
+		commitTransformChanges();
+		transformEditTarget = selection;
+		transformEditStart = TransformState::of(*selection);
+	}
 
 	ofRectangle bounds = selection->getBounds();
 	float width = selection->isResizable() ? max(SceneObject::minSize, transformWidth.get()) : bounds.width;
 	float height = selection->isResizable() ? max(SceneObject::minSize, transformHeight.get()) : bounds.height;
+	if (selection->isSquare()) {
+		float side = width != bounds.width ? width : height;
+		width = side;
+		height = side;
+	}
+	bool widthChanged = width != bounds.width;
+	bool heightChanged = height != bounds.height;
 	bounds.setFromCenter(transformX, transformY, width, height);
 	selection->setBounds(bounds);
 
 	if (selection->isRotatable()) {
 		selection->rotation = transformRotation;
 	}
+	transformTool.fitInCanvas(*selection, widthChanged, heightChanged);
+}
+
+void Application::commitTransformChanges() {
+	if (!transformEditTarget) return;
+	TransformState current = TransformState::of(*transformEditTarget);
+	if (current != transformEditStart) {
+		history.push(make_unique<TransformCommand>(transformEditTarget, transformEditStart, current));
+	}
+	transformEditTarget = nullptr;
 }
 
 void Application::windowResized(int w, int h) {
@@ -897,8 +920,8 @@ unique_ptr<SceneModel3d> Application::makeModel(const glm::vec2 & start, const g
 	auto model = modelLibrary.get(currentModelId);
 	if (!model) return nullptr;
 
-	glm::vec2 worldStart = sceneCamera.screenToPlane(start, 0.f);
-	glm::vec2 worldEnd = sceneCamera.screenToPlane(end, 0.f);
+	glm::vec2 worldStart = activeCamera().screenToPlane(start, 0.f);
+	glm::vec2 worldEnd = activeCamera().screenToPlane(end, 0.f);
 
 	glm::vec2 extent = glm::abs(worldEnd - worldStart);
 	glm::vec2 center = (worldStart + worldEnd) * 0.5f;
