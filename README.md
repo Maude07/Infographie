@@ -38,8 +38,7 @@ In selection mode (`1`), click an object to select it, then:
 
 Points can only be moved
 
--The **transformation** group in the panel shows the selected object's position, rotation and size, and you can type exact values there.
-+The **inspector** on the right side of the window (like in Unity) shows the selected object's name, position, rotation and size, and you can type exact values there. It is hidden with the rest of the interface (`u`).
+The **inspector** on the right side of the window (like in Unity) shows the selected object's name, position, rotation and size, and you can type exact values there. It is hidden with the rest of the interface (`u`).
 
 ## Conventions
 

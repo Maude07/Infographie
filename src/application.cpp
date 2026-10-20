@@ -12,10 +12,6 @@
 #include "domain/commands/parameterCommand.h"
 #include "domain/commands/compositeCommand.h"
 #include "domain/commands/depthCommand.h"
-#include "domain/shapes/2d/scenePrimitiveEllipse.h"
-#include "domain/shapes/2d/scenePrimitiveLine.h"
-#include "domain/shapes/2d/scenePrimitivePoint.h"
-#include "domain/shapes/2d/scenePrimitiveRect.h"
 #include "presentation/ui/theme.h"
 #include "presentation/ui/defaults.h"
 

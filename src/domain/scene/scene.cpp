@@ -51,7 +51,7 @@ void Scene::clear() {
 
 SceneObject * Scene::hitTest(float x, float y) const {
     for (auto it = objects.rbegin(); it != objects.rend(); ++it) {
-        if ((*it)->hitTest(x, y)) {
+        if (isVisible(it->get()) && (*it)->hitTest(x, y)) {
             return it->get();
         }
     }
