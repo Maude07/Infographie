@@ -839,24 +839,6 @@ void Application::onTransformChanged(float &) {
 	const auto & selected = transformTool.getSelection();
 	if (selected.size() != 1) return;
 	SceneObject * selection = *selected.begin();
-
-	ofRectangle bounds = selection->getBounds();
-	float width = selection->isResizable() ? max(SceneObject::minSize, transformWidth.get()) : bounds.width;
-	float height = selection->isResizable() ? max(SceneObject::minSize, transformHeight.get()) : bounds.height;
-	bounds.setFromCenter(transformX, transformY, width, height);
-	selection->setBounds(bounds);
-
-	if (selection->isRotatable()) {
-		selection->rotation = transformRotation;
-	}
-}
-
-void Application::onTransformChanged(float &) {
-	if (isSyncingTransformGui) return;
-
-	const auto & selected = transformTool.getSelection();
-	if (selected.size() != 1) return;
-	SceneObject * selection = *selected.begin();
 	if (transformEditTarget != selection) {
 		commitTransformChanges();
 		transformEditTarget = selection;
