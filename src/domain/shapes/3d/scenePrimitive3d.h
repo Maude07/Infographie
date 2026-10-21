@@ -11,6 +11,8 @@ public:
 
     void draw() const override;
 
+    ofRectangle getScreenBounds() const override;
+    
     void setBounds(const ofRectangle & bounds) override {
         float side = max(bounds.width, bounds.height);
         SceneObject::setBounds(ofRectangle(bounds.x, bounds.y, side, side));
