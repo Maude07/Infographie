@@ -18,6 +18,7 @@ public:
 		SceneObject::setBounds(ofRectangle(b.x, b.y, side, side));
 	}
 
+	bool isSquare() const override { return true; }
 	ofRectangle getScreenBounds() const override;
 	glm::vec2 toLocal(const glm::vec2 & screen) const override;
 
