@@ -13,9 +13,13 @@ public:
 
     ofRectangle getScreenBounds() const override;
     
+    bool isSquare() const override { return true; }
+
     void setBounds(const ofRectangle & bounds) override {
         float side = max(bounds.width, bounds.height);
-        SceneObject::setBounds(ofRectangle(bounds.x, bounds.y, side, side));
+        ofRectangle square;
+        square.setFromCenter(bounds.getCenter(), side, side);
+        SceneObject::setBounds(square);
     }
 
 protected:

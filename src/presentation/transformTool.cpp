@@ -83,7 +83,7 @@ void TransformTool::fitInCanvas(SceneObject & object, bool shrinkWidth, bool shr
 	};
 
 	if (!fits() && object.isResizable()) {
-		if (!shrinkWidth && !shrinkHeight) {
+		if ((!shrinkWidth && !shrinkHeight) || object.isSquare()) {
 			shrinkWidth = true;
 			shrinkHeight = true;
 		}

@@ -15,7 +15,9 @@ public:
 
 	void setBounds(const ofRectangle& b) override {
 		float side = max(b.width, b.height);
-		SceneObject::setBounds(ofRectangle(b.x, b.y, side, side));
+		ofRectangle square;
+		square.setFromCenter(b.getCenter(), side, side);
+		SceneObject::setBounds(square);
 	}
 
 	bool isSquare() const override { return true; }
@@ -24,7 +26,7 @@ public:
 
 	float rotationY = 0.0f;
 	float depth = 0.0f;
-	const SceneCamera * camera = nullptr; // camera qui dessine ce modele
+	const SceneCamera * camera = nullptr;
 
 private:
 	string modelId;
