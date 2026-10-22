@@ -15,19 +15,18 @@ ofMesh ScenePrimitiveCube::generate() {
         { 0, 0, 1 }, { 0, 0, -1 }
     };
 
-    //TOOD : CHange variable names
     for (const glm::vec3 & normal : faceNormals) {
-        glm::vec3 u = abs(normal.y) > 0.5f ? glm::vec3(1, 0, 0) : glm::vec3(0, 1, 0);
-        glm::vec3 v = glm::cross(normal, u);
-        glm::vec3 c = normal * half;
+        glm::vec3 tangent = abs(normal.y) > 0.5f ? glm::vec3(1, 0, 0) : glm::vec3(0, 1, 0);
+        glm::vec3 bitangent = glm::cross(normal, tangent);
+        glm::vec3 faceCenter = normal * half;
 
-        glm::vec3 point0 = c - u * half - v * half;
-        glm::vec3 point1 = c + u * half - v * half;
-        glm::vec3 point2 = c + u * half + v * half;
-        glm::vec3 point3 = c - u * half + v * half;
+        glm::vec3 bottomLeft = faceCenter - tangent * half - bitangent * half;
+        glm::vec3 bottomRight = faceCenter + tangent * half - bitangent * half;
+        glm::vec3 topRight = faceCenter + tangent * half + bitangent * half;
+        glm::vec3 topLeft = faceCenter - tangent * half + bitangent * half;
 
-        addTriangle(mesh, point0, point1, point2, normal, normal, normal);
-        addTriangle(mesh, point0, point2, point3, normal, normal, normal);
+        addTriangle(mesh, bottomLeft, bottomRight, topRight, normal, normal, normal);
+        addTriangle(mesh, bottomLeft, topRight, topLeft, normal, normal, normal);
     }
     return mesh;
 }

@@ -9,7 +9,6 @@ const ofMesh & ScenePrimitiveSphere::mesh() const {
     return sphere;
 }
 
-//TODO : Change variable names
 ofMesh ScenePrimitiveSphere::generate() {
     ofMesh mesh;
     mesh.setMode(OF_PRIMITIVE_TRIANGLES);
@@ -22,13 +21,15 @@ ofMesh ScenePrimitiveSphere::generate() {
 
     for (int ring = 0; ring < rings; ++ring) {
         for (int segment = 0; segment < segments; ++segment) {
-            glm::vec3 n00 = direction(ring, segment);
-            glm::vec3 n01 = direction(ring, segment + 1);
-            glm::vec3 n10 = direction(ring + 1, segment);
-            glm::vec3 n11 = direction(ring + 1, segment + 1);
+            glm::vec3 topLeft = direction(ring, segment);
+            glm::vec3 topRight = direction(ring, segment + 1);
+            glm::vec3 bottomLeft = direction(ring + 1, segment);
+            glm::vec3 bottomRight = direction(ring + 1, segment + 1);
 
-            addTriangle(mesh, n00 * half, n10 * half, n11 * half, n00, n10, n11);
-            addTriangle(mesh, n00 * half, n11 * half, n01 * half, n00, n11, n01);
+            addTriangle(mesh, topLeft * half, bottomLeft * half,
+                 bottomRight * half, topLeft, bottomLeft, bottomRight);
+            addTriangle(mesh, topLeft * half, bottomRight * half,
+                 topRight * half, topLeft, bottomRight, topRight);
         }
     }
     return mesh;
