@@ -98,7 +98,7 @@ void SceneModel3d::draw() const {
 
 	static ofLight light;
 	light.setPointLight();
-	light.setPosition(center.x - side, center.y - side, side * 3.0f);
+	light.setPosition(center.x - side, center.y - side, depth + side * 3.0f);
 	light.setDiffuseColor(ofColor(255));
 	light.setSpecularColor(ofColor(255));
 

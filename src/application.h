@@ -66,7 +66,6 @@ public:
 	void mouseReleased(int x, int y, int button) override;
 	void mouseScrolled(int x, int y, float scrollX, float scrollY) override;
 	void windowResized(int w, int h) override;
-	void mouseScrolled(int x, int y, float scrollX, float scrollY) override;
 
 private:
 	Renderer renderer;

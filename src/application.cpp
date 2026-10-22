@@ -180,13 +180,13 @@ void Application::setupVariantGui() {
 	groupVariants.setup("variantes 3D");
 
 	groupVariants.add(variantStretchVertical.set("etirement vertical", false));
-	groupVariants.add(variantVerticalFactor.set("degre vertical", defaultStretchFactor, minStretchFactor, maxStretchFactor));
+	groupVariants.add(variantVerticalFactor.set("degre vertical", defaults::defaultStretchFactor, defaults::minStretchFactor, defaults::maxStretchFactor));
 
 	groupVariants.add(variantStretchHorizontal.set("etirement horizontal", false));
-	groupVariants.add(variantHorizontalFactor.set("degre horizontal", defaultStretchFactor, minStretchFactor, maxStretchFactor));
+	groupVariants.add(variantHorizontalFactor.set("degre horizontal", defaults::defaultStretchFactor, defaults::minStretchFactor, defaults::maxStretchFactor));
 
 	groupVariants.add(variantTinted.set("teinte", false));
-	variantTintColor.set("couleur de teinte", defaultTintColor, ofColor(0, 0), ofColor(255, 255));
+	variantTintColor.set("couleur de teinte", defaults::defaultTintColor, ofColor(0, 0), ofColor(255, 255));
 	variantTintSlider.setup(variantTintColor);
 	palettePreviews[3].setup(palette, variantTintColor, groupVariants.getWidth());
 	variantTintSlider.add(&palettePreviews[3]);
@@ -194,18 +194,18 @@ void Application::setupVariantGui() {
 	variantTintColor.addListener(this, &Application::onColorChanged);
 
 	groupVariants.add(variantMetallic.set("metallique", false));
-	groupVariants.add(variantMetalness.set("degre metallique", defaultMetalness, 0.0f, 1.0f));
+	groupVariants.add(variantMetalness.set("degre metallique", defaults::defaultMetalness, 0.0f, 1.0f));
 }
 
 void Application::resetVariantGui() {
 	variantStretchVertical = false;
-	variantVerticalFactor = defaultStretchFactor;
+	variantVerticalFactor = defaults::defaultStretchFactor;
 	variantStretchHorizontal = false;
-	variantHorizontalFactor = defaultStretchFactor;
+	variantHorizontalFactor = defaults::defaultStretchFactor;
 	variantTinted = false;
-	variantTintColor = defaultTintColor;
+	variantTintColor = defaults::defaultTintColor;
 	variantMetallic = false;
-	variantMetalness = defaultMetalness;
+	variantMetalness = defaults::defaultMetalness;
 }
 
 ModelVariant Application::variantFromGui() const {
@@ -333,20 +333,12 @@ void Application::drawSidebarScrollbar() const {
 
 	ofPushStyle();
 	ofFill();
-	ofSetColor(panelColor);
+	ofSetColor(theme::panelColor);
 	ofDrawRectangle(trackX, 0, scrollbarThumbWidth, trackHeight);
 
-	ofSetColor(maxScroll > 0.0f ? accentColor : panelBorderColor);
+	ofSetColor(maxScroll > 0.0f ? theme::accentColor : theme::panelBorderColor);
 	ofDrawRectangle(trackX, thumbY, scrollbarThumbWidth, thumbHeight);
 	ofPopStyle();
-}
-
-void Application::mouseScrolled(int x, int y, float scrollX, float scrollY) {
-	if (!showGui) return;
-	if (x > canvasLeft()) return;
-
-	scrollOffset -= scrollY * scrollSpeed;
-	scrollOffset = ofClamp(scrollOffset, 0.0f, maxScroll);
 }
 
 bool Application::isOverScrollbarThumb(int x, int y) const {
@@ -923,6 +915,10 @@ void Application::mouseReleased(int x, int y, int button) {
 }
 
 void Application::mouseScrolled(int x, int y, float scrollX, float scrollY) {
+	if (showGui && x < canvasLeft()) {
+		scrollOffset = ofClamp(scrollOffset - scrollY * scrollSpeed, 0.0f, maxScroll);
+		return;
+	}
 	if (isOverUi(x, y)) return;
 
 	if (ofGetKeyPressed(OF_KEY_ALT) && scrollY != 0.f) {
