@@ -12,6 +12,7 @@
 #include "domain/commands/parameterCommand.h"
 #include "domain/commands/compositeCommand.h"
 #include "domain/commands/depthCommand.h"
+#include "domain/commands/rotateYCommand.h"
 #include "presentation/ui/theme.h"
 #include "presentation/ui/defaults.h"
 
@@ -58,6 +59,7 @@ const glm::vec2 collapsedGuiIconOffset(10, 18);
 		case ToolType::Bezier:
 		case ToolType::Model3d:
 		case ToolType::Select:
+		case ToolType::Primitive3d:
 			return true;
 		}
 		return true;
@@ -82,9 +84,25 @@ const glm::vec2 collapsedGuiIconOffset(10, 18);
 		case ToolType::Bezier:
 			return "bezier";
 		case ToolType::Select:
+		case ToolType::Model3d:
+		case ToolType::Primitive3d:
 			break;
 		}
 		return "objet";
+	}
+
+	string primitive3dLabel(Primitive3dType type) {
+		switch (type) {
+		case Primitive3dType::Cube:
+			return "cube";
+		case Primitive3dType::Sphere:
+			return "sphere";
+		case Primitive3dType::Cylinder:
+			return "cylindre";
+		case Primitive3dType::Cone:
+			return "cone";
+		}
+		return "primitive 3d";
 	}
 
 }
@@ -338,6 +356,11 @@ void Application::draw() {
 				preview->render();
 				activeCamera().end();
 			}
+		} else if (toolType == ToolType::Primitive3d) {
+			auto preview = makePrimitive3d(mousePressPos, mouseCurrentPos);
+			activeCamera().begin();
+			preview->render();
+			activeCamera().end();
 		} else if (auto preview = makeShape(toolType, mousePressPos, mouseCurrentPos)) {
 			preview->draw();
 		}
@@ -463,11 +486,12 @@ CursorState Application::currentCursorState(const glm::vec2 & mouse) const {
 	case ToolType::Wave:
 	case ToolType::FunkyCircles:
 	case ToolType::Bezier:
+	case ToolType::Model3d:
+	case ToolType::Primitive3d:
 		return CursorState::Crosshair;
 	case ToolType::Point:
 		return CursorState::Point;
 	case ToolType::Select:
-	case ToolType::Model3d:
 		break;
 	}
 
@@ -547,6 +571,13 @@ void Application::keyPressed(ofKeyEventArgs & args) {
 		break;
 	case '8':
 		setToolType(ToolType::FunkyCircles);
+		break;
+	case '9':
+		if (toolType == ToolType::Primitive3d) {
+			selectPrimitive3d(static_cast<Primitive3dType>((static_cast<int>(currentPrimitive3d) + 1) % 4));
+		} else {
+			selectPrimitive3d(currentPrimitive3d);
+		}
 		break;
 	case 'b':
 		setToolType(ToolType::Bezier);
@@ -733,6 +764,11 @@ void Application::mouseReleased(int x, int y, int button) {
 		return;
 	}
 
+	if (toolType == ToolType::Primitive3d) {
+		addPrimitive3d();
+		return;
+	}
+
 	addVectorShape();
 }
 
@@ -889,6 +925,7 @@ unique_ptr<ScenePrimitive> Application::makeShape(ToolType type, const glm::vec2
 		break;
 	case ToolType::Bezier:
 	case ToolType::Model3d:
+	case ToolType::Primitive3d:
 	case ToolType::Select:
 		return nullptr;
 	}
@@ -918,7 +955,6 @@ unique_ptr<SceneModel3d> Application::makeModel(const glm::vec2 & start, const g
 
 	glm::vec2 worldStart = activeCamera().screenToPlane(start, 0.f);
 	glm::vec2 worldEnd = activeCamera().screenToPlane(end, 0.f);
-
 	glm::vec2 extent = glm::abs(worldEnd - worldStart);
 	glm::vec2 center = (worldStart + worldEnd) * 0.5f;
 	float footprint = max(extent.x, extent.y);
@@ -949,7 +985,7 @@ void Application::selectNextModel() {
 bool Application::moveSelectedModelsDepth(float delta) {
 	vector<DepthCommand::Change> changes;
 	for (SceneObject * object : transformTool.getSelection()) {
-		if (auto * model = dynamic_cast<SceneModel3d *>(object)) {
+		if (auto * model = dynamic_cast<SceneObject3d *>(object)) {
 			float newDepth = ofClamp(model->depth + delta, -depthLimit, depthLimit);
 			if (newDepth != model->depth) {
 				changes.push_back({ model, model->depth, newDepth });
@@ -963,7 +999,7 @@ bool Application::moveSelectedModelsDepth(float delta) {
 	bool hadModels = !changes.empty();
 	if (!hadModels) {
 		for (SceneObject * object : transformTool.getSelection()) {
-			if (dynamic_cast<SceneModel3d *>(object)) return true;
+			if (dynamic_cast<SceneObject3d *>(object)) return true;
 		}
 		return false;
 	}
@@ -979,11 +1015,67 @@ bool Application::moveSelectedModelsDepth(float delta) {
 }
 
 void Application::rotateSelectedModels(float degrees) {
+	vector<unique_ptr<Command>> changes;
+
 	for (SceneObject * object : transformTool.getSelection()) {
-		if (auto * model = dynamic_cast<SceneModel3d *>(object)) {
-			model->rotationY = fmod(model->rotationY + degrees, 360.0f);
-		}
+		auto * object3d = dynamic_cast<SceneObject3d *>(object);
+		if (!object3d) continue;
+		float * rotationY = &object3d->rotationY;
+
+		float newValue = fmod(*rotationY + degrees, 360.0f);
+		changes.push_back(make_unique<RotateYCommand>(*rotationY, *rotationY, newValue));
 	}
+
+	if (changes.empty()) return;
+
+	if (changes.size() == 1) {
+		history.execute(move(changes.front()));
+	} else {
+		history.execute(make_unique<CompositeCommand>(move(changes)));
+	}
+}
+
+unique_ptr<ScenePrimitive3d> Application::makePrimitive3d(const glm::vec2 & start, const glm::vec2 & end) const {
+	unique_ptr<ScenePrimitive3d> primitive;
+
+	switch (currentPrimitive3d) {
+	case Primitive3dType::Cube:
+		primitive = make_unique<ScenePrimitiveCube>();
+		break;
+	case Primitive3dType::Sphere:
+		primitive = make_unique<ScenePrimitiveSphere>();
+		break;
+	case Primitive3dType::Cylinder:
+		primitive = make_unique<ScenePrimitiveCylinder>();
+		break;
+	case Primitive3dType::Cone:
+		primitive = make_unique<ScenePrimitiveCone>();
+		break;
+	}
+
+	glm::vec2 worldStart = activeCamera().screenToPlane(start, 0.f);
+	glm::vec2 worldEnd = activeCamera().screenToPlane(end, 0.f);
+	glm::vec2 extent = glm::abs(worldEnd - worldStart);
+	float footprint = max(extent.x, extent.y);
+	if (glm::length(end - start) < minShapeSize) footprint = defaults::defaultModelSize;
+
+	primitive->size = { footprint, footprint };
+	primitive->position = (worldStart + worldEnd) * 0.5f - primitive->size * 0.5f;
+	primitive->camera = &activeCamera();
+	primitive->name = primitive3dLabel(currentPrimitive3d);
+	primitive->color = fillColor;
+	return primitive;
+}
+
+
+void Application::addPrimitive3d() {
+	history.execute(make_unique<AddObjectCommand>(&scene, makePrimitive3d(mousePressPos, mouseCurrentPos)));
+}
+
+void Application::selectPrimitive3d(Primitive3dType type) {
+	currentPrimitive3d = type;
+	setToolType(ToolType::Primitive3d);
+	ofLog() << "<primitive 3d: " << primitive3dLabel(type) << ">";
 }
 
 void Application::setupCameraGui() {
@@ -1052,17 +1144,14 @@ void Application::loadCameraAttributesToGui() {
 }
 
 void Application::frameCameraOnObject() {
-	auto centerOf = [](const SceneModel3d & model) {
-		glm::vec2 c = model.position + model.size * 0.5f;
-		return glm::vec3(c.x, c.y, model.depth);
-	};
+	auto centerOf = [](const SceneObject3d & model) { return model.getCenter3d(); };
 
 	glm::vec3 sum(0.f);
 	int count = 0;
 	float largest = 0.f;
 	auto accumulate = [&](const unordered_set<SceneObject *> & objects) {
 		for (SceneObject * object : objects) {
-			if (auto * model = dynamic_cast<SceneModel3d *>(object)) {
+			if (auto * model = dynamic_cast<SceneObject3d *>(object)) {
 				sum += centerOf(*model);
 				largest = max(largest, max(model->size.x, model->size.y));
 				++count;
@@ -1082,7 +1171,7 @@ void Application::frameCameraOnObject() {
 	accumulate(transformTool.getSelection());
 	if (count == 0) {
 		for (const auto & object : scene.getObjects()) {
-			if (auto * model = dynamic_cast<SceneModel3d *>(object.get())) {
+			if (auto * model = dynamic_cast<SceneObject3d *>(object.get())) {
 				sum += centerOf(*model);
 				++count;
 			}
@@ -1096,7 +1185,7 @@ void Application::frameCameraOnObject() {
 bool Application::isolateSelection() {
 	unordered_set<SceneObject *> models;
 	for (SceneObject * object : transformTool.getSelection()) {
-		if (dynamic_cast<SceneModel3d *>(object)) models.insert(object);
+		if (dynamic_cast<SceneObject3d *>(object)) models.insert(object);
 	}
 	if (models.empty()) return false;
 	if (models == scene.getIsolated()) return true;
@@ -1115,7 +1204,7 @@ void Application::showWholeScene() {
 
 void Application::syncModelCameras() {
 	for (const auto & object : scene.getObjects()) {
-		if (auto * model = dynamic_cast<SceneModel3d *>(object.get())) {
+		if (auto * model = dynamic_cast<SceneObject3d *>(object.get())) {
 			model->camera = &activeCamera();
 		}
 	}
@@ -1162,6 +1251,10 @@ void Application::exit() {
 	cameraSelector.removeListener(this, &Application::onCameraSelectorChanged);
 	frameCameraButton.removeListener(this, &Application::frameCameraOnObject);
 	showAllButton.removeListener(this, &Application::showWholeScene);
+
+	for (auto * parameter : transformParameters()) {
+		parameter->removeListener(this, &Application::onTransformChanged);
+	}
 
 	for (auto * parameter : transformParameters()) {
 		parameter->removeListener(this, &Application::onTransformChanged);

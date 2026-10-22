@@ -1,10 +1,9 @@
 #pragma once
 #include "ofMain.h"
 #include "ofxAssimpModelLoader.h"
-#include "../../scene/sceneObject.h"
-#include "../../camera/sceneCamera.h"
+#include "sceneObject3d.h"
 
-class SceneModel3d : public SceneObject {
+class SceneModel3d : public SceneObject3d {
 public:
 	SceneModel3d(const string & modelId,
 		shared_ptr<ofxAssimpModelLoader> model,
@@ -13,18 +12,7 @@ public:
 
 	void draw() const override;
 
-	void setBounds(const ofRectangle& b) override {
-		float side = max(b.width, b.height);
-		SceneObject::setBounds(ofRectangle(b.x, b.y, side, side));
-	}
-
-	bool isSquare() const override { return true; }
 	ofRectangle getScreenBounds() const override;
-	glm::vec2 toLocal(const glm::vec2 & screen) const override;
-
-	float rotationY = 0.0f;
-	float depth = 0.0f;
-	const SceneCamera * camera = nullptr; // camera qui dessine ce modele
 
 private:
 	string modelId;

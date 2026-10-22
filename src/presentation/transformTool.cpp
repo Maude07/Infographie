@@ -83,7 +83,7 @@ void TransformTool::fitInCanvas(SceneObject & object, bool shrinkWidth, bool shr
 	};
 
 	if (!fits() && object.isResizable()) {
-		if (!shrinkWidth && !shrinkHeight) {
+		if ((!shrinkWidth && !shrinkHeight) || object.isSquare()) {
 			shrinkWidth = true;
 			shrinkHeight = true;
 		}
@@ -155,6 +155,14 @@ void TransformTool::mousePressed(Scene & scene, float x, float y, bool additive)
 		if (only->isRotatable() && getRotateHandle(*only).inside(local.x, local.y)) {
 			isRotating = true;
 			rotateStartAngle = angleFromCenter(*only, only->toLocal(lastMouse));
+			rotateStartValue = only->rotation;
+			captureDragStart();
+			return;
+		}
+
+		if (only->isRotatable() && getRotateHandle(*only).inside(local.x, local.y)) {
+			isRotating = true;
+			rotateStartAngle = angleFromCenter(*only, lastMouse);
 			rotateStartValue = only->rotation;
 			captureDragStart();
 			return;
@@ -299,10 +307,8 @@ void TransformTool::drawOverlay() const {
 			ofPopMatrix();
 		}
 	}
-
 	ofPopStyle();
 }
-
 
 ofRectangle TransformTool::getHandleBounds(const SceneObject & object) const {
 	ofRectangle bounds = object.getScreenBounds();

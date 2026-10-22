@@ -11,7 +11,7 @@ void Scene::draw(SceneCamera* camera) const {
 	glClear(GL_DEPTH_BUFFER_BIT);
     for (const auto & object : objects) {
 		if (!isVisible(object.get())) continue;
-		bool is3d = dynamic_cast<const SceneModel3d *>(object.get()) != nullptr;
+		bool is3d = dynamic_cast<const SceneObject3d *>(object.get()) != nullptr;
 		if (is3d && camera) {
 			camera->begin();
 			object->render();
