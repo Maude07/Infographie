@@ -40,6 +40,8 @@ const glm::vec2 collapsedGuiIconOffset(10, 18);
 
 	constexpr float minShapeSize = 3.0f;
 
+	constexpr float modelListGap = 10.0f; // espace entre le panneau et la liste des modeles
+
 	constexpr float rotationStep = 15.0f;
 	constexpr float depthStep = 10.0f;
 	constexpr float depthLimit = 5000.0f;
@@ -251,7 +253,13 @@ void Application::addColorPicker(ofxColorSlider & slider, ofParameter<ofColor> &
 }
 
 glm::vec2 Application::modelListOrigin() const {
-	return glm::vec2(0.0f, gui.getShape().getBottom() + 10.0f);
+	return glm::vec2(0.0f, gui.getShape().getBottom() + modelListGap);
+}
+
+// Hauteur totale du contenu de la colonne de gauche : le panneau ofxGui
+// plus la liste des modeles 3D importes dessinee juste en dessous.
+float Application::sidebarContentHeight() const {
+	return gui.getHeight() + modelListGap + modelListPanel.getHeight(modelLibrary.ids().size());
 }
 
 void Application::setupExportGui() {
@@ -314,7 +322,7 @@ void Application::update() {
 }
 
 void Application::updateSidebarScroll() {
-	float contentHeight = gui.getHeight();
+	float contentHeight = sidebarContentHeight();
 	float visibleHeight = static_cast<float>(ofGetHeight());
 
 	maxScroll = max(0.0f, contentHeight - visibleHeight);
@@ -325,7 +333,7 @@ void Application::updateSidebarScroll() {
 
 void Application::drawSidebarScrollbar() const {
 	float trackHeight = static_cast<float>(ofGetHeight());
-	float contentHeight = max(gui.getHeight(), trackHeight);
+	float contentHeight = max(sidebarContentHeight(), trackHeight);
 	float trackX = gui.getWidth() + (scrollbarTrackWidth - scrollbarThumbWidth) * 0.5f;
 
 	float thumbHeight = ofClamp(trackHeight * (trackHeight / contentHeight), 20.0f, trackHeight);
@@ -345,7 +353,7 @@ bool Application::isOverScrollbarThumb(int x, int y) const {
 	if (maxScroll <= 0.0f) return false;
 
 	float trackHeight = static_cast<float>(ofGetHeight());
-	float contentHeight = max(gui.getHeight(), trackHeight);
+	float contentHeight = max(sidebarContentHeight(), trackHeight);
 	float trackX = gui.getWidth() + (scrollbarTrackWidth - scrollbarThumbWidth) * 0.5f;
 
 	float thumbHeight = ofClamp(trackHeight * (trackHeight / contentHeight), 20.0f, trackHeight);
@@ -357,7 +365,7 @@ bool Application::isOverScrollbarThumb(int x, int y) const {
 
 void Application::setScrollFromThumbY(float thumbScreenY) {
 	float trackHeight = static_cast<float>(ofGetHeight());
-	float contentHeight = max(gui.getHeight(), trackHeight);
+	float contentHeight = max(sidebarContentHeight(), trackHeight);
 	float thumbHeight = ofClamp(trackHeight * (trackHeight / contentHeight), 20.0f, trackHeight);
 
 	float usableTrack = trackHeight - thumbHeight;
@@ -811,7 +819,7 @@ void Application::mousePressed(int x, int y, int button) {
 		isDraggingScrollbar = true;
 
 		float trackHeight = static_cast<float>(ofGetHeight());
-		float contentHeight = max(gui.getHeight(), trackHeight);
+		float contentHeight = max(sidebarContentHeight(), trackHeight);
 		float thumbHeight = ofClamp(trackHeight * (trackHeight / contentHeight), 20.0f, trackHeight);
 		float thumbY = (scrollOffset / maxScroll) * (trackHeight - thumbHeight);
 

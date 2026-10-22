@@ -10,6 +10,8 @@ public:
 		const glm::vec2 & origin, float width, const glm::vec2 & mouse) const;
 	string hitTest(const vector<std::string> & ids,
 		const glm::vec2 & origin, float width, float x, float y) const;
+	// Hauteur occupee par la liste, pour que la scrollbar du panneau en tienne compte
+	float getHeight(size_t modelCount) const;
 
 private:
 	static constexpr float headerHeight = 24.0f;

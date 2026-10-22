@@ -195,6 +195,7 @@ private:
 	void addColorPicker(ofxColorSlider & slider, ofParameter<ofColor> & color, PalettePreview & preview,
 		const string & name, const ofColor & initialColor);
 	glm::vec2 modelListOrigin() const;
+	float sidebarContentHeight() const;
 
 	void onColorChanged(ofColor & color);
 	void onImportPressed();
