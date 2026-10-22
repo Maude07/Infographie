@@ -228,6 +228,8 @@
   <ItemGroup>
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\application.cpp" />
+    <ClCompile Include="src\domain\camera\cameraController.cpp" />
+    <ClCompile Include="src\domain\camera\sceneCamera.cpp" />
     <ClCompile Include="src\domain\commands\addObjectCommand.cpp" />
     <ClCompile Include="src\domain\commands\historyManager.cpp" />
     <ClCompile Include="src\domain\commands\removeObjectCommand.cpp" />
@@ -240,6 +242,11 @@
     <ClCompile Include="src\domain\shapes\2d\scenePrimitivePoint.cpp" />
     <ClCompile Include="src\domain\shapes\2d\scenePrimitiveRect.cpp" />
     <ClCompile Include="src\domain\shapes\3d\sceneModel3d.cpp" />
+    <ClCompile Include="src\domain\shapes\3d\scenePrimitive3d.cpp" />
+    <ClCompile Include="src\domain\shapes\3d\scenePrimitiveCube.cpp" />
+    <ClCompile Include="src\domain\shapes\3d\scenePrimitiveSphere.cpp" />
+    <ClCompile Include="src\domain\shapes\3d\scenePrimitiveCylinder.cpp" />
+    <ClCompile Include="src\domain\shapes\3d\scenePrimitiveCone.cpp" />
     <ClCompile Include="src\infrastructure\imageExporter.cpp" />
     <ClCompile Include="src\infrastructure\modelLibrary.cpp" />
     <ClCompile Include="src\presentation\bezierStrokeTool.cpp" />
@@ -270,12 +277,16 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\application.h" />
+    <ClInclude Include="src\domain\camera\cameraController.h" />
+    <ClInclude Include="src\domain\camera\sceneCamera.h" />
     <ClInclude Include="src\domain\commands\addObjectCommand.h" />
     <ClInclude Include="src\domain\commands\command.h" />
     <ClInclude Include="src\domain\commands\compositeCommand.h" />
+    <ClInclude Include="src\domain\commands\depthCommand.h" />
     <ClInclude Include="src\domain\commands\historyManager.h" />
     <ClInclude Include="src\domain\commands\parameterCommand.h" />
     <ClInclude Include="src\domain\commands\removeObjectCommand.h" />
+    <ClInclude Include="src\domain\commands\rotateYCommand.h" />
     <ClInclude Include="src\domain\commands\transformCommand.h" />
     <ClInclude Include="src\domain\histogram.h" />
     <ClInclude Include="src\domain\scene\scene.h" />
@@ -287,6 +298,12 @@
     <ClInclude Include="src\domain\shapes\2d\scenePrimitivePoint.h" />
     <ClInclude Include="src\domain\shapes\2d\scenePrimitiveRect.h" />
     <ClInclude Include="src\domain\shapes\3d\sceneModel3d.h" />
+    <ClInclude Include="src\domain\shapes\3d\sceneObject3d.h" />
+    <ClInclude Include="src\domain\shapes\3d\scenePrimitive3d.h" />
+    <ClInclude Include="src\domain\shapes\3d\scenePrimitiveCube.h" />
+    <ClInclude Include="src\domain\shapes\3d\scenePrimitiveSphere.h" />
+    <ClInclude Include="src\domain\shapes\3d\scenePrimitiveCylinder.h" />
+    <ClInclude Include="src\domain\shapes\3d\scenePrimitiveCone.h" />
     <ClInclude Include="src\infrastructure\imageExporter.h" />
     <ClInclude Include="src\infrastructure\modelLibrary.h" />
     <ClInclude Include="src\presentation\bezierStrokeTool.h" />
@@ -294,6 +311,8 @@
     <ClInclude Include="src\presentation\renderer.h" />
     <ClInclude Include="src\presentation\transformTool.h" />
     <ClInclude Include="src\presentation\ui\modelListPanel.h" />
+    <ClInclude Include="src\presentation\ui\defaults.h" />
+    <ClInclude Include="src\presentation\ui\theme.h" />
     <ClInclude Include="src\presentation\ui\palettePreview.h" />
     <ClInclude Include="src\presentation\ui\sceneTreePanel.h" />
     <ClInclude Include="src\vector_shapes\sceneShapeBezierCurve.h" />

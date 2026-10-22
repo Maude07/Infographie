@@ -43,6 +43,22 @@
     <ClCompile Include="src\domain\shapes\3d\sceneModel3d.cpp">
       <Filter>src\domain\shapes\3d</Filter>
     </ClCompile>
+    <ClCompile Include="src\domain\shapes\3d\scenePrimitive3d.cpp">
+      <Filter>src\domain\shapes\3d</Filter>
+    </ClCompile>
+    <ClCompile Include="src\domain\shapes\3d\scenePrimitiveCube.cpp">
+      <Filter>src\domain\shapes\3d</Filter>
+    </ClCompile>
+    <ClCompile Include="src\domain\shapes\3d\scenePrimitiveSphere.cpp">
+      <Filter>src\domain\shapes\3d</Filter>
+    </ClCompile>
+    <ClCompile Include="src\domain\shapes\3d\scenePrimitiveCylinder.cpp">
+      <Filter>src\domain\shapes\3d</Filter>
+    </ClCompile>
+    <ClCompile Include="src\domain\shapes\3d\scenePrimitiveCone.cpp">
+      <Filter>src\domain\shapes\3d</Filter>
+    </ClCompile>
+
     <ClCompile Include="src\infrastructure\imageExporter.cpp">
       <Filter>src\infrastructure</Filter>
     </ClCompile>
@@ -124,6 +140,24 @@
     <ClCompile Include="..\..\..\addons\ofxPathFitter\src\ofxPathFitter.cpp">
       <Filter>addons\ofxPathFitter\src</Filter>
     </ClCompile>
+    <ClCompile Include="src\vector_shapes\sceneShapeBezierCurve.cpp">
+      <Filter>src\vector_shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vector_shapes\sceneShapeFunkyCircles.cpp">
+      <Filter>src\vector_shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vector_shapes\sceneShapeStars.cpp">
+      <Filter>src\vector_shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vector_shapes\sceneShapeWave.cpp">
+      <Filter>src\vector_shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="src\domain\camera\cameraController.cpp">
+      <Filter>src\domain\camera</Filter>
+    </ClCompile>
+    <ClCompile Include="src\domain\camera\sceneCamera.cpp">
+      <Filter>src\domain\camera</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="src">
@@ -201,6 +235,9 @@
     <Filter Include="addons\ofxPathFitter\src">
       <UniqueIdentifier>{F9545CCB--E2E-2-4D-25-B-794-37AD3C00FF7A}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\domain\camera">
+      <UniqueIdentifier>{53a209e6-2e18-4eac-a9d1-8779766bca66}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\application.h">
@@ -255,6 +292,24 @@
       <Filter>src\domain\shapes\2d</Filter>
     </ClInclude>
     <ClInclude Include="src\domain\shapes\3d\sceneModel3d.h">
+      <Filter>src\domain\shapes\3d</Filter>
+    </ClInclude>
+    <ClInclude Include="src\domain\shapes\3d\sceneObject3d.h">
+      <Filter>src\domain\shapes\3d</Filter>
+    </ClInclude>
+    <ClInclude Include="src\domain\shapes\3d\scenePrimitive3d.h">
+      <Filter>src\domain\shapes\3d</Filter>
+    </ClInclude>
+    <ClInclude Include="src\domain\shapes\3d\scenePrimitiveCube.h">
+      <Filter>src\domain\shapes\3d</Filter>
+    </ClInclude>
+    <ClInclude Include="src\domain\shapes\3d\scenePrimitiveSphere.h">
+      <Filter>src\domain\shapes\3d</Filter>
+    </ClInclude>
+    <ClInclude Include="src\domain\shapes\3d\scenePrimitiveCylinder.h">
+      <Filter>src\domain\shapes\3d</Filter>
+    </ClInclude>
+    <ClInclude Include="src\domain\shapes\3d\scenePrimitiveCone.h">
       <Filter>src\domain\shapes\3d</Filter>
     </ClInclude>
     <ClInclude Include="src\infrastructure\imageExporter.h">
@@ -601,6 +656,51 @@
     </ClInclude>
     <ClInclude Include="..\..\..\addons\ofxPathFitter\src\ofxPathFitter.h">
       <Filter>addons\ofxPathFitter\src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\vector_shapes\sceneShapeBezierCurve.h">
+      <Filter>src\vector_shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="src\vector_shapes\sceneShapeFunkyCircles.h">
+      <Filter>src\vector_shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="src\vector_shapes\sceneShapeStars.h">
+      <Filter>src\vector_shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="src\vector_shapes\sceneShapeWave.h">
+      <Filter>src\vector_shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="src\domain\commands\addObjectCommand.h">
+      <Filter>src\domain\commands</Filter>
+    </ClInclude>
+    <ClInclude Include="src\domain\commands\command.h">
+      <Filter>src\domain\commands</Filter>
+    </ClInclude>
+    <ClInclude Include="src\domain\commands\compositeCommand.h">
+      <Filter>src\domain\commands</Filter>
+    </ClInclude>
+    <ClInclude Include="src\domain\commands\historyManager.h">
+      <Filter>src\domain\commands</Filter>
+    </ClInclude>
+    <ClInclude Include="src\domain\commands\transformCommand.h">
+      <Filter>src\domain\commands</Filter>
+    </ClInclude>
+    <ClInclude Include="src\domain\commands\removeObjectCommand.h">
+      <Filter>src\domain\commands</Filter> 
+    </ClInclude>
+    <ClInclude Include="src\domain\commands\parameterCommand.h">
+      <Filter>src\domain\commands</Filter>
+    </ClInclude>
+    <ClInclude Include="src\domain\camera\cameraController.h">
+      <Filter>src\domain\camera</Filter>
+    </ClInclude>
+    <ClInclude Include="src\domain\camera\sceneCamera.h">
+      <Filter>src\domain\camera</Filter>
+    </ClInclude>
+    <ClInclude Include="src\domain\commands\depthCommand.h">
+      <Filter>src\domain\commands</Filter>
+    </ClInclude>
+    <ClInclude Include="src\domain\commands\rotateYCommand.h">
+      <Filter>src\domain\commands</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

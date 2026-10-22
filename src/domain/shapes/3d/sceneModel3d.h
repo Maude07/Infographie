@@ -2,6 +2,7 @@
 #include "../../scene/sceneObject.h"
 #include "ofMain.h"
 #include "ofxAssimpModelLoader.h"
+#include "sceneObject3d.h"
 
 struct ModelVariant {
 	bool stretchVertical = false;
@@ -29,7 +30,7 @@ struct ModelVariant {
 	string label() const;
 };
 
-class SceneModel3d : public SceneObject {
+class SceneModel3d : public SceneObject3d {
 public:
 	SceneModel3d(const string & modelId,
 		shared_ptr<ofxAssimpModelLoader> model,
@@ -46,6 +47,7 @@ public:
 
 	float rotationY = 0.0f;
 	float depth = 0.0f;
+	ofRectangle getScreenBounds() const override;
 
 	ModelVariant variant;
 
