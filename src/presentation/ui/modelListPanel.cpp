@@ -53,3 +53,8 @@ ofRectangle ModelListPanel::getRowBounds(size_t index, const glm::vec2 & origin,
 	float y = origin.y + headerHeight + index * (rowHeight + rowGap);
 	return ofRectangle(origin.x + margin, y, width - 2 * margin, rowHeight);
 }
+
+float ModelListPanel::getHeight(size_t modelCount) const {
+	size_t rows = std::max<size_t>(modelCount, 1); // ligne "aucun modele importe"
+	return headerHeight + rows * (rowHeight + rowGap) + margin;
+}

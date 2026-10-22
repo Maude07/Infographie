@@ -81,9 +81,19 @@ private:
 	Primitive3dType currentPrimitive3d = Primitive3dType::Cube;
 	ModelListPanel modelListPanel;
 	HistoryManager history;
+	ModelVariant currentVariant;
+
+	ofParameter<int> variantIndex;
+	float scrollOffset = 0.0f;
+	float maxScroll = 0.0f;
+	static constexpr float scrollSpeed = 40.0f;
+	static constexpr float scrollbarTrackWidth = 24.0f;
+	static constexpr float scrollbarThumbWidth = 10.0f;
+	bool isDraggingScrollbar = false;
+	float scrollbarDragOffsetY = 0.0f;
 
 	vector<ofColor> palette;
-	array<PalettePreview, 3> palettePreviews;
+	array<PalettePreview, 4> palettePreviews;
 	ofColor lastActiveColor = ofColor();
 
 	ofColor colorRefBackground;
@@ -98,6 +108,16 @@ private:
 	ofxGuiGroup groupTransform;
 
 	ofxGuiGroup groupHistory;
+	ofxGuiGroup groupVariants;
+	ofParameter<bool> variantStretchVertical;
+	ofParameter<float> variantVerticalFactor;
+	ofParameter<bool> variantStretchHorizontal;
+	ofParameter<float> variantHorizontalFactor;
+	ofParameter<bool> variantTinted;
+	ofParameter<ofColor> variantTintColor;
+	ofxColorSlider variantTintSlider;
+	ofParameter<bool> variantMetallic;
+	ofParameter<float> variantMetalness;
 
 	ofxColorSlider backgroundSlider;
 	ofxColorSlider strokeSlider;
@@ -175,6 +195,7 @@ private:
 	void addColorPicker(ofxColorSlider & slider, ofParameter<ofColor> & color, PalettePreview & preview,
 		const string & name, const ofColor & initialColor);
 	glm::vec2 modelListOrigin() const;
+	float sidebarContentHeight() const;
 
 	void onColorChanged(ofColor & color);
 	void onImportPressed();
@@ -190,6 +211,15 @@ private:
 	void commitColorChanges();
 	void commitTransformChanges();
 	void syncColorReferences();
+
+	void setupVariantGui();
+	void resetVariantGui();
+	ModelVariant variantFromGui() const;
+
+	void updateSidebarScroll();
+	void drawSidebarScrollbar() const;
+	bool isOverScrollbarThumb(int x, int y) const;
+	void setScrollFromThumbY(float thumbScreenY);
 
 	void setToolType(ToolType mode);
 	void deleteSelectedObject();

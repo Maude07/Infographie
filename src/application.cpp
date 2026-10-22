@@ -40,6 +40,8 @@ const glm::vec2 collapsedGuiIconOffset(10, 18);
 
 	constexpr float minShapeSize = 3.0f;
 
+	constexpr float modelListGap = 10.0f; // espace entre le panneau et la liste des modeles
+
 	constexpr float rotationStep = 15.0f;
 	constexpr float depthStep = 10.0f;
 	constexpr float depthLimit = 5000.0f;
@@ -170,7 +172,55 @@ void Application::setupDrawGui() {
 	addColorPicker(fillSlider, fillColor, palettePreviews[2], "couleur de remplissage", defaults::defaultFillColor);
 	groupDraw.add(strokeWeight.set("largeur de la ligne", defaults::defaultStrokeWeight, 0.0f, 10.0f));
 
+	setupVariantGui();
+	groupDraw.add(&groupVariants);
+
 	gui.add(&groupDraw);
+}
+
+void Application::setupVariantGui() {
+	groupVariants.setup("variantes 3D");
+
+	groupVariants.add(variantStretchVertical.set("etirement vertical", false));
+	groupVariants.add(variantVerticalFactor.set("degre vertical", defaults::defaultStretchFactor, defaults::minStretchFactor, defaults::maxStretchFactor));
+
+	groupVariants.add(variantStretchHorizontal.set("etirement horizontal", false));
+	groupVariants.add(variantHorizontalFactor.set("degre horizontal", defaults::defaultStretchFactor, defaults::minStretchFactor, defaults::maxStretchFactor));
+
+	groupVariants.add(variantTinted.set("teinte", false));
+	variantTintColor.set("couleur de teinte", defaults::defaultTintColor, ofColor(0, 0), ofColor(255, 255));
+	variantTintSlider.setup(variantTintColor);
+	palettePreviews[3].setup(palette, variantTintColor, groupVariants.getWidth());
+	variantTintSlider.add(&palettePreviews[3]);
+	groupVariants.add(&variantTintSlider);
+	variantTintColor.addListener(this, &Application::onColorChanged);
+
+	groupVariants.add(variantMetallic.set("metallique", false));
+	groupVariants.add(variantMetalness.set("degre metallique", defaults::defaultMetalness, 0.0f, 1.0f));
+}
+
+void Application::resetVariantGui() {
+	variantStretchVertical = false;
+	variantVerticalFactor = defaults::defaultStretchFactor;
+	variantStretchHorizontal = false;
+	variantHorizontalFactor = defaults::defaultStretchFactor;
+	variantTinted = false;
+	variantTintColor = defaults::defaultTintColor;
+	variantMetallic = false;
+	variantMetalness = defaults::defaultMetalness;
+}
+
+ModelVariant Application::variantFromGui() const {
+	ModelVariant v;
+	v.stretchVertical = variantStretchVertical;
+	v.verticalFactor = variantVerticalFactor;
+	v.stretchHorizontal = variantStretchHorizontal;
+	v.horizontalFactor = variantHorizontalFactor;
+	v.tinted = variantTinted;
+	v.tint = variantTintColor;
+	v.metallic = variantMetallic;
+	v.metalness = variantMetalness;
+	return v;
 }
 
 void Application::setupTransformGui() {
@@ -203,7 +253,13 @@ void Application::addColorPicker(ofxColorSlider & slider, ofParameter<ofColor> &
 }
 
 glm::vec2 Application::modelListOrigin() const {
-	return glm::vec2(0.0f, gui.getShape().getBottom() + 10.0f);
+	return glm::vec2(0.0f, gui.getShape().getBottom() + modelListGap);
+}
+
+// Hauteur totale du contenu de la colonne de gauche : le panneau ofxGui
+// plus la liste des modeles 3D importes dessinee juste en dessous.
+float Application::sidebarContentHeight() const {
+	return gui.getHeight() + modelListGap + modelListPanel.getHeight(modelLibrary.ids().size());
 }
 
 void Application::setupExportGui() {
@@ -249,6 +305,8 @@ void Application::update() {
 	activeCamera().setOrtho(cameraOrtho);
 	syncModelCameras();
 
+	currentVariant = variantFromGui();
+
 	bool mouseDown = ofGetMousePressed();
 
 	if (!mouseDown && wasMousePressedLastFrame) {
@@ -261,6 +319,60 @@ void Application::update() {
 	}
 
 	wasMousePressedLastFrame = mouseDown;
+}
+
+void Application::updateSidebarScroll() {
+	float contentHeight = sidebarContentHeight();
+	float visibleHeight = static_cast<float>(ofGetHeight());
+
+	maxScroll = max(0.0f, contentHeight - visibleHeight);
+	scrollOffset = ofClamp(scrollOffset, 0.0f, maxScroll);
+
+	gui.setPosition(0, -scrollOffset);
+}
+
+void Application::drawSidebarScrollbar() const {
+	float trackHeight = static_cast<float>(ofGetHeight());
+	float contentHeight = max(sidebarContentHeight(), trackHeight);
+	float trackX = gui.getWidth() + (scrollbarTrackWidth - scrollbarThumbWidth) * 0.5f;
+
+	float thumbHeight = ofClamp(trackHeight * (trackHeight / contentHeight), 20.0f, trackHeight);
+	float thumbY = maxScroll > 0.0f ? (scrollOffset / maxScroll) * (trackHeight - thumbHeight) : 0.0f;
+
+	ofPushStyle();
+	ofFill();
+	ofSetColor(theme::panelColor);
+	ofDrawRectangle(trackX, 0, scrollbarThumbWidth, trackHeight);
+
+	ofSetColor(maxScroll > 0.0f ? theme::accentColor : theme::panelBorderColor);
+	ofDrawRectangle(trackX, thumbY, scrollbarThumbWidth, thumbHeight);
+	ofPopStyle();
+}
+
+bool Application::isOverScrollbarThumb(int x, int y) const {
+	if (maxScroll <= 0.0f) return false;
+
+	float trackHeight = static_cast<float>(ofGetHeight());
+	float contentHeight = max(sidebarContentHeight(), trackHeight);
+	float trackX = gui.getWidth() + (scrollbarTrackWidth - scrollbarThumbWidth) * 0.5f;
+
+	float thumbHeight = ofClamp(trackHeight * (trackHeight / contentHeight), 20.0f, trackHeight);
+	float thumbY = (scrollOffset / maxScroll) * (trackHeight - thumbHeight);
+
+	return x >= trackX && x <= trackX + scrollbarThumbWidth
+		&& y >= thumbY && y <= thumbY + thumbHeight;
+}
+
+void Application::setScrollFromThumbY(float thumbScreenY) {
+	float trackHeight = static_cast<float>(ofGetHeight());
+	float contentHeight = max(sidebarContentHeight(), trackHeight);
+	float thumbHeight = ofClamp(trackHeight * (trackHeight / contentHeight), 20.0f, trackHeight);
+
+	float usableTrack = trackHeight - thumbHeight;
+	if (usableTrack <= 0.0f) return;
+
+	float ratio = ofClamp((thumbScreenY - scrollbarDragOffsetY) / usableTrack, 0.0f, 1.0f);
+	scrollOffset = ratio * maxScroll;
 }
 
 void Application::setupHistoryGui() {
@@ -370,6 +482,11 @@ void Application::draw() {
 		drawRecordingIndicator();
 	}
 
+	if (toolType == ToolType::Model3d) {
+		ofDrawBitmapString("variante: " + currentVariant.label(),
+			canvasLeft() + 10, ofGetHeight() - 10);
+	}
+
 	if (histogram.is_computed()) {
 		histogram.draw(ofRectangle(left + histogramMargin, ofGetHeight() - histogramMarginBottom - histogramHeight,
 			histogramWidth, histogramHeight));
@@ -383,7 +500,17 @@ void Application::draw() {
 	buttonRedo.setBackgroundColor(history.canRedo() ? ofColor(90, 140, 240) : ofColor(50, 50, 55));
 
 	if (showGui) {
+		updateSidebarScroll();
+
+		glEnable(GL_SCISSOR_TEST);
+		glScissor(0, 0, static_cast<int>(gui.getWidth()), ofGetHeight());
+
 		gui.draw();
+
+		glDisable(GL_SCISSOR_TEST);
+
+		drawSidebarScrollbar();
+
 		inspector.draw();
 		modelListPanel.draw(modelLibrary.ids(),
 			toolType == ToolType::Model3d ? currentModelId : "",
@@ -473,6 +600,7 @@ void Application::drawRecordingIndicator() const {
 }
 
 CursorState Application::currentCursorState(const glm::vec2 & mouse) const {
+	if (showGui && mouse.x <= canvasLeft()) return CursorState::Default;
 	if (showGui && gui.getShape().inside(mouse)) return CursorState::Default;
 	if (showGui && inspector.getShape().inside(mouse)) return CursorState::Default;
 	if (!showGui && collapsedGuiButton.inside(mouse)) return CursorState::Default;
@@ -687,6 +815,20 @@ void Application::mousePressed(int x, int y, int button) {
 		return;
 	}
 
+	if (showGui && isOverScrollbarThumb(x, y)) {
+		isDraggingScrollbar = true;
+
+		float trackHeight = static_cast<float>(ofGetHeight());
+		float contentHeight = max(sidebarContentHeight(), trackHeight);
+		float thumbHeight = ofClamp(trackHeight * (trackHeight / contentHeight), 20.0f, trackHeight);
+		float thumbY = (scrollOffset / maxScroll) * (trackHeight - thumbHeight);
+
+		scrollbarDragOffsetY = y - thumbY;
+		return;
+	}
+
+	if (showGui && x <= canvasLeft()) return;
+
 	if (showGui) {
 		string clicked = modelListPanel.hitTest(modelLibrary.ids(), modelListOrigin(), gui.getWidth(), x, y);
 		if (!clicked.empty()) {
@@ -721,6 +863,10 @@ void Application::mousePressed(int x, int y, int button) {
 }
 
 void Application::mouseDragged(int x, int y, int button) {
+	if (isDraggingScrollbar) {
+		setScrollFromThumbY(static_cast<float>(y));
+		return;
+	}
 	if (button != OF_MOUSE_BUTTON_LEFT) {
 		cameraController.mouseDragged(x, y, button);
 		return;
@@ -739,6 +885,10 @@ void Application::mouseDragged(int x, int y, int button) {
 }
 
 void Application::mouseReleased(int x, int y, int button) {
+	if (isDraggingScrollbar) {
+		isDraggingScrollbar = false;
+		return;
+	}
 	if (button != OF_MOUSE_BUTTON_LEFT) {
 		cameraController.mouseReleased(x, y, button);
 		return;
@@ -773,6 +923,10 @@ void Application::mouseReleased(int x, int y, int button) {
 }
 
 void Application::mouseScrolled(int x, int y, float scrollX, float scrollY) {
+	if (showGui && x < canvasLeft()) {
+		scrollOffset = ofClamp(scrollOffset - scrollY * scrollSpeed, 0.0f, maxScroll);
+		return;
+	}
 	if (isOverUi(x, y)) return;
 
 	if (ofGetKeyPressed(OF_KEY_ALT) && scrollY != 0.f) {
@@ -796,6 +950,8 @@ void Application::onResetPressed() {
 	strokeColor = defaults::defaultStrokeColor;
 	fillColor = defaults::defaultFillColor;
 	strokeWeight = defaults::defaultStrokeWeight;
+
+	resetVariantGui();
 
 	palette = defaults::defaultPalette();
 	clearPaletteSelection();
@@ -960,7 +1116,7 @@ unique_ptr<SceneModel3d> Application::makeModel(const glm::vec2 & start, const g
 	float footprint = max(extent.x, extent.y);
 	if (glm::length(end - start) < minShapeSize) footprint = defaults::defaultModelSize;
 
-	auto instance = make_unique<SceneModel3d>(currentModelId, model, center, footprint);
+	auto instance = make_unique<SceneModel3d>(currentModelId, model, center, footprint, currentVariant);
 	instance->camera = &activeCamera();
 	return instance;
 }
@@ -1159,7 +1315,6 @@ void Application::frameCameraOnObject() {
 		}
 	};
 
-	// En isolation, toutes les vues tournent autour de l'objet isole et le cadrent
 	if (scene.isIsolating()) {
 		accumulate(scene.getIsolated());
 		if (count > 0) {
@@ -1229,7 +1384,7 @@ bool Application::isOverUi(int x, int y) const {
 }
 
 float Application::canvasLeft() const {
-	return showGui ? gui.getWidth() : 0.0f;
+	return showGui ? (gui.getWidth() + scrollbarTrackWidth) : 0.0f;
 }
 
 float Application::canvasRight() const {
@@ -1243,6 +1398,7 @@ void Application::exit() {
 	histogramButton.removeListener(this, &Application::onHistogramPressed);
 	buttonUndo.removeListener(this, &Application::buttonUndoPressed);
 	buttonRedo.removeListener(this, &Application::buttonRedoPressed);
+	variantTintColor.removeListener(this, &Application::onColorChanged);
 
 	backgroundColor.removeListener(this, &Application::onColorChanged);
 	strokeColor.removeListener(this, &Application::onColorChanged);
