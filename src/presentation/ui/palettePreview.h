@@ -16,7 +16,7 @@ public:
 	}
 
 	bool mousePressed(ofMouseEventArgs & args) override {
-		if (!b.inside(args.x, args.y) ) {
+		if (!isGuiDrawing() || !b.inside(args.x, args.y)) {
 			selectedIndex = -1;
 			return false;
 		}
