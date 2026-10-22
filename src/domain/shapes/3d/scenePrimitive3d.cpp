@@ -5,33 +5,28 @@ namespace {
     constexpr float viewTilt = 20.0f;
 }
 
-ofRectangle ScenePrimitive3d::getScreenBounds() const {
-    const glm::vec2 center = position + size * 0.5f;
+glm::mat4 ScenePrimitive3d::localTransform() const {
     const float side = min(size.x, size.y);
-    if (side <= 0.0f) return getBounds();
-
-    glm::mat4 transform = glm::translate(glm::vec3(center, depth))
-        * glm::rotate(glm::radians(rotation), glm::vec3(0, 0, 1))
+    return glm::translate(getCenter3d())
         * glm::rotate(glm::radians(-viewTilt), glm::vec3(1, 0, 0))
         * glm::rotate(glm::radians(rotationY), glm::vec3(0, 1, 0))
         * glm::scale(glm::vec3(side, -side, side));
-    
-    const glm::vec2 screenCenter(ofGetWidth() * 0.5f, ofGetHeight() * 0.5f);
-    const float eyeDistance = screenCenter.y / tan(glm::radians(30.0f));
+}
 
+ofRectangle ScenePrimitive3d::getScreenBounds() const {
+    const float side = min(size.x, size.y);
+    if (!camera || side <= 0.0f) return getBounds();
+
+    const glm::mat4 transform = localTransform();
     ofRectangle bounds;
     bool first = true;
     for (const glm::vec3 & vertex : mesh().getVertices()) {
-        glm::vec3 point = transform * glm::vec4(vertex, 1.0f);
-        glm::vec2 projected = screenCenter +
-            (glm::vec2(point) - screenCenter) * eyeDistance / (eyeDistance- point.z);
-        glm::vec2 local = center + rotateVector(projected - center, -rotation);
-        if (first) { bounds.set(local.x, local.y, 0, 0); first = false; }
-        else bounds.growToInclude(local.x, local.y);
+        glm::vec3 world = transform * glm::vec4(vertex, 1.0f);
+        glm::vec3 screen = camera->worldToScreen(world);
+        if (first) { bounds.set(screen.x, screen.y, 0, 0); first = false; }
+        else bounds.growToInclude(screen.x, screen.y);
     }
-    const float halfWidth = max(center.x - bounds.getLeft(), bounds.getRight() - center.x);
-    const float halfHeight = max(center.y - bounds.getTop(), bounds.getBottom() - center.y);
-    return ofRectangle(center.x - halfWidth, center.y - halfHeight, halfWidth * 2.0f, halfHeight * 2.0f);
+    return bounds;
 }
 
 
@@ -43,7 +38,7 @@ void ScenePrimitive3d::draw() const {
     static ofLight light;
     light.setPointLight();
     light.setDiffuseColor(ofColor(255));
-    light.setPosition(center.x - side, center.y - side, side * 3.0f);
+    light.setPosition(center.x - side, center.y - side, depth + side * 3.0f);
 
     static ofMaterial material;
     material.setDiffuseColor(color);
@@ -55,12 +50,8 @@ void ScenePrimitive3d::draw() const {
     material.begin();
 
     ofPushMatrix();
-    ofTranslate(center.x, center.y, depth);
-    ofRotateXDeg(-viewTilt);
-    ofRotateYDeg(rotationY);
-    ofScale(side, -side, side);
+    ofMultMatrix(localTransform());
 
-    glClear(GL_DEPTH_BUFFER_BIT);
     ofEnableDepthTest();
     mesh().draw();
     ofDisableDepthTest();

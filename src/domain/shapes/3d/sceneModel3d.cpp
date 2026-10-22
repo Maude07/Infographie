@@ -34,11 +34,6 @@ ofRectangle SceneModel3d::getScreenBounds() const {
 	return r;
 }
 
-glm::vec2 SceneModel3d::toLocal(const glm::vec2 & screen) const {
-	if (!camera) return screen;
-	return camera->screenToPlane(screen, depth);
-}
-
 void SceneModel3d::draw() const {
 	if (!model) return;
 

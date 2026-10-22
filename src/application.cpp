@@ -357,7 +357,10 @@ void Application::draw() {
 				activeCamera().end();
 			}
 		} else if (toolType == ToolType::Primitive3d) {
-			makePrimitive3d(mousePressPos, mouseCurrentPos)->draw();
+			auto preview = makePrimitive3d(mousePressPos, mouseCurrentPos);
+			activeCamera().begin();
+			preview->render();
+			activeCamera().end();
 		} else if (auto preview = makeShape(toolType, mousePressPos, mouseCurrentPos)) {
 			preview->draw();
 		}
@@ -982,7 +985,7 @@ void Application::selectNextModel() {
 bool Application::moveSelectedModelsDepth(float delta) {
 	vector<DepthCommand::Change> changes;
 	for (SceneObject * object : transformTool.getSelection()) {
-		if (auto * model = dynamic_cast<SceneModel3d *>(object)) {
+		if (auto * model = dynamic_cast<SceneObject3d *>(object)) {
 			float newDepth = ofClamp(model->depth + delta, -depthLimit, depthLimit);
 			if (newDepth != model->depth) {
 				changes.push_back({ model, model->depth, newDepth });
@@ -996,7 +999,7 @@ bool Application::moveSelectedModelsDepth(float delta) {
 	bool hadModels = !changes.empty();
 	if (!hadModels) {
 		for (SceneObject * object : transformTool.getSelection()) {
-			if (dynamic_cast<SceneModel3d *>(object)) return true;
+			if (dynamic_cast<SceneObject3d *>(object)) return true;
 		}
 		return false;
 	}
@@ -1015,13 +1018,9 @@ void Application::rotateSelectedModels(float degrees) {
 	vector<unique_ptr<Command>> changes;
 
 	for (SceneObject * object : transformTool.getSelection()) {
-		float * rotationY = nullptr;
-		if (auto * model = dynamic_cast<SceneModel3d *>(object)) {
-			rotationY = &model->rotationY;
-		} else if (auto * primitive = dynamic_cast<ScenePrimitive3d *>(object)) {
-			rotationY = &primitive->rotationY;
-		}
-		if (!rotationY) continue;
+		auto * object3d = dynamic_cast<SceneObject3d *>(object);
+		if (!object3d) continue;
+		float * rotationY = &object3d->rotationY;
 
 		float newValue = fmod(*rotationY + degrees, 360.0f);
 		changes.push_back(make_unique<RotateYCommand>(*rotationY, *rotationY, newValue));
@@ -1054,12 +1053,15 @@ unique_ptr<ScenePrimitive3d> Application::makePrimitive3d(const glm::vec2 & star
 		break;
 	}
 
-	glm::vec2 extent = glm::abs(end - start);
+	glm::vec2 worldStart = activeCamera().screenToPlane(start, 0.f);
+	glm::vec2 worldEnd = activeCamera().screenToPlane(end, 0.f);
+	glm::vec2 extent = glm::abs(worldEnd - worldStart);
 	float footprint = max(extent.x, extent.y);
-	if (footprint < minShapeSize) footprint = defaults::defaultModelSize;
+	if (glm::length(end - start) < minShapeSize) footprint = defaults::defaultModelSize;
 
 	primitive->size = { footprint, footprint };
-	primitive->position = (start + end) * 0.5f - primitive->size * 0.5f;
+	primitive->position = (worldStart + worldEnd) * 0.5f - primitive->size * 0.5f;
+	primitive->camera = &activeCamera();
 	primitive->name = primitive3dLabel(currentPrimitive3d);
 	primitive->color = fillColor;
 	return primitive;
@@ -1142,17 +1144,14 @@ void Application::loadCameraAttributesToGui() {
 }
 
 void Application::frameCameraOnObject() {
-	auto centerOf = [](const SceneModel3d & model) {
-		glm::vec2 c = model.position + model.size * 0.5f;
-		return glm::vec3(c.x, c.y, model.depth);
-	};
+	auto centerOf = [](const SceneObject3d & model) { return model.getCenter3d(); };
 
 	glm::vec3 sum(0.f);
 	int count = 0;
 	float largest = 0.f;
 	auto accumulate = [&](const unordered_set<SceneObject *> & objects) {
 		for (SceneObject * object : objects) {
-			if (auto * model = dynamic_cast<SceneModel3d *>(object)) {
+			if (auto * model = dynamic_cast<SceneObject3d *>(object)) {
 				sum += centerOf(*model);
 				largest = max(largest, max(model->size.x, model->size.y));
 				++count;
@@ -1172,7 +1171,7 @@ void Application::frameCameraOnObject() {
 	accumulate(transformTool.getSelection());
 	if (count == 0) {
 		for (const auto & object : scene.getObjects()) {
-			if (auto * model = dynamic_cast<SceneModel3d *>(object.get())) {
+			if (auto * model = dynamic_cast<SceneObject3d *>(object.get())) {
 				sum += centerOf(*model);
 				++count;
 			}
@@ -1186,7 +1185,7 @@ void Application::frameCameraOnObject() {
 bool Application::isolateSelection() {
 	unordered_set<SceneObject *> models;
 	for (SceneObject * object : transformTool.getSelection()) {
-		if (dynamic_cast<SceneModel3d *>(object)) models.insert(object);
+		if (dynamic_cast<SceneObject3d *>(object)) models.insert(object);
 	}
 	if (models.empty()) return false;
 	if (models == scene.getIsolated()) return true;
@@ -1205,7 +1204,7 @@ void Application::showWholeScene() {
 
 void Application::syncModelCameras() {
 	for (const auto & object : scene.getObjects()) {
-		if (auto * model = dynamic_cast<SceneModel3d *>(object.get())) {
+		if (auto * model = dynamic_cast<SceneObject3d *>(object.get())) {
 			model->camera = &activeCamera();
 		}
 	}

@@ -261,6 +261,9 @@
     <ClInclude Include="src\domain\shapes\3d\sceneModel3d.h">
       <Filter>src\domain\shapes\3d</Filter>
     </ClInclude>
+    <ClInclude Include="src\domain\shapes\3d\sceneObject3d.h">
+      <Filter>src\domain\shapes\3d</Filter>
+    </ClInclude>
     <ClInclude Include="src\domain\shapes\3d\scenePrimitive3d.h">
       <Filter>src\domain\shapes\3d</Filter>
     </ClInclude>

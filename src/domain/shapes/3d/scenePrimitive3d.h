@@ -1,32 +1,23 @@
 #pragma once
 
 #include "ofMain.h"
-#include "../../scene/sceneObject.h"
+#include "sceneObject3d.h"
 
-class ScenePrimitive3d : public SceneObject {
+class ScenePrimitive3d : public SceneObject3d {
 public: 
     ofColor color = ofColor::white;
-    float rotationY = 0.0f;
-    float depth = 0.0f;
 
     void draw() const override;
 
     ofRectangle getScreenBounds() const override;
-    
-    bool isSquare() const override { return true; }
-
-    void setBounds(const ofRectangle & bounds) override {
-        float side = max(bounds.width, bounds.height);
-        ofRectangle square;
-        square.setFromCenter(bounds.getCenter(), side, side);
-        SceneObject::setBounds(square);
-    }
 
 protected:
     static constexpr float half = 0.5f;
     static constexpr int segments = 32;
 
     virtual const ofMesh & mesh() const = 0;
+
+    glm::mat4 localTransform() const;
 
     static void addTriangle(ofMesh & mesh,
         const glm::vec3 & a, const glm::vec3 & b, const glm::vec3 & c,
