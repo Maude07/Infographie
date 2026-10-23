@@ -139,8 +139,8 @@
     <ClCompile Include="..\..\..\addons\ofxGui\src\ofxToggle.cpp">
       <Filter>addons\ofxGui\src</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\addons\ofxPathFitter\src\ofxPathFitter.cpp">
-      <Filter>addons\ofxPathFitter\src</Filter>
+    <ClCompile Include="src\third_party\ofxPathFitter\ofxPathFitter.cpp">
+      <Filter>src\third_party\ofxPathFitter</Filter>
     </ClCompile>
     <ClCompile Include="src\vector_shapes\sceneShapeBezierCurve.cpp">
       <Filter>src\vector_shapes</Filter>
@@ -231,11 +231,11 @@
     <Filter Include="addons\ofxGui\src">
       <UniqueIdentifier>{05659D4F--376-1-41-C4-B-A8A-2CA624F07048}</UniqueIdentifier>
     </Filter>
-    <Filter Include="addons\ofxPathFitter">
-      <UniqueIdentifier>{F3637545--46C-A-4E-B4-B-05D-443F6F47E1BC}</UniqueIdentifier>
+    <Filter Include="src\third_party">
+      <UniqueIdentifier>{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}</UniqueIdentifier>
     </Filter>
-    <Filter Include="addons\ofxPathFitter\src">
-      <UniqueIdentifier>{F9545CCB--E2E-2-4D-25-B-794-37AD3C00FF7A}</UniqueIdentifier>
+    <Filter Include="src\third_party\ofxPathFitter">
+      <UniqueIdentifier>{F3637545--46C-A-4E-B4-B-05D-443F6F47E1BC}</UniqueIdentifier>
     </Filter>
     <Filter Include="src\domain\camera">
       <UniqueIdentifier>{53a209e6-2e18-4eac-a9d1-8779766bca66}</UniqueIdentifier>
@@ -659,8 +659,8 @@
     <ClInclude Include="..\..\..\addons\ofxGui\src\ofxToggle.h">
       <Filter>addons\ofxGui\src</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\addons\ofxPathFitter\src\ofxPathFitter.h">
-      <Filter>addons\ofxPathFitter\src</Filter>
+    <ClInclude Include="src\third_party\ofxPathFitter\ofxPathFitter.h">
+      <Filter>src\third_party\ofxPathFitter</Filter>
     </ClInclude>
     <ClInclude Include="src\vector_shapes\sceneShapeBezierCurve.h">
       <Filter>src\vector_shapes</Filter>
