@@ -139,11 +139,11 @@ void Application::setup() {
 	setupImportGui();
 	setupDrawGui();
 	setupExportGui();
-	setupMiscGui();
 	setupHistoryGui();
+	setupCameraGui();
+	setupMiscGui();
 	syncColorReferences();
 
-	setupCameraGui();
 	for (auto & camera : cameras) camera.reset();
 	selectCamera(0);
 }
