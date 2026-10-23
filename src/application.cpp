@@ -167,6 +167,7 @@ void Application::setup() {
 	setupHistoryGui();
 	setupCameraGui();
 	setupDepthOfFieldGui();
+
 	setupMiscGui();
 	syncColorReferences();
 
@@ -695,7 +696,7 @@ void Application::onFillColorChanged(ofColor & color) {
 		if (auto * primitive = dynamic_cast<ScenePrimitive *>(object)) {
 			primitive->fillColor = color;
 		} else if (auto * primitive3d = dynamic_cast<ScenePrimitive3d *>(object)) {
-			primitive3d->color = color; // les primitives 3D n'ont qu'une couleur : celle du remplissage
+			primitive3d->color = color;
 		}
 	}
 }

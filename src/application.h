@@ -100,7 +100,7 @@ private:
 	ofColor colorRefBackground;
 	ofColor colorRefStroke;
 	ofColor colorRefFill;
-	unordered_map<ofColor *, ofColor> colorRefSelection; // couleurs de la selection avant modification
+	unordered_map<ofColor *, ofColor> colorRefSelection;
 	bool wasMousePressedLastFrame = false;
 
 	ofxPanel gui;
@@ -135,7 +135,6 @@ private:
 	ofParameter<bool> showGui;
 	ofParameter<bool> showSceneTree;
 
-	// 6 cameras distinctes autour de l'objet, chacune avec ses propres attributs
 	static constexpr size_t cameraCount = 6;
 	array<SceneCamera, cameraCount> cameras { {
 		SceneCamera("face", 0.f, 0.f),
