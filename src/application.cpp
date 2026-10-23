@@ -319,6 +319,9 @@ void Application::setupMiscGui() {
 
 void Application::update() {
 	renderer.backgroundColor = backgroundColor;
+	syncTransformGui();
+	sceneTreePanel.rightOffset = ofGetWidth() - canvasRight();
+	transformTool.setCanvas(ofRectangle(canvasLeft(), 0, canvasRight() - canvasLeft(), ofGetHeight()));
 
 	cameraController.update(ofGetLastFrameTime());
 	activeCamera().setFov(cameraFov);
@@ -527,7 +530,6 @@ void Application::draw() {
 	}
 
 	if (showSceneTree) {
-		sceneTreePanel.rightOffset = ofGetWidth() - canvasRight();
 		sceneTreePanel.draw(scene, transformTool.getSelection(), glm::vec2(ofGetMouseX(), ofGetMouseY()));
 	}
 
@@ -1368,7 +1370,8 @@ void Application::frameCameraOnObject() {
 	float largest = 0.f;
 	auto accumulate = [&](const unordered_set<SceneObject *> & objects) {
 		for (SceneObject * object : objects) {
-			if (auto * model = dynamic_cast<SceneObject3d *>(object)) {
+			auto * model = dynamic_cast<SceneObject3d *>(object);
+			if (model) {
 				sum += centerOf(*model);
 				largest = max(largest, max(model->size.x, model->size.y));
 				++count;
@@ -1387,7 +1390,8 @@ void Application::frameCameraOnObject() {
 	accumulate(transformTool.getSelection());
 	if (count == 0) {
 		for (const auto & object : scene.getObjects()) {
-			if (auto * model = dynamic_cast<SceneObject3d *>(object.get())) {
+			auto * model = dynamic_cast<SceneObject3d *>(object.get());
+			if (model) {
 				sum += centerOf(*model);
 				++count;
 			}
@@ -1412,10 +1416,32 @@ bool Application::isolateSelection() {
 }
 
 void Application::showWholeScene() {
-	if (!scene.isIsolating()) return;
 	scene.clearIsolation();
-	frameCameraOnObject();
-	ofLog() << "<isolation terminee>";
+	bool first = true;
+	ofRectangle area;
+	float nearest = 0.f, farthest = 0.f;
+	for (const auto & object : scene.getObjects()) {
+		auto * object3d = dynamic_cast<SceneObject3d *>(object.get());
+		if (!object3d) continue;
+		glm::vec3 c = object3d->getCenter3d();
+		ofRectangle bounds = object3d->getBounds();
+		if (first) {
+			area = bounds;
+			nearest = farthest = c.z;
+			first = false;
+		} else {
+			area.growToInclude(bounds);
+			nearest = min(nearest, c.z);
+			farthest = max(farthest, c.z);
+		}
+	}
+
+	if (!first) {
+		glm::vec3 center(area.getCenter().x, area.getCenter().y, (nearest + farthest) * 0.5f);
+		float extent = max({ area.width, area.height, farthest - nearest });
+		activeCamera().frame(center, extent);
+	}
+	ofLog() << "<toute la scene>";
 }
 
 void Application::syncModelCameras() {
@@ -1470,10 +1496,6 @@ void Application::exit() {
 	cameraSelector.removeListener(this, &Application::onCameraSelectorChanged);
 	frameCameraButton.removeListener(this, &Application::frameCameraOnObject);
 	showAllButton.removeListener(this, &Application::showWholeScene);
-
-	for (auto * parameter : transformParameters()) {
-		parameter->removeListener(this, &Application::onTransformChanged);
-	}
 
 	for (auto * parameter : transformParameters()) {
 		parameter->removeListener(this, &Application::onTransformChanged);
