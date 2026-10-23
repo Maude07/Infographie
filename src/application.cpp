@@ -35,7 +35,6 @@ namespace {
 	const ofColor defaultStrokeColor(255);
 	const ofColor defaultFillColor(210, 43, 43);
 	constexpr float defaultStrokeWeight = 4.0f;
-	const string defaultText = "ift3100";
 	constexpr float defaultModelSize = 150.0f;
 
 	vector<ofColor> defaultPalette() {
@@ -208,8 +207,6 @@ void Application::setupExportGui() {
 }
 
 void Application::setupMiscGui() {
-	gui.add(displayText.set("text", defaultText));
-
 	resetButton.setup("Reinitialiser");
 	resetButton.addListener(this, &Application::onResetPressed);
 	gui.add(&resetButton);
@@ -224,10 +221,6 @@ void Application::setupMiscGui() {
 
 void Application::update() {
 	renderer.backgroundColor = backgroundColor;
-	renderer.strokeColor = strokeColor;
-	renderer.strokeWeight = strokeWeight;
-	renderer.text = displayText;
-	renderer.update();
 
 	cameraController.update(ofGetLastFrameTime());
 	activeCamera().setFov(cameraFov);
@@ -310,7 +303,6 @@ void Application::draw() {
 	float left = canvasLeft();
 	ofRectangle canvas(left, 0, ofGetWidth() - left, ofGetHeight());
 
-	renderer.visibleOffsetX = left;
 	renderer.draw(scene, activeCamera());
 
 	if (histogramRequested) {
@@ -730,7 +722,6 @@ void Application::onResetPressed() {
 	history.clear();
 	syncColorReferences();
 
-	displayText.set(defaultText);
 	backgroundColor = defaultBackgroundColor;
 	strokeColor = defaultStrokeColor;
 	fillColor = defaultFillColor;

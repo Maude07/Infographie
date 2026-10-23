@@ -94,7 +94,6 @@ private:
 	ofParameter<int> exportFps;
 	ofParameter<float> exportDuration;
 
-	ofParameter<string> displayText;
 	ofParameter<bool> showGui;
 	ofParameter<bool> showSceneTree;
 
