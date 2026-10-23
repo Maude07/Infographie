@@ -1,14 +1,14 @@
 #pragma once
 
 #include "command.h"
-#include "domain/shapes/3d/sceneModel3d.h"
+#include "domain/shapes/3d/sceneObject3d.h"
 #include "ofMain.h"
 #include <vector>
 
 class DepthCommand : public Command {
 public:
 	struct Change {
-		SceneModel3d * model;
+		SceneObject3d * model;
 		float oldDepth;
 		float newDepth;
 	};

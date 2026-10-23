@@ -40,7 +40,7 @@ SceneObject * SceneTreePanel::hitTest(const Scene & scene, float x, float y) con
 }
 
 ofRectangle SceneTreePanel::getRowBounds(size_t index) const {
-    float x = ofGetWidth() - rowWidth - marginRight;
+    float x = ofGetWidth() - rightOffset - rowWidth - marginRight;
     float y = marginTop + index * (rowHeight + rowGap);
     return ofRectangle(x, y, rowWidth, rowHeight);
 }
