@@ -16,6 +16,14 @@ public:
 
     SceneObject * hitTest(float x, float y) const;
 
+	void isolate(const unordered_set<SceneObject *> & objects) { isolated = objects; }
+	void clearIsolation() { isolated.clear(); }
+	bool isIsolating() const { return !isolated.empty(); }
+	bool isVisible(const SceneObject * object) const {
+		return isolated.empty() || isolated.count(const_cast<SceneObject *>(object)) > 0;
+	}
+	const unordered_set<SceneObject *> & getIsolated() const { return isolated; }
+
 	SceneCamera * camera = nullptr;
     
     const vector<unique_ptr<SceneObject>> & getObjects() const { return objects; }
@@ -23,4 +31,5 @@ public:
 
 private:
     vector<unique_ptr<SceneObject>> objects;
+	unordered_set<SceneObject *> isolated;
 };

@@ -23,7 +23,19 @@
 #include "vector_shapes/sceneShapeWave.h"
 #include "infrastructure/modelLibrary.h"
 #include "domain/shapes/3d/sceneModel3d.h"
+#include "domain/shapes/3d/scenePrimitiveCube.h"
+#include "domain/shapes/3d/scenePrimitiveSphere.h"
+#include "domain/shapes/3d/scenePrimitiveCylinder.h"
+#include "domain/shapes/3d/scenePrimitiveCone.h"
+#include "domain/shapes/3d/scenePrimitive3d.h"
 #include "domain/commands/historyManager.h"
+
+enum class Primitive3dType {
+	Cube,
+	Sphere,
+	Cylinder,
+	Cone
+};
 
 enum class ToolType {
 	Select,
@@ -35,7 +47,8 @@ enum class ToolType {
 	Wave,
 	FunkyCircles,
 	Bezier,
-	Model3d
+	Model3d,
+	Primitive3d
 };
 
 class Application : public ofBaseApp {
@@ -65,11 +78,22 @@ private:
 	CursorRenderer cursor;
 	ModelLibrary modelLibrary;
 	string currentModelId;
+	Primitive3dType currentPrimitive3d = Primitive3dType::Cube;
 	ModelListPanel modelListPanel;
 	HistoryManager history;
+	ModelVariant currentVariant;
+
+	ofParameter<int> variantIndex;
+	float scrollOffset = 0.0f;
+	float maxScroll = 0.0f;
+	static constexpr float scrollSpeed = 40.0f;
+	static constexpr float scrollbarTrackWidth = 24.0f;
+	static constexpr float scrollbarThumbWidth = 10.0f;
+	bool isDraggingScrollbar = false;
+	float scrollbarDragOffsetY = 0.0f;
 
 	vector<ofColor> palette;
-	array<PalettePreview, 3> palettePreviews;
+	array<PalettePreview, 4> palettePreviews;
 	ofColor lastActiveColor = ofColor();
 
 	ofColor colorRefBackground;
@@ -84,6 +108,16 @@ private:
 	ofxGuiGroup groupTransform;
 
 	ofxGuiGroup groupHistory;
+	ofxGuiGroup groupVariants;
+	ofParameter<bool> variantStretchVertical;
+	ofParameter<float> variantVerticalFactor;
+	ofParameter<bool> variantStretchHorizontal;
+	ofParameter<float> variantHorizontalFactor;
+	ofParameter<bool> variantTinted;
+	ofParameter<ofColor> variantTintColor;
+	ofxColorSlider variantTintSlider;
+	ofParameter<bool> variantMetallic;
+	ofParameter<float> variantMetalness;
 
 	ofxColorSlider backgroundSlider;
 	ofxColorSlider strokeSlider;
@@ -100,9 +134,27 @@ private:
 	ofParameter<bool> showGui;
 	ofParameter<bool> showSceneTree;
 
-	SceneCamera sceneCamera;
-	CameraController cameraController { sceneCamera };
+	// 6 cameras distinctes autour de l'objet, chacune avec ses propres attributs
+	static constexpr size_t cameraCount = 6;
+	array<SceneCamera, cameraCount> cameras { {
+		SceneCamera("face", 0.f, 0.f),
+		SceneCamera("arriere", 180.f, 0.f),
+		SceneCamera("cote gauche", -90.f, 0.f),
+		SceneCamera("cote droit", 90.f, 0.f),
+		SceneCamera("dessus", 0.f, 89.f),
+		SceneCamera("dessous", 0.f, -89.f),
+	} };
+	size_t activeCameraIndex = 0;
+	SceneCamera & activeCamera() { return cameras[activeCameraIndex]; }
+	const SceneCamera & activeCamera() const { return cameras[activeCameraIndex]; }
+
+	CameraController cameraController { cameras[0] };
 	ofxGuiGroup groupCamera;
+	ofParameter<int> cameraSelector;
+	ofParameter<string> cameraNameLabel;
+	ofxLabel cameraNameLabelGui;
+	ofxButton frameCameraButton;
+	ofxButton showAllButton;
 	ofxButton resetCameraButton;
 	ofParameter<float> cameraFov;
 	ofParameter<float> cameraNear;
@@ -128,6 +180,8 @@ private:
 	bool isMouseButtonPressed = false;
 	bool histogramRequested = false;
 	bool isSyncingTransformGui = false;
+	SceneObject * transformEditTarget = nullptr;
+	TransformState transformEditStart;
 
 	void setupTheme();
 	void setupImportGui();
@@ -141,6 +195,7 @@ private:
 	void addColorPicker(ofxColorSlider & slider, ofParameter<ofColor> & color, PalettePreview & preview,
 		const string & name, const ofColor & initialColor);
 	glm::vec2 modelListOrigin() const;
+	float sidebarContentHeight() const;
 
 	void onColorChanged(ofColor & color);
 	void onImportPressed();
@@ -155,7 +210,17 @@ private:
 	void buttonUndoPressed();
 	void buttonRedoPressed();
 	void commitColorChanges();
+	void commitTransformChanges();
 	void syncColorReferences();
+
+	void setupVariantGui();
+	void resetVariantGui();
+	ModelVariant variantFromGui() const;
+
+	void updateSidebarScroll();
+	void drawSidebarScrollbar() const;
+	bool isOverScrollbarThumb(int x, int y) const;
+	void setScrollFromThumbY(float thumbScreenY);
 
 	void setToolType(ToolType mode);
 	void deleteSelectedObject();
@@ -182,6 +247,19 @@ private:
 
 	void setupCameraGui();
 	void resetCamera();
+	void selectCamera(size_t index);
+	void onCameraSelectorChanged(int & value);
+	void loadCameraAttributesToGui();
+	void frameCameraOnObject();
+	bool isolateSelection();
+	void showWholeScene();
+	void syncModelCameras();
+	void drawCameraLabel() const;
 	bool isOverUi(int x, int y) const;
+
+	unique_ptr<ScenePrimitive3d> makePrimitive3d(const glm::vec2 & start, const glm::vec2 & end) const;
+	void addPrimitive3d();
+	void selectPrimitive3d(Primitive3dType type);
+
 	array<ofParameter<float> *, 5> transformParameters();
 };

@@ -20,9 +20,11 @@
 |---|---|
 | `1` | Select / move / resize |
 | `2` `3` `4` `5` `6` `7` `8` `b` | Rectangle, line, point, ellipse, star, waves, funkyCircles, bezier  |
+| `9` | 3D primitive; press again to cycle cube, sphere, cylinder, cone |
 | `u` | Show / hide the panel |
 | `r` | Start / stop recording |
-| `i` | Show / hide the scene graph |   
+| `i` | Show / hide the scene graph | 
+| `Left Arrow` / `Right Arrow` | Rotate the selected 3D objects around their vertical axis |  
 | `Enter` | Add the last chosen color to the palette |
 | `Delete` / `Backspace` | Remove the selected object, otherwise the selected palette color |
 | `Shift` + drag the resize handle | Keep the width-to-height ratio |
@@ -38,8 +40,7 @@ In selection mode (`1`), click an object to select it, then:
 
 Points can only be moved
 
--The **transformation** group in the panel shows the selected object's position, rotation and size, and you can type exact values there.
-+The **inspector** on the right side of the window (like in Unity) shows the selected object's name, position, rotation and size, and you can type exact values there. It is hidden with the rest of the interface (`u`).
+The **inspector** on the right side of the window (like in Unity) shows the selected object's name, position, rotation and size, and you can type exact values there. It is hidden with the rest of the interface (`u`).
 
 ## Conventions
 

@@ -3,6 +3,13 @@
 
 SceneCamera::SceneCamera() { reset(); }
 
+SceneCamera::SceneCamera(const std::string & cameraName, float lon, float lat)
+	: name(cameraName)
+	, presetLongitude(lon)
+	, presetLatitude(lat) {
+	reset();
+}
+
 void SceneCamera::reset() {
 	camera.setVFlip(true);
 	camera.setFov(DEFAULT_FOV);
@@ -10,8 +17,8 @@ void SceneCamera::reset() {
 	camera.setFarClip(DEFAULT_FAR);
 	camera.disableOrtho();
 
-	longitude = 0;
-	latitude = 0;
+	longitude = presetLongitude;
+	latitude = presetLatitude;
 	radius = (ofGetHeight() / 2.f) / tan(ofDegToRad(DEFAULT_FOV) / 2.f);
 	baseRadius = radius;
 	target = { ofGetWidth() / 2.f, ofGetHeight() / 2.f, 0 };
@@ -25,6 +32,18 @@ void SceneCamera::apply() {
 	camera.lookAt(target);
 	float s = camera.getOrtho() ? radius / baseRadius : 1.f;
 	camera.setScale(s);
+}
+
+void SceneCamera::setTarget(const glm::vec3 & newTarget) {
+	target = newTarget;
+	apply();
+}
+
+void SceneCamera::frame(const glm::vec3 & newTarget, float objectSize) {
+	constexpr float margin = 0.9f;
+	target = newTarget;
+	radius = ofClamp(objectSize * margin / tan(ofDegToRad(camera.getFov()) / 2.f), 20.f, 20000.f);
+	apply();
 }
 
 void SceneCamera::orbit(float dLon, float dLat) {

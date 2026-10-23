@@ -37,15 +37,21 @@ public:
     bool isResizingSelection() const { return isResizing; }
 
 	void setHistory(HistoryManager * history) { this->history = history; }
-
+    void setCanvas(const ofRectangle & canvas) { this->canvas = canvas; }
+    void keepInCanvas(SceneObject & object) const;
+    void fitInCanvas(SceneObject & object, bool shrinkWidth, bool shrinkHeight) const;
 
 private:
 	unordered_set<SceneObject *> selection;
     glm::vec2 dragOffset;
 	glm::vec2 lastMouse;
+    glm::vec2 dragStartMouse;
+    ofRectangle dragStartArea;
+    ofRectangle canvas;
 	glm::vec2 zoneStart;
 	glm::vec2 zoneEnd;
     glm::vec2 resizeAnchor;
+    glm::vec2 resizeGrabOffset;
     bool isResizing = false;
 	bool isDragging = false;
 	bool isInZone = false;
@@ -60,12 +66,15 @@ private:
 
 	HistoryManager * history = nullptr;
 	unordered_map<SceneObject *, TransformState> dragStartStates;
+    unordered_map<SceneObject *, glm::vec2> dragStartPositions;
 	void captureDragStart();
 
 	SceneObject * single() const { return selection.size() == 1 ? *selection.begin() : nullptr; }
 	ofRectangle getHandleBounds(const SceneObject & object) const;
 	ofRectangle getZoneBounds() const;
     ofRectangle getRotateHandle(const SceneObject & object) const;
+    void moveSelection(const glm::vec2 & target);
+    ofRectangle selectionArea() const;
 
     float angleFromCenter(const SceneObject & object, const glm::vec2 & point) const;
     void resizeTo(SceneObject & object, const glm::vec2 & mouse);
