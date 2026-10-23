@@ -123,10 +123,25 @@ void SceneModel3d::draw() const {
 	ofTranslate(center.x, center.y, depth);
 	ofRotateYDeg(rotationY);
 	ofScale(s * stretch.x, s * stretch.y, s * stretch.z);
-	ofTranslate(c.x, c.y, -c.z);
 
 	ofEnableDepthTest();
+
+	ofPushMatrix();
+	ofTranslate(c.x, c.y, -c.z);
 	model->drawFaces();
+	ofPopMatrix();
+
+	if (bShowBoundingBox) {
+		const glm::vec3 boxDims = model->getSceneMax() - model->getSceneMin();
+		ofPushStyle();
+		ofDisableLighting();
+		ofNoFill();
+		ofSetColor(255, 172, 28);
+		ofSetLineWidth(2.0f);
+		ofDrawBox(0, 0, 0, boxDims.x, boxDims.y, boxDims.z);
+		ofPopStyle();
+	}
+
 	ofDisableDepthTest();
 	ofPopMatrix();
 
