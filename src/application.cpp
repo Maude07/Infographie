@@ -15,13 +15,13 @@
 #include "domain/commands/rotateYCommand.h"
 #include "presentation/ui/theme.h"
 #include "presentation/ui/defaults.h"
+#include "domain/commands/colorCommand.h"
 
 using namespace std;
 
 namespace {
-// Button shown in the top-left corner while the panel is hidden
-const ofRectangle collapsedGuiButton(10, 10, 30, 30);
-const glm::vec2 collapsedGuiIconOffset(10, 18);
+	const ofRectangle collapsedGuiButton(10, 10, 30, 30);
+	const glm::vec2 collapsedGuiIconOffset(10, 18);
 
 	constexpr float importMarginLeft = 50.0f;
 	constexpr float importTop = 100.0f;
@@ -40,7 +40,7 @@ const glm::vec2 collapsedGuiIconOffset(10, 18);
 
 	constexpr float minShapeSize = 3.0f;
 
-	constexpr float modelListGap = 10.0f; // espace entre le panneau et la liste des modeles
+	constexpr float modelListGap = 10.0f;
 
 	constexpr float rotationStep = 15.0f;
 	constexpr float depthStep = 10.0f;
@@ -134,15 +134,17 @@ void Application::setup() {
 	setupDrawGui();
 	setupTransformGui();
 	setupExportGui();
-	setupMiscGui();
 	setupHistoryGui();
+	setupCameraGui();
+	setupDepthOfFieldGui();
+
+	setupMiscGui();
 	syncColorReferences();
 
-	setupCameraGui();
 	for (auto & camera : cameras) camera.reset();
 	selectCamera(0);
 	placeInspector();
-	setupDepthOfFieldGui();
+	
 }
 
 void Application::setupTheme() {
@@ -174,6 +176,8 @@ void Application::setupDrawGui() {
 	addColorPicker(fillSlider, fillColor, palettePreviews[2], "couleur de remplissage", defaults::defaultFillColor);
 	groupDraw.add(strokeWeight.set("largeur de la ligne", defaults::defaultStrokeWeight, 0.0f, 10.0f));
 
+	strokeColor.addListener(this, &Application::onStrokeColorChanged);
+	fillColor.addListener(this, &Application::onFillColorChanged);
 	setupVariantGui();
 	groupDraw.add(&groupVariants);
 
@@ -258,8 +262,6 @@ glm::vec2 Application::modelListOrigin() const {
 	return glm::vec2(0.0f, gui.getShape().getBottom() + modelListGap);
 }
 
-// Hauteur totale du contenu de la colonne de gauche : le panneau ofxGui
-// plus la liste des modeles 3D importes dessinee juste en dessous.
 float Application::sidebarContentHeight() const {
 	return gui.getHeight() + modelListGap + modelListPanel.getHeight(modelLibrary.ids().size());
 }
@@ -277,8 +279,6 @@ void Application::setupExportGui() {
 }
 
 void Application::setupMiscGui() {
-	gui.add(displayText.set("text", defaults::defaultText));
-
 	resetButton.setup("Reinitialiser");
 	resetButton.addListener(this, &Application::onResetPressed);
 	gui.add(&resetButton);
@@ -293,10 +293,6 @@ void Application::setupMiscGui() {
 
 void Application::update() {
 	renderer.backgroundColor = backgroundColor;
-	renderer.strokeColor = strokeColor;
-	renderer.strokeWeight = strokeWeight;
-	renderer.text = displayText;
-	renderer.update();
 	syncTransformGui();
 	sceneTreePanel.rightOffset = ofGetWidth() - canvasRight();
 	transformTool.setCanvas(ofRectangle(canvasLeft(), 0, canvasRight() - canvasLeft(), ofGetHeight()));
@@ -393,16 +389,16 @@ void Application::setupHistoryGui() {
 
 void Application::buttonUndoPressed() {
 	if (history.canUndo()) {
-		history.undo();
 		transformTool.clearSelection();
+		history.undo();
 		syncColorReferences();
 	}
 }
 
 void Application::buttonRedoPressed() {
 	if (history.canRedo()) {
-		history.redo();
 		transformTool.clearSelection();
+		history.redo();
 		syncColorReferences();
 	}
 }
@@ -411,6 +407,16 @@ void Application::syncColorReferences() {
 	colorRefBackground = backgroundColor;
 	colorRefStroke = strokeColor;
 	colorRefFill = fillColor;
+
+	colorRefSelection.clear();
+	for (SceneObject * object : transformTool.getSelection()) {
+		if (auto * primitive = dynamic_cast<ScenePrimitive *>(object)) {
+			colorRefSelection[&primitive->fillColor] = primitive->fillColor;
+			colorRefSelection[&primitive->lineColor] = primitive->lineColor;
+		} else if (auto * primitive3d = dynamic_cast<ScenePrimitive3d *>(object)) {
+			colorRefSelection[&primitive3d->color] = primitive3d->color;
+		}
+	}
 }
 
 void Application::commitColorChanges() {
@@ -424,6 +430,11 @@ void Application::commitColorChanges() {
 	}
 	if (fillColor.get() != colorRefFill) {
 		changes.push_back(make_unique<ParameterCommand<ofColor>>(fillColor, colorRefFill, fillColor.get()));
+	}
+	for (auto & [target, before] : colorRefSelection) {
+		if (*target != before) {
+			changes.push_back(make_unique<ColorCommand>(*target, before, *target));
+		}
 	}
 
 	if (changes.empty()) return;
@@ -440,8 +451,7 @@ void Application::draw() {
 	float right = canvasRight();
 	ofRectangle canvas(left, 0, right - left, ofGetHeight());
 
-	renderer.visibleOffsetX = left;
-	renderer.visibleRightX = right;
+	renderer.draw(scene, activeCamera());
 	if (depthOfFieldEnabled) {
 		depthOfField.begin();
 		renderer.draw(scene, activeCamera());
@@ -645,6 +655,22 @@ void Application::onColorChanged(ofColor & color) {
 	lastActiveColor = color;
 }
 
+void Application::onStrokeColorChanged(ofColor & color) {
+	for (SceneObject * object : transformTool.getSelection()) {
+		if (auto * primitive = dynamic_cast<ScenePrimitive *>(object)) primitive->lineColor = color;
+	}
+}
+
+void Application::onFillColorChanged(ofColor & color) {
+	for (SceneObject * object : transformTool.getSelection()) {
+		if (auto * primitive = dynamic_cast<ScenePrimitive *>(object)) {
+			primitive->fillColor = color;
+		} else if (auto * primitive3d = dynamic_cast<ScenePrimitive3d *>(object)) {
+			primitive3d->color = color;
+		}
+	}
+}
+
 void Application::keyPressed(ofKeyEventArgs & args) {
 	if (args.key == OF_KEY_LEFT || args.key == OF_KEY_RIGHT) {
 		rotateSelectedModels(args.key == OF_KEY_LEFT ? -rotationStep : rotationStep);
@@ -726,8 +752,8 @@ void Application::keyPressed(ofKeyEventArgs & args) {
 	case 'z':
 	case 26:
 		if (ofGetKeyPressed(OF_KEY_CONTROL) || args.key == 26) {
-			history.undo();
 			transformTool.clearSelection();
+			history.undo();
 			syncColorReferences();
 		}
 		break;
@@ -735,8 +761,8 @@ void Application::keyPressed(ofKeyEventArgs & args) {
 	case 'y':
 	case 25:
 		if (ofGetKeyPressed(OF_KEY_CONTROL) || args.key == 25) {
-			history.redo();
 			transformTool.clearSelection();
+			history.redo();
 			syncColorReferences();
 		}
 		break;
@@ -957,7 +983,6 @@ void Application::onResetPressed() {
 	history.clear();
 	syncColorReferences();
 
-	displayText.set(defaults::defaultText);
 	backgroundColor = defaults::defaultBackgroundColor;
 	strokeColor = defaults::defaultStrokeColor;
 	fillColor = defaults::defaultFillColor;
@@ -1347,7 +1372,8 @@ void Application::frameCameraOnObject() {
 	float largest = 0.f;
 	auto accumulate = [&](const unordered_set<SceneObject *> & objects) {
 		for (SceneObject * object : objects) {
-			if (auto * model = dynamic_cast<SceneObject3d *>(object)) {
+			auto * model = dynamic_cast<SceneObject3d *>(object);
+			if (model) {
 				sum += centerOf(*model);
 				largest = max(largest, max(model->size.x, model->size.y));
 				++count;
@@ -1366,7 +1392,8 @@ void Application::frameCameraOnObject() {
 	accumulate(transformTool.getSelection());
 	if (count == 0) {
 		for (const auto & object : scene.getObjects()) {
-			if (auto * model = dynamic_cast<SceneObject3d *>(object.get())) {
+			auto * model = dynamic_cast<SceneObject3d *>(object.get());
+			if (model) {
 				sum += centerOf(*model);
 				++count;
 			}
@@ -1391,10 +1418,32 @@ bool Application::isolateSelection() {
 }
 
 void Application::showWholeScene() {
-	if (!scene.isIsolating()) return;
 	scene.clearIsolation();
-	frameCameraOnObject();
-	ofLog() << "<isolation terminee>";
+	bool first = true;
+	ofRectangle area;
+	float nearest = 0.f, farthest = 0.f;
+	for (const auto & object : scene.getObjects()) {
+		auto * object3d = dynamic_cast<SceneObject3d *>(object.get());
+		if (!object3d) continue;
+		glm::vec3 c = object3d->getCenter3d();
+		ofRectangle bounds = object3d->getBounds();
+		if (first) {
+			area = bounds;
+			nearest = farthest = c.z;
+			first = false;
+		} else {
+			area.growToInclude(bounds);
+			nearest = min(nearest, c.z);
+			farthest = max(farthest, c.z);
+		}
+	}
+
+	if (!first) {
+		glm::vec3 center(area.getCenter().x, area.getCenter().y, (nearest + farthest) * 0.5f);
+		float extent = max({ area.width, area.height, farthest - nearest });
+		activeCamera().frame(center, extent);
+	}
+	ofLog() << "<toute la scene>";
 }
 
 void Application::syncModelCameras() {
@@ -1442,15 +1491,13 @@ void Application::exit() {
 
 	backgroundColor.removeListener(this, &Application::onColorChanged);
 	strokeColor.removeListener(this, &Application::onColorChanged);
+	strokeColor.removeListener(this, &Application::onStrokeColorChanged);
+	fillColor.removeListener(this, &Application::onFillColorChanged);
 	fillColor.removeListener(this, &Application::onColorChanged);
 	importModelButton.removeListener(this, &Application::onImportModelPressed);
 	cameraSelector.removeListener(this, &Application::onCameraSelectorChanged);
 	frameCameraButton.removeListener(this, &Application::onFocusPressed);
 	showAllButton.removeListener(this, &Application::showWholeScene);
-
-	for (auto * parameter : transformParameters()) {
-		parameter->removeListener(this, &Application::onTransformChanged);
-	}
 
 	for (auto * parameter : transformParameters()) {
 		parameter->removeListener(this, &Application::onTransformChanged);

@@ -100,6 +100,7 @@ private:
 	ofColor colorRefBackground;
 	ofColor colorRefStroke;
 	ofColor colorRefFill;
+	unordered_map<ofColor *, ofColor> colorRefSelection;
 	bool wasMousePressedLastFrame = false;
 
 	ofxPanel gui;
@@ -131,11 +132,9 @@ private:
 	ofParameter<int> exportFps;
 	ofParameter<float> exportDuration;
 
-	ofParameter<string> displayText;
 	ofParameter<bool> showGui;
 	ofParameter<bool> showSceneTree;
 
-	// 6 cameras distinctes autour de l'objet, chacune avec ses propres attributs
 	static constexpr size_t cameraCount = 6;
 	array<SceneCamera, cameraCount> cameras { {
 		SceneCamera("face", 0.f, 0.f),
@@ -206,6 +205,8 @@ private:
 	float sidebarContentHeight() const;
 
 	void onColorChanged(ofColor & color);
+	void onStrokeColorChanged(ofColor & color);
+	void onFillColorChanged(ofColor & color);
 	void onImportPressed();
 	void onRecordPressed();
 	void onResetPressed();
