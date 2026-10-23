@@ -442,7 +442,6 @@ void Application::draw() {
 
 	renderer.visibleOffsetX = left;
 	renderer.visibleRightX = right;
-	renderer.draw(scene, activeCamera());
 	if (depthOfFieldEnabled) {
 		depthOfField.begin();
 		renderer.draw(scene, activeCamera());

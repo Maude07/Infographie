@@ -310,7 +310,7 @@
     <ClInclude Include="src\presentation\bezierStrokeTool.h" />
     <ClInclude Include="src\presentation\cursorRenderer.h" />
     <ClInclude Include="src\presentation\renderer.h" />
-    <ClInclude Include="src\presentation\dephtOfField.h" />
+    <ClInclude Include="src\presentation\depthOfField.h" />
     <ClInclude Include="src\presentation\transformTool.h" />
     <ClInclude Include="src\presentation\ui\modelListPanel.h" />
     <ClInclude Include="src\presentation\ui\defaults.h" />
