@@ -10,9 +10,10 @@
   (projectGenerator, or by hand).
 
 
-## Installation
-- Installer ofxPathFitter.zip (ajouter un lien vers ce fichier)
-- Dézipper dans \of_v0.12.1_vs_64_release\addons
+## Dependencies
+
+- **ofxGui** and **ofxAssimpModelLoader** must be present in your openFrameworks `addons/` folder (see `addons.make`).
+- Bezier path fitting uses a vendored copy of ofxPathFitter in `src/third_party/ofxPathFitter/` (no separate addon install).
 
 ## Keyboard shortcuts
 
