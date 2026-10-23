@@ -70,7 +70,7 @@ namespace {
 
 	constexpr float minShapeSize = 3.0f;
 
-	constexpr float modelListGap = 10.0f; // espace entre le panneau et la liste des modeles
+	constexpr float modelListGap = 10.0f;
 
 	constexpr float rotationStep = 15.0f;
 	constexpr float depthStep = 10.0f;
@@ -166,13 +166,14 @@ void Application::setup() {
 	setupExportGui();
 	setupHistoryGui();
 	setupCameraGui();
+	setupDepthOfFieldGui();
 	setupMiscGui();
 	syncColorReferences();
 
 	for (auto & camera : cameras) camera.reset();
 	selectCamera(0);
 	placeInspector();
-	setupDepthOfFieldGui();
+	
 }
 
 void Application::setupTheme() {
