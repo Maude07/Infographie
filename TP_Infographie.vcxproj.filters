@@ -58,7 +58,6 @@
     <ClCompile Include="src\domain\shapes\3d\scenePrimitiveCone.cpp">
       <Filter>src\domain\shapes\3d</Filter>
     </ClCompile>
-
     <ClCompile Include="src\infrastructure\imageExporter.cpp">
       <Filter>src\infrastructure</Filter>
     </ClCompile>
@@ -691,7 +690,7 @@
       <Filter>src\domain\commands</Filter>
     </ClInclude>
     <ClInclude Include="src\domain\commands\removeObjectCommand.h">
-      <Filter>src\domain\commands</Filter> 
+      <Filter>src\domain\commands</Filter>
     </ClInclude>
     <ClInclude Include="src\domain\commands\colorCommand.h">
       <Filter>src\domain\commands</Filter>
@@ -710,6 +709,12 @@
     </ClInclude>
     <ClInclude Include="src\domain\commands\rotateYCommand.h">
       <Filter>src\domain\commands</Filter>
+    </ClInclude>
+    <ClInclude Include="src\presentation\ui\theme.h">
+      <Filter>src\presentation\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\presentation\ui\defaults.h">
+      <Filter>src\presentation\ui</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

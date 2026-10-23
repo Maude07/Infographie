@@ -20,36 +20,6 @@
 using namespace std;
 
 namespace {
-
-	//TODO : Default UI should be in another file?
-	// Theme
-	const ofColor sidebarColor(18, 18, 22);
-	const ofColor sidebarBorderColor(60, 60, 68);
-	const ofColor panelColor(24, 24, 28);
-	const ofColor panelBorderColor(45, 45, 50);
-	const ofColor accentColor(90, 140, 240);
-	const ofColor textColor(230, 230, 235);
-	constexpr int guiWidth = 280;
-	constexpr int guiRowHeight = 36;
-	constexpr int guiFontSize = 13;
-	const string guiFontPath = "fonts/static/OpenSans-Regular.ttf";
-
-	// Default values, also restored by the reset button
-	const ofColor defaultBackgroundColor(31);
-	const ofColor defaultStrokeColor(255);
-	const ofColor defaultFillColor(210, 43, 43);
-	constexpr float defaultStrokeWeight = 4.0f;
-	constexpr float defaultModelSize = 150.0f;
-
-	vector<ofColor> defaultPalette() {
-		return {
-			ofColor(15, 15, 15),
-			ofColor(255, 182, 193),
-			ofColor(143, 131, 216),
-			ofColor(155, 184, 237)
-		};
-	}
-
 	const ofRectangle collapsedGuiButton(10, 10, 30, 30);
 	const glm::vec2 collapsedGuiIconOffset(10, 18);
 
@@ -1013,10 +983,10 @@ void Application::onResetPressed() {
 	history.clear();
 	syncColorReferences();
 
-	backgroundColor = defaultBackgroundColor;
-	strokeColor = defaultStrokeColor;
-	fillColor = defaultFillColor;
-	strokeWeight = defaultStrokeWeight;
+	backgroundColor = defaults::defaultBackgroundColor;
+	strokeColor = defaults::defaultStrokeColor;
+	fillColor = defaults::defaultFillColor;
+	strokeWeight = defaults::defaultStrokeWeight;
 
 	resetVariantGui();
 
