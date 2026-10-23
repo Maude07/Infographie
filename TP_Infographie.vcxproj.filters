@@ -687,6 +687,9 @@
     <ClInclude Include="src\domain\commands\removeObjectCommand.h">
       <Filter>src\domain\commands</Filter> 
     </ClInclude>
+    <ClInclude Include="src\domain\commands\colorCommand.h">
+      <Filter>src\domain\commands</Filter>
+    </ClInclude>
     <ClInclude Include="src\domain\commands\parameterCommand.h">
       <Filter>src\domain\commands</Filter>
     </ClInclude>

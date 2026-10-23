@@ -280,6 +280,7 @@
     <ClInclude Include="src\domain\camera\cameraController.h" />
     <ClInclude Include="src\domain\camera\sceneCamera.h" />
     <ClInclude Include="src\domain\commands\addObjectCommand.h" />
+    <ClInclude Include="src\domain\commands\colorCommand.h" />
     <ClInclude Include="src\domain\commands\command.h" />
     <ClInclude Include="src\domain\commands\compositeCommand.h" />
     <ClInclude Include="src\domain\commands\depthCommand.h" />

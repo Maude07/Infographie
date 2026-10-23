@@ -99,6 +99,7 @@ private:
 	ofColor colorRefBackground;
 	ofColor colorRefStroke;
 	ofColor colorRefFill;
+	unordered_map<ofColor *, ofColor> colorRefSelection; // couleurs de la selection avant modification
 	bool wasMousePressedLastFrame = false;
 
 	ofxPanel gui;
@@ -197,6 +198,8 @@ private:
 	float sidebarContentHeight() const;
 
 	void onColorChanged(ofColor & color);
+	void onStrokeColorChanged(ofColor & color);
+	void onFillColorChanged(ofColor & color);
 	void onImportPressed();
 	void onRecordPressed();
 	void onResetPressed();
