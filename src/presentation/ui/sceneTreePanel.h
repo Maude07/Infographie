@@ -5,6 +5,8 @@
 
 class SceneTreePanel {
 public: 
+    float rightOffset = 0.0f;
+
     void draw(const Scene & scene, const std::unordered_set<SceneObject*> & selection, const glm::vec2 & mouse) const;
     SceneObject * hitTest(const Scene & scene, float x, float y) const;
 

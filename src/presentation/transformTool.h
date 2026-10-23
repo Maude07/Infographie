@@ -2,6 +2,9 @@
 
 #include "domain/scene/sceneObject.h"
 #include "domain/scene/scene.h"
+#include "domain/commands/historyManager.h"
+#include "domain/commands/transformCommand.h"
+#include <unordered_map>
 
 using namespace std;
 
@@ -21,28 +24,59 @@ public:
 		isResizing = false;
 		isDragging = false;
 		isInZone = false;
+        isRotating = false;
 	}
     bool isOverHandle(float x, float y) const {
 		if (selection.size() != 1) return false;
 		SceneObject * object = *selection.begin();
-		return object && object->isResizable() && getHandleBounds(*object).inside(x, y);
+        glm::vec2 local = object->toLocal(x, y);
+		
+        return object && object->isResizable() 
+        && getHandleBounds(*object).inside(local.x, local.y);
     } 
     bool isResizingSelection() const { return isResizing; }
 
+	void setHistory(HistoryManager * history) { this->history = history; }
+    void setCanvas(const ofRectangle & canvas) { this->canvas = canvas; }
+    void keepInCanvas(SceneObject & object) const;
+    void fitInCanvas(SceneObject & object, bool shrinkWidth, bool shrinkHeight) const;
 
 private:
 	unordered_set<SceneObject *> selection;
     glm::vec2 dragOffset;
 	glm::vec2 lastMouse;
+    glm::vec2 dragStartMouse;
+    ofRectangle dragStartArea;
+    ofRectangle canvas;
 	glm::vec2 zoneStart;
 	glm::vec2 zoneEnd;
+    glm::vec2 resizeAnchor;
+    glm::vec2 resizeGrabOffset;
     bool isResizing = false;
 	bool isDragging = false;
 	bool isInZone = false;
+    bool isRotating = false;
     float minSize = 20.0f;
+    float aspectRatio = 1.0f;
+    float rotateStartAngle = 0.0f;
+    float rotateStartValue = 0.0f;
     static constexpr float handleSize = 10.0f;
+    static constexpr float rotateHandleDistance = 25.0f;
+    static constexpr float rotationSnap = 15.0f;
+
+	HistoryManager * history = nullptr;
+	unordered_map<SceneObject *, TransformState> dragStartStates;
+    unordered_map<SceneObject *, glm::vec2> dragStartPositions;
+	void captureDragStart();
 
 	SceneObject * single() const { return selection.size() == 1 ? *selection.begin() : nullptr; }
 	ofRectangle getHandleBounds(const SceneObject & object) const;
 	ofRectangle getZoneBounds() const;
+    ofRectangle getRotateHandle(const SceneObject & object) const;
+    void moveSelection(const glm::vec2 & target);
+    ofRectangle selectionArea() const;
+
+    float angleFromCenter(const SceneObject & object, const glm::vec2 & point) const;
+    void resizeTo(SceneObject & object, const glm::vec2 & mouse);
+    void rotateTo(SceneObject & object, const glm::vec2 & mouse);
 };

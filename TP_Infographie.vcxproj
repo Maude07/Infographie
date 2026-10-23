@@ -82,7 +82,7 @@
       <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
-      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);src;src\domain;src\domain\scene;src\domain\shapes\2d;src\domain\shapes\3d;src\infrastructure;src\presentation;src\presentation\ui;..\..\..\addons\ofxAssimpModelLoader\libs;..\..\..\addons\ofxAssimpModelLoader\libs\assimp;..\..\..\addons\ofxAssimpModelLoader\libs\assimp\include;..\..\..\addons\ofxAssimpModelLoader\libs\assimp\include\assimp;..\..\..\addons\ofxAssimpModelLoader\libs\assimp\include\assimp\Compiler;..\..\..\addons\ofxAssimpModelLoader\libs\assimp\include\assimp\port;..\..\..\addons\ofxAssimpModelLoader\libs\assimp\include\assimp\port\AndroidJNI;..\..\..\addons\ofxAssimpModelLoader\libs\assimp\lib;..\..\..\addons\ofxAssimpModelLoader\src;..\..\..\addons\ofxGui\src</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);src;src\domain;src\domain\commands;src\domain\scene;src\domain\shapes\2d;src\domain\shapes\3d;src\infrastructure;src\presentation;src\presentation\ui;src\vector_shapes;..\..\..\addons\ofxAssimpModelLoader\libs;..\..\..\addons\ofxAssimpModelLoader\libs\assimp;..\..\..\addons\ofxAssimpModelLoader\libs\assimp\include;..\..\..\addons\ofxAssimpModelLoader\libs\assimp\include\assimp;..\..\..\addons\ofxAssimpModelLoader\libs\assimp\include\assimp\Compiler;..\..\..\addons\ofxAssimpModelLoader\libs\assimp\include\assimp\port;..\..\..\addons\ofxAssimpModelLoader\libs\assimp\include\assimp\port\AndroidJNI;..\..\..\addons\ofxAssimpModelLoader\libs\assimp\lib;..\..\..\addons\ofxAssimpModelLoader\src;..\..\..\addons\ofxGui\src;..\..\..\addons\ofxPathFitter\src</AdditionalIncludeDirectories>
       <CompileAs>CompileAsCpp</CompileAs>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <ObjectFileName>$(IntDir)\Build\%(RelativeDir)\$(Configuration)\</ObjectFileName>
@@ -127,7 +127,7 @@
       <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
-      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);src;src\domain;src\domain\scene;src\domain\shapes\2d;src\domain\shapes\3d;src\infrastructure;src\presentation;src\presentation\ui;..\..\..\addons\ofxAssimpModelLoader\libs;..\..\..\addons\ofxAssimpModelLoader\libs\assimp;..\..\..\addons\ofxAssimpModelLoader\libs\assimp\include;..\..\..\addons\ofxAssimpModelLoader\libs\assimp\include\assimp;..\..\..\addons\ofxAssimpModelLoader\libs\assimp\include\assimp\Compiler;..\..\..\addons\ofxAssimpModelLoader\libs\assimp\include\assimp\port;..\..\..\addons\ofxAssimpModelLoader\libs\assimp\include\assimp\port\AndroidJNI;..\..\..\addons\ofxAssimpModelLoader\libs\assimp\lib;..\..\..\addons\ofxAssimpModelLoader\src;..\..\..\addons\ofxGui\src</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);src;src\domain;src\domain\commands;src\domain\scene;src\domain\shapes\2d;src\domain\shapes\3d;src\infrastructure;src\presentation;src\presentation\ui;src\vector_shapes;..\..\..\addons\ofxAssimpModelLoader\libs;..\..\..\addons\ofxAssimpModelLoader\libs\assimp;..\..\..\addons\ofxAssimpModelLoader\libs\assimp\include;..\..\..\addons\ofxAssimpModelLoader\libs\assimp\include\assimp;..\..\..\addons\ofxAssimpModelLoader\libs\assimp\include\assimp\Compiler;..\..\..\addons\ofxAssimpModelLoader\libs\assimp\include\assimp\port;..\..\..\addons\ofxAssimpModelLoader\libs\assimp\include\assimp\port\AndroidJNI;..\..\..\addons\ofxAssimpModelLoader\libs\assimp\lib;..\..\..\addons\ofxAssimpModelLoader\src;..\..\..\addons\ofxGui\src;..\..\..\addons\ofxPathFitter\src</AdditionalIncludeDirectories>
       <CompileAs>CompileAsCpp</CompileAs>
       <ObjectFileName>$(IntDir)\Build\%(RelativeDir)\$(Configuration)\</ObjectFileName>
       <LanguageStandard>stdcpplatest</LanguageStandard>
@@ -228,6 +228,12 @@
   <ItemGroup>
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\application.cpp" />
+    <ClCompile Include="src\domain\camera\cameraController.cpp" />
+    <ClCompile Include="src\domain\camera\sceneCamera.cpp" />
+    <ClCompile Include="src\domain\commands\addObjectCommand.cpp" />
+    <ClCompile Include="src\domain\commands\historyManager.cpp" />
+    <ClCompile Include="src\domain\commands\removeObjectCommand.cpp" />
+    <ClCompile Include="src\domain\commands\transformCommand.cpp" />
     <ClCompile Include="src\domain\histogram.cpp" />
     <ClCompile Include="src\domain\scene\scene.cpp" />
     <ClCompile Include="src\domain\scene\sceneImage.cpp" />
@@ -236,13 +242,23 @@
     <ClCompile Include="src\domain\shapes\2d\scenePrimitivePoint.cpp" />
     <ClCompile Include="src\domain\shapes\2d\scenePrimitiveRect.cpp" />
     <ClCompile Include="src\domain\shapes\3d\sceneModel3d.cpp" />
+    <ClCompile Include="src\domain\shapes\3d\scenePrimitive3d.cpp" />
+    <ClCompile Include="src\domain\shapes\3d\scenePrimitiveCube.cpp" />
+    <ClCompile Include="src\domain\shapes\3d\scenePrimitiveSphere.cpp" />
+    <ClCompile Include="src\domain\shapes\3d\scenePrimitiveCylinder.cpp" />
+    <ClCompile Include="src\domain\shapes\3d\scenePrimitiveCone.cpp" />
     <ClCompile Include="src\infrastructure\imageExporter.cpp" />
     <ClCompile Include="src\infrastructure\modelLibrary.cpp" />
+    <ClCompile Include="src\presentation\bezierStrokeTool.cpp" />
     <ClCompile Include="src\presentation\cursorRenderer.cpp" />
     <ClCompile Include="src\presentation\renderer.cpp" />
     <ClCompile Include="src\presentation\transformTool.cpp" />
-    <ClCompile Include="src\presentation\ui\sceneTreePanel.cpp" />
     <ClCompile Include="src\presentation\ui\modelListPanel.cpp" />
+    <ClCompile Include="src\presentation\ui\sceneTreePanel.cpp" />
+    <ClCompile Include="src\vector_shapes\sceneShapeBezierCurve.cpp" />
+    <ClCompile Include="src\vector_shapes\sceneShapeFunkyCircles.cpp" />
+    <ClCompile Include="src\vector_shapes\sceneShapeStars.cpp" />
+    <ClCompile Include="src\vector_shapes\sceneShapeWave.cpp" />
     <ClCompile Include="..\..\..\addons\ofxAssimpModelLoader\src\ofxAssimpAnimation.cpp" />
     <ClCompile Include="..\..\..\addons\ofxAssimpModelLoader\src\ofxAssimpMeshHelper.cpp" />
     <ClCompile Include="..\..\..\addons\ofxAssimpModelLoader\src\ofxAssimpModelLoader.cpp" />
@@ -257,9 +273,21 @@
     <ClCompile Include="..\..\..\addons\ofxGui\src\ofxSlider.cpp" />
     <ClCompile Include="..\..\..\addons\ofxGui\src\ofxSliderGroup.cpp" />
     <ClCompile Include="..\..\..\addons\ofxGui\src\ofxToggle.cpp" />
+    <ClCompile Include="..\..\..\addons\ofxPathFitter\src\ofxPathFitter.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\application.h" />
+    <ClInclude Include="src\domain\camera\cameraController.h" />
+    <ClInclude Include="src\domain\camera\sceneCamera.h" />
+    <ClInclude Include="src\domain\commands\addObjectCommand.h" />
+    <ClInclude Include="src\domain\commands\command.h" />
+    <ClInclude Include="src\domain\commands\compositeCommand.h" />
+    <ClInclude Include="src\domain\commands\depthCommand.h" />
+    <ClInclude Include="src\domain\commands\historyManager.h" />
+    <ClInclude Include="src\domain\commands\parameterCommand.h" />
+    <ClInclude Include="src\domain\commands\removeObjectCommand.h" />
+    <ClInclude Include="src\domain\commands\rotateYCommand.h" />
+    <ClInclude Include="src\domain\commands\transformCommand.h" />
     <ClInclude Include="src\domain\histogram.h" />
     <ClInclude Include="src\domain\scene\scene.h" />
     <ClInclude Include="src\domain\scene\sceneImage.h" />
@@ -270,14 +298,27 @@
     <ClInclude Include="src\domain\shapes\2d\scenePrimitivePoint.h" />
     <ClInclude Include="src\domain\shapes\2d\scenePrimitiveRect.h" />
     <ClInclude Include="src\domain\shapes\3d\sceneModel3d.h" />
+    <ClInclude Include="src\domain\shapes\3d\sceneObject3d.h" />
+    <ClInclude Include="src\domain\shapes\3d\scenePrimitive3d.h" />
+    <ClInclude Include="src\domain\shapes\3d\scenePrimitiveCube.h" />
+    <ClInclude Include="src\domain\shapes\3d\scenePrimitiveSphere.h" />
+    <ClInclude Include="src\domain\shapes\3d\scenePrimitiveCylinder.h" />
+    <ClInclude Include="src\domain\shapes\3d\scenePrimitiveCone.h" />
     <ClInclude Include="src\infrastructure\imageExporter.h" />
     <ClInclude Include="src\infrastructure\modelLibrary.h" />
+    <ClInclude Include="src\presentation\bezierStrokeTool.h" />
     <ClInclude Include="src\presentation\cursorRenderer.h" />
     <ClInclude Include="src\presentation\renderer.h" />
     <ClInclude Include="src\presentation\transformTool.h" />
+    <ClInclude Include="src\presentation\ui\modelListPanel.h" />
+    <ClInclude Include="src\presentation\ui\defaults.h" />
+    <ClInclude Include="src\presentation\ui\theme.h" />
     <ClInclude Include="src\presentation\ui\palettePreview.h" />
     <ClInclude Include="src\presentation\ui\sceneTreePanel.h" />
-    <ClInclude Include="src\presentation\ui\modelListPanel.h" />
+    <ClInclude Include="src\vector_shapes\sceneShapeBezierCurve.h" />
+    <ClInclude Include="src\vector_shapes\sceneShapeFunkyCircles.h" />
+    <ClInclude Include="src\vector_shapes\sceneShapeStars.h" />
+    <ClInclude Include="src\vector_shapes\sceneShapeWave.h" />
     <ClInclude Include="..\..\..\addons\ofxAssimpModelLoader\src\ofxAssimpAnimation.h" />
     <ClInclude Include="..\..\..\addons\ofxAssimpModelLoader\src\ofxAssimpMeshHelper.h" />
     <ClInclude Include="..\..\..\addons\ofxAssimpModelLoader\src\ofxAssimpModelLoader.h" />
@@ -379,6 +420,7 @@
     <ClInclude Include="..\..\..\addons\ofxGui\src\ofxSlider.h" />
     <ClInclude Include="..\..\..\addons\ofxGui\src\ofxSliderGroup.h" />
     <ClInclude Include="..\..\..\addons\ofxGui\src\ofxToggle.h" />
+    <ClInclude Include="..\..\..\addons\ofxPathFitter\src\ofxPathFitter.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="$(OF_ROOT)\libs\openFrameworksCompiled\project\vs\openframeworksLib.vcxproj">
