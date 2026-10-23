@@ -46,6 +46,7 @@ public:
 	float worldBoundingRadius() const;
 
 	ModelVariant variant;
+	bool bShowBoundingBox = false;
 
 private:
 	string modelId;

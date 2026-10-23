@@ -682,6 +682,9 @@ void Application::keyPressed(ofKeyEventArgs & args) {
 	case '5':
 		setToolType(ToolType::Ellipse);
 		break;
+	case 'q':
+		this->toggleBoundingBoxes();
+		break;
 	case 'm':
 		if (toolType == ToolType::Model3d) {
 			selectNextModel();
@@ -1147,6 +1150,14 @@ void Application::selectNextModel() {
 	currentModelId = ids[next];
 	setToolType(ToolType::Model3d);
 	ofLog() << "<model: " << currentModelId << ">";
+}
+
+void Application::toggleBoundingBoxes() {
+	for (auto & object : scene.getObjects()) {
+		if (auto * model = dynamic_cast<SceneModel3d *>(object.get())) {
+			model->bShowBoundingBox = !model->bShowBoundingBox;
+		}
+	}
 }
 
 bool Application::moveSelectedModelsDepth(float delta) {
