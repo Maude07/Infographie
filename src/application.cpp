@@ -749,7 +749,7 @@ void Application::keyPressed(ofKeyEventArgs & args) {
 		resetCamera();
 		break;
 	case 'f':
-		frameCameraOnObject();
+		onFocusPressed();
 		break;
 	case OF_KEY_F1:
 	case OF_KEY_F2:
@@ -982,6 +982,17 @@ void Application::onRecordPressed() {
 
 void Application::onHistogramPressed() {
 	histogramRequested = true;
+}
+
+void Application::onFocusPressed() {
+	const auto & selected = transformTool.getSelection();
+	if (selected.size() == 1) {
+		if (auto * model = dynamic_cast<SceneModel3d *>(*selected.begin())) {
+			activeCamera().focusOnObject(model);
+			return;
+		}
+	}
+	frameCameraOnObject();
 }
 
 void Application::onImportModelPressed() {
@@ -1262,7 +1273,7 @@ void Application::setupCameraGui() {
 	groupCamera.add(&resetCameraButton);
 
 	frameCameraButton.setup("centrer sur l'objet (f)");
-	frameCameraButton.addListener(this, &Application::frameCameraOnObject);
+	frameCameraButton.addListener(this, &Application::onFocusPressed);
 	groupCamera.add(&frameCameraButton);
 
 	showAllButton.setup("afficher toute la scene (0)");
@@ -1416,7 +1427,7 @@ void Application::exit() {
 	fillColor.removeListener(this, &Application::onColorChanged);
 	importModelButton.removeListener(this, &Application::onImportModelPressed);
 	cameraSelector.removeListener(this, &Application::onCameraSelectorChanged);
-	frameCameraButton.removeListener(this, &Application::frameCameraOnObject);
+	frameCameraButton.removeListener(this, &Application::onFocusPressed);
 	showAllButton.removeListener(this, &Application::showWholeScene);
 
 	for (auto * parameter : transformParameters()) {

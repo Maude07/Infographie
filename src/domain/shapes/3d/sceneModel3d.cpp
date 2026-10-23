@@ -72,6 +72,24 @@ ofRectangle SceneModel3d::getScreenBounds() const {
 	return r;
 }
 
+glm::vec3 SceneModel3d::worldCenter() const {
+	return getCenter3d();
+}
+
+float SceneModel3d::worldBoundingRadius() const {
+	const float side = min(size.x, size.y);
+	const float footprint = side * 0.5f;
+	if (!model) return footprint;
+
+	const glm::vec3 stretch = variant.scaleFactors();
+	const glm::vec3 dims = (model->getSceneMax() - model->getSceneMin()) * stretch;
+	const float largest = max({ dims.x, dims.y, dims.z });
+	if (largest <= 0.0f) return footprint;
+
+	const float scale = side / largest;
+	return glm::length(dims) * 0.5f * scale;
+}
+
 void SceneModel3d::draw() const {
 	if (!model) return;
 

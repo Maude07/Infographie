@@ -42,6 +42,9 @@ public:
 
 	ofRectangle getScreenBounds() const override;
 
+	glm::vec3 worldCenter() const;
+	float worldBoundingRadius() const;
+
 	ModelVariant variant;
 	bool bShowBoundingBox = false;
 
