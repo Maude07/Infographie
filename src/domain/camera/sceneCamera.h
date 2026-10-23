@@ -1,5 +1,6 @@
 #pragma once
 #include "ofMain.h"
+#include "domain/scene/sceneObject.h"
 
 class SceneCamera {
 public:
@@ -15,6 +16,8 @@ public:
 	void reset();
 	void setTarget(const glm::vec3 & newTarget);
 	void frame(const glm::vec3 & newTarget, float objectSize);
+
+	void focusOnObject(const SceneObject * obj);
 
 	void setFov(float fovDeg);
 	void setClip(float nearClip, float farClip);
@@ -43,5 +46,13 @@ private:
 	float longitude = 0, latitude = 0, radius = 10;
 	float baseRadius = 10;
 	glm::vec3 target { 0, 0, 0 };
+
+	const SceneObject * lastFocusedObject = nullptr;
+	bool focusCloseDistance = false;
+
+	static constexpr float FOCUS_FRAME_MARGIN = 3.0f;
+	static constexpr float FOCUS_CLOSE_FACTOR = 0.62f;
+	static constexpr float MIN_ORBIT_RADIUS = 20.f;
+	static constexpr float MAX_ORBIT_RADIUS = 20000.f;
 };
 

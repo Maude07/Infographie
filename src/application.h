@@ -5,6 +5,7 @@
 
 #include "presentation/cursorRenderer.h"
 #include "presentation/renderer.h"
+#include "presentation/depthOfField.h"
 #include "infrastructure/imageExporter.h"
 #include "presentation/bezierStrokeTool.h"
 #include "presentation/transformTool.h"
@@ -166,6 +167,13 @@ private:
 	ofParameter<float> transformWidth;
 	ofParameter<float> transformHeight;
 
+	DepthOfField depthOfField;
+	ofxGuiGroup groupDepthOfField;
+	ofParameter<bool> depthOfFieldEnabled;
+	ofParameter<float> focusDistance;
+	ofParameter<float> focusRange;
+	ofParameter<float> maxBlur;
+
 	ofxButton importButton;
 	ofxButton recordButton;
 	ofxButton resetButton;
@@ -204,6 +212,7 @@ private:
 	void onRecordPressed();
 	void onResetPressed();
 	void onHistogramPressed();
+	void onFocusPressed();
 	void onImportModelPressed();
 	void onTransformChanged(float & value);
 
@@ -248,6 +257,7 @@ private:
 	bool moveSelectedModelsDepth(float delta);
 
 	void setupCameraGui();
+	void setupDepthOfFieldGui();
 	void resetCamera();
 	void selectCamera(size_t index);
 	void onCameraSelectorChanged(int & value);

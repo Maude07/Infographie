@@ -252,6 +252,7 @@
     <ClCompile Include="src\presentation\bezierStrokeTool.cpp" />
     <ClCompile Include="src\presentation\cursorRenderer.cpp" />
     <ClCompile Include="src\presentation\renderer.cpp" />
+    <ClCompile Include="src\presentation\depthOfField.cpp" />
     <ClCompile Include="src\presentation\transformTool.cpp" />
     <ClCompile Include="src\presentation\ui\modelListPanel.cpp" />
     <ClCompile Include="src\presentation\ui\sceneTreePanel.cpp" />
@@ -310,6 +311,7 @@
     <ClInclude Include="src\presentation\bezierStrokeTool.h" />
     <ClInclude Include="src\presentation\cursorRenderer.h" />
     <ClInclude Include="src\presentation\renderer.h" />
+    <ClInclude Include="src\presentation\depthOfField.h" />
     <ClInclude Include="src\presentation\transformTool.h" />
     <ClInclude Include="src\presentation\ui\modelListPanel.h" />
     <ClInclude Include="src\presentation\ui\defaults.h" />

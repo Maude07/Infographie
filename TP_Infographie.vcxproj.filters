@@ -74,6 +74,9 @@
     <ClCompile Include="src\presentation\renderer.cpp">
       <Filter>src\presentation</Filter>
     </ClCompile>
+    <ClCompile Include="src\presentation\depthOfField.cpp">
+      <Filter>src\presentation</Filter>
+    </ClCompile>
     <ClCompile Include="src\presentation\transformTool.cpp">
       <Filter>src\presentation</Filter>
     </ClCompile>
@@ -325,6 +328,9 @@
       <Filter>src\presentation</Filter>
     </ClInclude>
     <ClInclude Include="src\presentation\renderer.h">
+      <Filter>src\presentation</Filter>
+    </ClInclude>
+    <ClInclude Include="src\presentation\depthOfField.h">
       <Filter>src\presentation</Filter>
     </ClInclude>
     <ClInclude Include="src\presentation\transformTool.h">

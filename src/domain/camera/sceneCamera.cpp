@@ -1,4 +1,5 @@
 #include "SceneCamera.h"
+#include "sceneModel3d.h"
 
 SceneCamera::SceneCamera() { reset(); }
 
@@ -21,6 +22,8 @@ void SceneCamera::reset() {
 	radius = (ofGetHeight() / 2.f) / tan(ofDegToRad(DEFAULT_FOV) / 2.f);
 	baseRadius = radius;
 	target = { ofGetWidth() / 2.f, ofGetHeight() / 2.f, 0 };
+	lastFocusedObject = nullptr;
+	focusCloseDistance = false;
 	apply();
 }
 
@@ -56,6 +59,31 @@ void SceneCamera::zoom(float factor) {
 
 void SceneCamera::pan(float dx, float dy) {
 	target += camera.getSideDir() * dx - camera.getUpDir() * dy;
+	apply();
+}
+
+void SceneCamera::focusOnObject(const SceneObject * obj) {
+	if (!obj) return;
+
+	const SceneModel3d * model = dynamic_cast<const SceneModel3d *>(obj);
+	if (!model) return;
+
+	if (obj != lastFocusedObject) {
+		lastFocusedObject = obj;
+		focusCloseDistance = false;
+	} else {
+		focusCloseDistance = !focusCloseDistance;
+	}
+
+	target = model->worldCenter();
+
+	const float extent = model->worldBoundingRadius();
+	const float fovRad = ofDegToRad(camera.getFov());
+	float framedRadius = extent / tan(fovRad * 0.5f) * FOCUS_FRAME_MARGIN;
+	framedRadius = ofClamp(framedRadius, MIN_ORBIT_RADIUS, MAX_ORBIT_RADIUS);
+
+	radius = focusCloseDistance ? framedRadius * FOCUS_CLOSE_FACTOR : framedRadius;
+	baseRadius = radius;
 	apply();
 }
 

@@ -152,6 +152,7 @@ void Application::setup() {
 
 	setupTheme();
 	renderer.setup();
+	depthOfField.setup();
 	cursor.setup();
 
 	gui.setup("interface", "setting.json", 0, 0);
@@ -171,6 +172,7 @@ void Application::setup() {
 	for (auto & camera : cameras) camera.reset();
 	selectCamera(0);
 	placeInspector();
+	setupDepthOfFieldGui();
 }
 
 void Application::setupTheme() {
@@ -478,6 +480,14 @@ void Application::draw() {
 	ofRectangle canvas(left, 0, right - left, ofGetHeight());
 
 	renderer.draw(scene, activeCamera());
+	if (depthOfFieldEnabled) {
+		depthOfField.begin();
+		renderer.draw(scene, activeCamera());
+		depthOfField.end();
+		depthOfField.draw(activeCamera(), focusDistance, focusRange, maxBlur);
+	} else {
+		renderer.draw(scene, activeCamera());
+	}
 
 	if (histogramRequested) {
 		computeHistogram(canvas);
@@ -802,7 +812,7 @@ void Application::keyPressed(ofKeyEventArgs & args) {
 		resetCamera();
 		break;
 	case 'f':
-		frameCameraOnObject();
+		onFocusPressed();
 		break;
 	case OF_KEY_F1:
 	case OF_KEY_F2:
@@ -1034,6 +1044,17 @@ void Application::onRecordPressed() {
 
 void Application::onHistogramPressed() {
 	histogramRequested = true;
+}
+
+void Application::onFocusPressed() {
+	const auto & selected = transformTool.getSelection();
+	if (selected.size() == 1) {
+		if (auto * model = dynamic_cast<SceneModel3d *>(*selected.begin())) {
+			activeCamera().focusOnObject(model);
+			return;
+		}
+	}
+	frameCameraOnObject();
 }
 
 void Application::onImportModelPressed() {
@@ -1314,7 +1335,7 @@ void Application::setupCameraGui() {
 	groupCamera.add(&resetCameraButton);
 
 	frameCameraButton.setup("centrer sur l'objet (f)");
-	frameCameraButton.addListener(this, &Application::frameCameraOnObject);
+	frameCameraButton.addListener(this, &Application::onFocusPressed);
 	groupCamera.add(&frameCameraButton);
 
 	showAllButton.setup("afficher toute la scene (0)");
@@ -1322,6 +1343,15 @@ void Application::setupCameraGui() {
 	groupCamera.add(&showAllButton);
 
 	gui.add(&groupCamera);
+}
+
+void Application::setupDepthOfFieldGui() {
+	groupDepthOfField.setup("profondeur de champ");
+	groupDepthOfField.add(depthOfFieldEnabled.set("activer", false));
+	groupDepthOfField.add(focusDistance.set("distance nette", activeCamera().getRadius(), 1.0f, 5000.0f));
+	groupDepthOfField.add(focusRange.set("zone nette", 200.0f, 10.0f, 2000.0f));
+	groupDepthOfField.add(maxBlur.set("flou maximal (px)", 8.0f, 0.0f, 20.0f));
+	gui.add(&groupDepthOfField);
 }
 
 void Application::resetCamera() {
@@ -1494,7 +1524,7 @@ void Application::exit() {
 	fillColor.removeListener(this, &Application::onColorChanged);
 	importModelButton.removeListener(this, &Application::onImportModelPressed);
 	cameraSelector.removeListener(this, &Application::onCameraSelectorChanged);
-	frameCameraButton.removeListener(this, &Application::frameCameraOnObject);
+	frameCameraButton.removeListener(this, &Application::onFocusPressed);
 	showAllButton.removeListener(this, &Application::showWholeScene);
 
 	for (auto * parameter : transformParameters()) {
