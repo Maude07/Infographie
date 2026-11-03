@@ -7,19 +7,36 @@ void Scene::add(unique_ptr<SceneObject> object) {
     objects.push_back(move(object));
 }
 
-void Scene::draw(SceneCamera* camera) const {
+void Scene::draw(SceneCamera* camera, const function<void()> & drawSkybox) const {
 	glClear(GL_DEPTH_BUFFER_BIT);
+
+	bool cameraActive = false;
+	auto beginCameraPass = [&]() {
+		if (!camera || cameraActive) return;
+		camera->begin();
+		if (drawSkybox) {
+			drawSkybox();
+		}
+		cameraActive = true;
+	};
+	auto endCameraPass = [&]() {
+		if (!cameraActive) return;
+		camera->end();
+		cameraActive = false;
+	};
+
     for (const auto & object : objects) {
 		if (!isVisible(object.get())) continue;
 		bool is3d = dynamic_cast<const SceneObject3d *>(object.get()) != nullptr;
 		if (is3d && camera) {
-			camera->begin();
+			beginCameraPass();
 			object->render();
-			camera->end();
 		} else {
+			endCameraPass();
 			object->render();
 		}
     }
+	endCameraPass();
 }
 
 unique_ptr<SceneObject> Scene::extract(const SceneObject * object) {
