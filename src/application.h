@@ -30,6 +30,9 @@
 #include "domain/shapes/3d/scenePrimitiveCone.h"
 #include "domain/shapes/3d/scenePrimitive3d.h"
 #include "domain/commands/historyManager.h"
+#include "domain/scene/sceneSprite.h"
+#include "infrastructure/spriteLibrary.h"
+#include "presentation/spriteSheetGenerator.h"
 
 enum class Primitive3dType {
 	Cube,
@@ -49,7 +52,8 @@ enum class ToolType {
 	FunkyCircles,
 	Bezier,
 	Model3d,
-	Primitive3d
+	Primitive3d,
+	Sprite
 };
 
 class Application : public ofBaseApp {
@@ -81,6 +85,9 @@ private:
 	string currentModelId;
 	Primitive3dType currentPrimitive3d = Primitive3dType::Cube;
 	ModelListPanel modelListPanel;
+	SpriteLibrary spriteLibrary;
+	SpriteSheetGenerator spriteSheetGenerator;
+	size_t currentSpriteIndex = 0;
 	HistoryManager history;
 	ModelVariant currentVariant;
 
@@ -173,6 +180,17 @@ private:
 	ofParameter<float> focusRange;
 	ofParameter<float> maxBlur;
 
+	ofxGuiGroup groupSprites;
+	ofParameter<string> spriteNameLabel;
+	ofxLabel spriteNameLabelGui;
+	ofParameter<float> spriteFps;
+	ofParameter<bool> spritePlaying;
+	ofParameter<int> spriteGenFrames;
+	ofParameter<int> spriteGenCellSize;
+	ofxButton generateSpriteButton;
+	bool isSyncingSpriteGui = false;
+	const SceneSprite * spriteGuiSource = nullptr;
+  
 	ofxGuiGroup groupSkybox;
 	ofParameter<bool> skyboxEnabled;
 	ofParameter<int> skyboxIndex;
@@ -260,6 +278,17 @@ private:
 	void rotateSelectedModels(float degrees);
 	void toggleBoundingBoxes();
 	bool moveSelectedModelsDepth(float delta);
+
+	void setupSpriteGui();
+	void selectSpriteAnimation(size_t index);
+	unique_ptr<SceneSprite> makeSprite(const glm::vec2 & start, const glm::vec2 & end) const;
+	void addSprite();
+	void updateSprites(float deltaSeconds);
+	void syncSpriteGui();
+	vector<SceneSprite *> selectedSprites() const;
+	void onSpriteFpsChanged(float & value);
+	void onSpritePlayingChanged(bool & value);
+	void onGenerateSpritePressed();
 
 	void setupCameraGui();
 	void setupSkyboxGui();

@@ -62,6 +62,7 @@ namespace {
 		case ToolType::Model3d:
 		case ToolType::Select:
 		case ToolType::Primitive3d:
+		case ToolType::Sprite:
 			return true;
 		}
 		return true;
@@ -88,6 +89,7 @@ namespace {
 		case ToolType::Select:
 		case ToolType::Model3d:
 		case ToolType::Primitive3d:
+		case ToolType::Sprite:
 			break;
 		}
 		return "objet";
@@ -139,6 +141,9 @@ void Application::setup() {
 	setupCameraGui();
 	setupSkyboxGui();
 	setupDepthOfFieldGui();
+
+	spriteLibrary.setup();
+	setupSpriteGui();
 
 	setupMiscGui();
 	syncColorReferences();
@@ -307,6 +312,9 @@ void Application::update() {
 	syncModelCameras();
 
 	currentVariant = variantFromGui();
+
+	updateSprites(static_cast<float>(ofGetLastFrameTime()));
+	syncSpriteGui();
 
 	bool mouseDown = ofGetMousePressed();
 
@@ -499,6 +507,8 @@ void Application::draw() {
 			activeCamera().begin();
 			preview->render();
 			activeCamera().end();
+		} else if (toolType == ToolType::Sprite) {
+			if (auto preview = makeSprite(mousePressPos, mouseCurrentPos)) preview->render();
 		} else if (auto preview = makeShape(toolType, mousePressPos, mouseCurrentPos)) {
 			preview->draw();
 		}
@@ -642,6 +652,7 @@ CursorState Application::currentCursorState(const glm::vec2 & mouse) const {
 	case ToolType::Bezier:
 	case ToolType::Model3d:
 	case ToolType::Primitive3d:
+	case ToolType::Sprite:
 		return CursorState::Crosshair;
 	case ToolType::Point:
 		return CursorState::Point;
@@ -754,6 +765,15 @@ void Application::keyPressed(ofKeyEventArgs & args) {
 		break;
 	case 'b':
 		setToolType(ToolType::Bezier);
+		break;
+	case 'n':
+		if (spriteLibrary.animations().empty()) {
+			ofLog() << "<aucune feuille de sprites chargee>";
+		} else if (toolType == ToolType::Sprite) {
+			selectSpriteAnimation((currentSpriteIndex + 1) % spriteLibrary.animations().size());
+		} else {
+			selectSpriteAnimation(currentSpriteIndex);
+		}
 		break;
 
 	case 'z':
@@ -964,6 +984,11 @@ void Application::mouseReleased(int x, int y, int button) {
 		return;
 	}
 
+	if (toolType == ToolType::Sprite) {
+		addSprite();
+		return;
+	}
+
 	addVectorShape();
 }
 
@@ -1137,6 +1162,7 @@ unique_ptr<ScenePrimitive> Application::makeShape(ToolType type, const glm::vec2
 	case ToolType::Bezier:
 	case ToolType::Model3d:
 	case ToolType::Primitive3d:
+	case ToolType::Sprite:
 	case ToolType::Select:
 		return nullptr;
 	}
@@ -1552,6 +1578,9 @@ void Application::exit() {
 	cameraSelector.removeListener(this, &Application::onCameraSelectorChanged);
 	frameCameraButton.removeListener(this, &Application::onFocusPressed);
 	showAllButton.removeListener(this, &Application::showWholeScene);
+	spriteFps.removeListener(this, &Application::onSpriteFpsChanged);
+	generateSpriteButton.removeListener(this, &Application::onGenerateSpritePressed);
+	spritePlaying.removeListener(this, &Application::onSpritePlayingChanged);
 
 	for (auto * parameter : transformParameters()) {
 		parameter->removeListener(this, &Application::onTransformChanged);
@@ -1565,4 +1594,124 @@ void Application::exit() {
 array<ofParameter<float> *, 5> Application::transformParameters() {
 	return { &transformX, &transformY, &transformRotation, &transformWidth, &transformHeight };
 
+}
+
+void Application::setupSpriteGui() {
+	groupSprites.setup("animation sprites (n)");
+
+	spriteNameLabel.set("animation", spriteLibrary.animations().empty()
+		? "aucune" : spriteLibrary.animations()[0].name);
+	spriteNameLabelGui.setup(spriteNameLabel);
+	groupSprites.add(&spriteNameLabelGui);
+
+	groupSprites.add(spriteFps.set("images par seconde", 12.0f, 1.0f, 30.0f));
+	groupSprites.add(spritePlaying.set("lecture", true));
+	spriteFps.addListener(this, &Application::onSpriteFpsChanged);
+	spritePlaying.addListener(this, &Application::onSpritePlayingChanged);
+
+	groupSprites.add(spriteGenFrames.set("cases a generer", 12, 4, 24));
+	groupSprites.add(spriteGenCellSize.set("taille d'une case (px)", 128, 32, 256));
+	generateSpriteButton.setup("generer une feuille (rotation)");
+	generateSpriteButton.addListener(this, &Application::onGenerateSpritePressed);
+	groupSprites.add(&generateSpriteButton);
+
+	gui.add(&groupSprites);
+}
+
+void Application::selectSpriteAnimation(size_t index) {
+	const auto & animations = spriteLibrary.animations();
+	if (index >= animations.size()) return;
+
+	currentSpriteIndex = index;
+	setToolType(ToolType::Sprite);
+
+	isSyncingSpriteGui = true;
+	spriteNameLabel = animations[index].name;
+	spriteFps = animations[index].fps;
+	spritePlaying = true;
+	isSyncingSpriteGui = false;
+
+	ofLog() << "<sprite: " << animations[index].name << ">";
+}
+
+unique_ptr<SceneSprite> Application::makeSprite(const glm::vec2 & start, const glm::vec2 & end) const {
+	const auto & animations = spriteLibrary.animations();
+	if (currentSpriteIndex >= animations.size()) return nullptr;
+
+	const SpriteAnimation & animation = animations[currentSpriteIndex];
+	auto sheet = spriteLibrary.sheetFor(animation);
+	if (!sheet) return nullptr;
+
+	auto sprite = make_unique<SceneSprite>(sheet, animation);
+	sprite->fps = spriteFps;
+
+	glm::vec2 extent = glm::abs(end - start);
+	float height = max(extent.y, extent.x / animation.aspectRatio());
+	if (glm::length(end - start) < minShapeSize) height = animation.frameHeight * 2.0f;
+	sprite->size = { height * animation.aspectRatio(), height };
+	sprite->position = (start + end) * 0.5f - sprite->size * 0.5f;
+	return sprite;
+}
+
+void Application::addSprite() {
+	if (auto sprite = makeSprite(mousePressPos, mouseCurrentPos)) {
+		history.execute(make_unique<AddObjectCommand>(&scene, move(sprite)));
+	}
+}
+
+void Application::updateSprites(float deltaSeconds) {
+	for (const auto & object : scene.getObjects()) {
+		if (auto * sprite = dynamic_cast<SceneSprite *>(object.get())) {
+			sprite->advance(deltaSeconds);
+		}
+	}
+}
+
+vector<SceneSprite *> Application::selectedSprites() const {
+	vector<SceneSprite *> sprites;
+	for (SceneObject * object : transformTool.getSelection()) {
+		if (auto * sprite = dynamic_cast<SceneSprite *>(object)) sprites.push_back(sprite);
+	}
+	return sprites;
+}
+
+void Application::syncSpriteGui() {
+	auto sprites = selectedSprites();
+	const SceneSprite * source = sprites.empty() ? nullptr : sprites.front();
+	if (source == spriteGuiSource) return;
+	spriteGuiSource = source;
+	if (!source) return;
+
+	isSyncingSpriteGui = true;
+	spriteNameLabel = source->getAnimation().name;
+	spriteFps = source->fps;
+	spritePlaying = source->playing;
+	isSyncingSpriteGui = false;
+}
+
+void Application::onSpriteFpsChanged(float & value) {
+	if (isSyncingSpriteGui) return;
+	for (SceneSprite * sprite : selectedSprites()) sprite->fps = value;
+}
+
+void Application::onSpritePlayingChanged(bool & value) {
+	if (isSyncingSpriteGui) return;
+	for (SceneSprite * sprite : selectedSprites()) sprite->playing = value;
+}
+
+void Application::onGenerateSpritePressed() {
+	const auto & selection = transformTool.getSelection();
+	if (selection.size() != 1) {
+		ofLog() << "<selectionnez un seul objet pour generer une feuille de sprites>";
+		return;
+	}
+
+	SpriteSheetGenerator::Result result;
+	if (!spriteSheetGenerator.generateRotation(**selection.begin(), spriteGenFrames, spriteGenCellSize,
+			SpriteLibrary::generatedFolder, result)) {
+		return;
+	}
+
+	size_t index = spriteLibrary.add(result.animation, result.sheet);
+	selectSpriteAnimation(index);
 }
