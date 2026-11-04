@@ -2,6 +2,7 @@
 #include "domain/scene/sceneObject.h"
 #include "domain/shapes/3d/sceneModel3d.h"
 #include "domain/camera/sceneCamera.h"
+#include <functional>
 #include <unordered_set>
 
 using namespace std;
@@ -11,7 +12,7 @@ public:
     void add(unique_ptr<SceneObject> object);
 	void remove(const unordered_set<SceneObject *> & toRemove);
 	unique_ptr<SceneObject> extract(const SceneObject * object);
-    void draw(SceneCamera* camera) const;
+    void draw(SceneCamera * camera, const std::function<void()> & drawSkybox = {}) const;
 	void clear();
 
     SceneObject * hitTest(float x, float y) const;

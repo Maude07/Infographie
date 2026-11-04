@@ -190,6 +190,12 @@ private:
 	ofxButton generateSpriteButton;
 	bool isSyncingSpriteGui = false;
 	const SceneSprite * spriteGuiSource = nullptr;
+  
+	ofxGuiGroup groupSkybox;
+	ofParameter<bool> skyboxEnabled;
+	ofParameter<int> skyboxIndex;
+	ofParameter<string> skyboxFileLabel;
+	ofxLabel skyboxFileLabelGui;
 
 	ofxButton importButton;
 	ofxButton recordButton;
@@ -285,6 +291,10 @@ private:
 	void onGenerateSpritePressed();
 
 	void setupCameraGui();
+	void setupSkyboxGui();
+	void syncSkyboxSliderBounds();
+	void syncSkyboxFileLabel();
+	void onSkyboxIndexChanged(int & value);
 	void setupDepthOfFieldGui();
 	void resetCamera();
 	void selectCamera(size_t index);
