@@ -121,8 +121,9 @@ void Application::setup() {
 	ofLog() << "<app::setup>";
 
 	setupTheme();
-	renderer.setup();
+	ofDisableArbTex();
 	depthOfField.setup();
+	renderer.setup();
 	cursor.setup();
 
 	gui.setup("interface", "setting.json", 0, 0);
@@ -136,6 +137,7 @@ void Application::setup() {
 	setupExportGui();
 	setupHistoryGui();
 	setupCameraGui();
+	setupSkyboxGui();
 	setupDepthOfFieldGui();
 
 	setupMiscGui();
@@ -293,6 +295,7 @@ void Application::setupMiscGui() {
 
 void Application::update() {
 	renderer.backgroundColor = backgroundColor;
+	syncSkyboxSliderBounds();
 	syncTransformGui();
 	sceneTreePanel.rightOffset = ofGetWidth() - canvasRight();
 	transformTool.setCanvas(ofRectangle(canvasLeft(), 0, canvasRight() - canvasLeft(), ofGetHeight()));
@@ -451,14 +454,18 @@ void Application::draw() {
 	float right = canvasRight();
 	ofRectangle canvas(left, 0, right - left, ofGetHeight());
 
-	renderer.draw(scene, activeCamera());
+	SkyboxViewOptions skyboxView;
+	skyboxView.enabled = skyboxEnabled;
+	skyboxView.activeIndex = static_cast<int>(skyboxIndex);
+
+	renderer.draw(scene, activeCamera(), skyboxView);
 	if (depthOfFieldEnabled) {
 		depthOfField.begin();
-		renderer.draw(scene, activeCamera());
+		renderer.draw(scene, activeCamera(), skyboxView);
 		depthOfField.end();
 		depthOfField.draw(activeCamera(), focusDistance, focusRange, maxBlur);
 	} else {
-		renderer.draw(scene, activeCamera());
+		renderer.draw(scene, activeCamera(), skyboxView);
 	}
 
 	if (histogramRequested) {
@@ -1315,6 +1322,53 @@ void Application::setupCameraGui() {
 	groupCamera.add(&showAllButton);
 
 	gui.add(&groupCamera);
+}
+
+void Application::setupSkyboxGui() {
+	groupSkybox.setup("ciel");
+	groupSkybox.add(skyboxEnabled.set("activer", false));
+
+	const size_t count = renderer.getSkyboxCatalog().size();
+	const int lastIndex = std::max(0, static_cast<int>(count) - 1);
+	if (count >= 2) {
+		groupSkybox.add(skyboxIndex.set("environnement", 0, 0, lastIndex));
+		skyboxIndex.addListener(this, &Application::onSkyboxIndexChanged);
+	}
+
+	skyboxFileLabel.set("fichier", "");
+	skyboxFileLabelGui.setup(skyboxFileLabel);
+	groupSkybox.add(&skyboxFileLabelGui);
+
+	syncSkyboxSliderBounds();
+	syncSkyboxFileLabel();
+
+	gui.add(&groupSkybox);
+}
+
+void Application::syncSkyboxSliderBounds() {
+	const int lastIndex = std::max(0, static_cast<int>(renderer.getSkyboxCatalog().size()) - 1);
+	if (lastIndex < 1) {
+		return;
+	}
+	skyboxIndex.setMin(0);
+	skyboxIndex.setMax(lastIndex);
+	if (static_cast<int>(skyboxIndex) > lastIndex) {
+		skyboxIndex = lastIndex;
+	}
+}
+
+void Application::onSkyboxIndexChanged(int & /*value*/) {
+	syncSkyboxFileLabel();
+}
+
+void Application::syncSkyboxFileLabel() {
+	const SkyboxCatalog & catalog = renderer.getSkyboxCatalog();
+	if (catalog.size() == 0) {
+		skyboxFileLabel = "(aucun dans data/skybox/)";
+		return;
+	}
+	const int index = ofClamp(skyboxIndex, 0, static_cast<int>(catalog.size()) - 1);
+	skyboxFileLabel = catalog.label(index);
 }
 
 void Application::setupDepthOfFieldGui() {

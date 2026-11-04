@@ -173,6 +173,12 @@ private:
 	ofParameter<float> focusRange;
 	ofParameter<float> maxBlur;
 
+	ofxGuiGroup groupSkybox;
+	ofParameter<bool> skyboxEnabled;
+	ofParameter<int> skyboxIndex;
+	ofParameter<string> skyboxFileLabel;
+	ofxLabel skyboxFileLabelGui;
+
 	ofxButton importButton;
 	ofxButton recordButton;
 	ofxButton resetButton;
@@ -256,6 +262,10 @@ private:
 	bool moveSelectedModelsDepth(float delta);
 
 	void setupCameraGui();
+	void setupSkyboxGui();
+	void syncSkyboxSliderBounds();
+	void syncSkyboxFileLabel();
+	void onSkyboxIndexChanged(int & value);
 	void setupDepthOfFieldGui();
 	void resetCamera();
 	void selectCamera(size_t index);
