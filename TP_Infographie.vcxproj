@@ -237,6 +237,7 @@
     <ClCompile Include="src\domain\histogram.cpp" />
     <ClCompile Include="src\domain\scene\scene.cpp" />
     <ClCompile Include="src\domain\scene\sceneImage.cpp" />
+    <ClCompile Include="src\domain\scene\sceneSprite.cpp" />
     <ClCompile Include="src\domain\shapes\2d\scenePrimitiveEllipse.cpp" />
     <ClCompile Include="src\domain\shapes\2d\scenePrimitiveLine.cpp" />
     <ClCompile Include="src\domain\shapes\2d\scenePrimitivePoint.cpp" />
@@ -249,10 +250,12 @@
     <ClCompile Include="src\domain\shapes\3d\scenePrimitiveCone.cpp" />
     <ClCompile Include="src\infrastructure\imageExporter.cpp" />
     <ClCompile Include="src\infrastructure\modelLibrary.cpp" />
+    <ClCompile Include="src\infrastructure\spriteLibrary.cpp" />
     <ClCompile Include="src\presentation\bezierStrokeTool.cpp" />
     <ClCompile Include="src\presentation\cursorRenderer.cpp" />
     <ClCompile Include="src\presentation\renderer.cpp" />
     <ClCompile Include="src\presentation\depthOfField.cpp" />
+    <ClCompile Include="src\presentation\spriteSheetGenerator.cpp" />
     <ClCompile Include="src\presentation\transformTool.cpp" />
     <ClCompile Include="src\presentation\ui\modelListPanel.cpp" />
     <ClCompile Include="src\presentation\ui\sceneTreePanel.cpp" />
@@ -293,6 +296,8 @@
     <ClInclude Include="src\domain\histogram.h" />
     <ClInclude Include="src\domain\scene\scene.h" />
     <ClInclude Include="src\domain\scene\sceneImage.h" />
+    <ClInclude Include="src\domain\scene\sceneSprite.h" />
+    <ClInclude Include="src\domain\animation\spriteAnimation.h" />
     <ClInclude Include="src\domain\scene\sceneObject.h" />
     <ClInclude Include="src\domain\shapes\2d\scenePrimitive.h" />
     <ClInclude Include="src\domain\shapes\2d\scenePrimitiveEllipse.h" />
@@ -308,10 +313,12 @@
     <ClInclude Include="src\domain\shapes\3d\scenePrimitiveCone.h" />
     <ClInclude Include="src\infrastructure\imageExporter.h" />
     <ClInclude Include="src\infrastructure\modelLibrary.h" />
+    <ClInclude Include="src\infrastructure\spriteLibrary.h" />
     <ClInclude Include="src\presentation\bezierStrokeTool.h" />
     <ClInclude Include="src\presentation\cursorRenderer.h" />
     <ClInclude Include="src\presentation\renderer.h" />
     <ClInclude Include="src\presentation\depthOfField.h" />
+    <ClInclude Include="src\presentation\spriteSheetGenerator.h" />
     <ClInclude Include="src\presentation\transformTool.h" />
     <ClInclude Include="src\presentation\ui\modelListPanel.h" />
     <ClInclude Include="src\presentation\ui\defaults.h" />

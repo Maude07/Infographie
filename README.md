@@ -22,6 +22,7 @@
 | `1` | Select / move / resize |
 | `2` `3` `4` `5` `6` `7` `8` `b` | Rectangle, line, point, ellipse, star, waves, funkyCircles, bezier  |
 | `9` | 3D primitive; press again to cycle cube, sphere, cylinder, cone |
+| `n` | Animated sprite; press again to cycle animations (ball, coin, generated sheets) |
 | `u` | Show / hide the panel |
 | `r` | Start / stop recording |
 | `i` | Show / hide the scene graph | 
