@@ -21,6 +21,11 @@ ofMesh ScenePrimitiveCylinder::generate() {
 
         addTriangle(mesh, bottom, nextBottom, nextTop, radial, nextRadial, nextRadial);
         addTriangle(mesh, bottom, nextTop, top, radial, nextRadial, radial);
+
+        float u = roundRepeatU * segment / segments;
+        float nextU = roundRepeatU * (segment + 1) / segments;
+        addTexCoords(mesh, { u, 0 }, { nextU, 0 }, { nextU, 1 });
+        addTexCoords(mesh, { u, 0 }, { nextU, 1 }, { u, 1 });
     }
 
     addCap(mesh, half, glm::vec3(0, 1, 0));

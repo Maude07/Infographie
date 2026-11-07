@@ -29,6 +29,10 @@ ofMesh ScenePrimitiveCone::generate() {
         glm::vec3 apexNormal = glm::normalize(rimNormal + nextRimNormal);
 
         addTriangle(mesh, rim, nextRim, apex, rimNormal, nextRimNormal, apexNormal);
+
+        float u = roundRepeatU * segment / segments;
+        float nextU = roundRepeatU * (segment + 1) / segments;
+        addTexCoords(mesh, { u, 0 }, { nextU, 0 }, { (u + nextU) * 0.5f, 1 });
     }
 
     addCap(mesh, -half, glm::vec3(0, -1, 0));

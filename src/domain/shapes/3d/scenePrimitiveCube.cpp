@@ -4,6 +4,7 @@ const ofMesh & ScenePrimitiveCube::mesh() const {
     static const ofMesh cube = generate();
     return cube;
 }
+
     
 ofMesh ScenePrimitiveCube::generate() {
     ofMesh mesh;
@@ -27,6 +28,10 @@ ofMesh ScenePrimitiveCube::generate() {
 
         addTriangle(mesh, bottomLeft, bottomRight, topRight, normal, normal, normal);
         addTriangle(mesh, bottomLeft, topRight, topLeft, normal, normal, normal);
+
+        const glm::vec2 uvBottomLeft(0, 0), uvBottomRight(1, 0), uvTopRight(1, 1), uvTopLeft(0, 1);
+        addTexCoords(mesh, uvBottomLeft, uvBottomRight, uvTopRight);
+        addTexCoords(mesh, uvBottomLeft, uvTopRight, uvTopLeft);
     }
     return mesh;
 }

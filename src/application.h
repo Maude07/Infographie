@@ -128,6 +128,7 @@ private:
 	ofParameter<ofColor> strokeColor;
 	ofParameter<ofColor> fillColor;
 	ofParameter<float> strokeWeight;
+	ofParameter<bool> checkerTexture;
 
 	ofParameter<int> exportFps;
 	ofParameter<float> exportDuration;
@@ -213,6 +214,7 @@ private:
 	void onColorChanged(ofColor & color);
 	void onStrokeColorChanged(ofColor & color);
 	void onFillColorChanged(ofColor & color);
+	void onCheckerTextureChanged(bool & enabled);
 	void onImportPressed();
 	void onRecordPressed();
 	void onResetPressed();

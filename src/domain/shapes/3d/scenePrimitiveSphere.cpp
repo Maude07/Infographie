@@ -30,6 +30,12 @@ ofMesh ScenePrimitiveSphere::generate() {
                  bottomRight * half, topLeft, bottomLeft, bottomRight);
             addTriangle(mesh, topLeft * half, bottomRight * half,
                  topRight * half, topLeft, bottomRight, topRight);
+
+            auto uv = [](int r, int s) {
+                return glm::vec2(sphereRepeatU * s / segments, 1.0f - static_cast<float>(r) / rings);
+            };
+            addTexCoords(mesh, uv(ring, segment), uv(ring + 1, segment), uv(ring + 1, segment + 1));
+            addTexCoords(mesh, uv(ring, segment), uv(ring + 1, segment + 1), uv(ring, segment + 1));
         }
     }
     return mesh;

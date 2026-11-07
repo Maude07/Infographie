@@ -46,6 +46,9 @@
     <ClCompile Include="src\domain\shapes\3d\scenePrimitive3d.cpp">
       <Filter>src\domain\shapes\3d</Filter>
     </ClCompile>
+    <ClCompile Include="src\domain\shapes\3d\proceduralTexture.cpp">
+      <Filter>src\domain\shapes\3d</Filter>
+    </ClCompile>
     <ClCompile Include="src\domain\shapes\3d\scenePrimitiveCube.cpp">
       <Filter>src\domain\shapes\3d</Filter>
     </ClCompile>
@@ -300,6 +303,9 @@
       <Filter>src\domain\shapes\3d</Filter>
     </ClInclude>
     <ClInclude Include="src\domain\shapes\3d\scenePrimitive3d.h">
+      <Filter>src\domain\shapes\3d</Filter>
+    </ClInclude>
+    <ClInclude Include="src\domain\shapes\3d\proceduralTexture.h">
       <Filter>src\domain\shapes\3d</Filter>
     </ClInclude>
     <ClInclude Include="src\domain\shapes\3d\scenePrimitiveCube.h">
@@ -690,6 +696,9 @@
       <Filter>src\domain\commands</Filter>
     </ClInclude>
     <ClInclude Include="src\domain\commands\removeObjectCommand.h">
+      <Filter>src\domain\commands</Filter>
+    </ClInclude>
+    <ClInclude Include="src\domain\commands\valueCommand.h">
       <Filter>src\domain\commands</Filter>
     </ClInclude>
     <ClInclude Include="src\domain\commands\colorCommand.h">

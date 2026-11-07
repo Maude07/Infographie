@@ -16,6 +16,7 @@
 #include "presentation/ui/theme.h"
 #include "presentation/ui/defaults.h"
 #include "domain/commands/colorCommand.h"
+#include "domain/commands/valueCommand.h"
 
 using namespace std;
 
@@ -177,6 +178,8 @@ void Application::setupDrawGui() {
 	addColorPicker(strokeSlider, strokeColor, palettePreviews[1], "couleur du trait", defaults::defaultStrokeColor);
 	addColorPicker(fillSlider, fillColor, palettePreviews[2], "couleur de remplissage", defaults::defaultFillColor);
 	groupDraw.add(strokeWeight.set("largeur de la ligne", defaults::defaultStrokeWeight, 0.0f, 10.0f));
+	groupDraw.add(checkerTexture.set("texture damier", true));
+	checkerTexture.addListener(this, &Application::onCheckerTextureChanged);
 
 	strokeColor.addListener(this, &Application::onStrokeColorChanged);
 	fillColor.addListener(this, &Application::onFillColorChanged);
@@ -678,6 +681,23 @@ void Application::onFillColorChanged(ofColor & color) {
 	}
 }
 
+void Application::onCheckerTextureChanged(bool & enabled) {
+	vector<unique_ptr<Command>> changes;
+	for (SceneObject * object : transformTool.getSelection()) {
+		auto * primitive = dynamic_cast<ScenePrimitive3d *>(object);
+		if (primitive && primitive->checkered != enabled) {
+			changes.push_back(make_unique<ValueCommand<bool>>(primitive->checkered, primitive->checkered, enabled));
+		}
+	}
+	if (changes.empty()) return;
+
+	if (changes.size() == 1) {
+		history.execute(move(changes.front()));
+	} else {
+		history.execute(make_unique<CompositeCommand>(move(changes)));
+	}
+}
+
 void Application::keyPressed(ofKeyEventArgs & args) {
 	if (args.key == OF_KEY_LEFT || args.key == OF_KEY_RIGHT) {
 		rotateSelectedModels(args.key == OF_KEY_LEFT ? -rotationStep : rotationStep);
@@ -994,6 +1014,7 @@ void Application::onResetPressed() {
 	strokeColor = defaults::defaultStrokeColor;
 	fillColor = defaults::defaultFillColor;
 	strokeWeight = defaults::defaultStrokeWeight;
+	checkerTexture = true;
 
 	resetVariantGui();
 
@@ -1283,6 +1304,7 @@ unique_ptr<ScenePrimitive3d> Application::makePrimitive3d(const glm::vec2 & star
 	primitive->camera = &activeCamera();
 	primitive->name = primitive3dLabel(currentPrimitive3d);
 	primitive->color = fillColor;
+	primitive->checkered = checkerTexture;
 	return primitive;
 }
 
@@ -1547,6 +1569,7 @@ void Application::exit() {
 	strokeColor.removeListener(this, &Application::onColorChanged);
 	strokeColor.removeListener(this, &Application::onStrokeColorChanged);
 	fillColor.removeListener(this, &Application::onFillColorChanged);
+	checkerTexture.removeListener(this, &Application::onCheckerTextureChanged);
 	fillColor.removeListener(this, &Application::onColorChanged);
 	importModelButton.removeListener(this, &Application::onImportModelPressed);
 	cameraSelector.removeListener(this, &Application::onCameraSelectorChanged);
