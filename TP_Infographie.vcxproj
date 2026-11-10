@@ -251,6 +251,7 @@
     <ClCompile Include="src\infrastructure\imageExporter.cpp" />
     <ClCompile Include="src\infrastructure\modelLibrary.cpp" />
     <ClCompile Include="src\infrastructure\spriteLibrary.cpp" />
+    <ClCompile Include="src\infrastructure\skyboxCatalog.cpp" />
     <ClCompile Include="src\presentation\bezierStrokeTool.cpp" />
     <ClCompile Include="src\presentation\cursorRenderer.cpp" />
     <ClCompile Include="src\presentation\renderer.cpp" />
@@ -314,6 +315,7 @@
     <ClInclude Include="src\infrastructure\imageExporter.h" />
     <ClInclude Include="src\infrastructure\modelLibrary.h" />
     <ClInclude Include="src\infrastructure\spriteLibrary.h" />
+    <ClInclude Include="src\infrastructure\skyboxCatalog.h" />
     <ClInclude Include="src\presentation\bezierStrokeTool.h" />
     <ClInclude Include="src\presentation\cursorRenderer.h" />
     <ClInclude Include="src\presentation\renderer.h" />
