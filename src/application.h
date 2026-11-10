@@ -188,6 +188,11 @@ private:
 	ofParameter<int> spriteGenFrames;
 	ofParameter<int> spriteGenCellSize;
 	ofxButton generateSpriteButton;
+	ofParameter<bool> spriteImportDetect;
+	ofParameter<int> spriteImportColumns;
+	ofParameter<int> spriteImportRows;
+	ofParameter<int> spriteImportFrames;
+	ofxButton importSpriteFileButton;
 	bool isSyncingSpriteGui = false;
 	const SceneSprite * spriteGuiSource = nullptr;
 
@@ -283,6 +288,7 @@ private:
 	void onSpriteFpsChanged(float & value);
 	void onSpritePlayingChanged(bool & value);
 	void onGenerateSpritePressed();
+	void onImportSpriteFilePressed();
 
 	void setupCameraGui();
 	void setupDepthOfFieldGui();

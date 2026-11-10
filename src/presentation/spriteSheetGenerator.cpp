@@ -1,21 +1,12 @@
 #include "presentation/spriteSheetGenerator.h"
 #include "domain/shapes/3d/sceneObject3d.h"
 #include "domain/shapes/3d/sceneModel3d.h"
+#include "infrastructure/spriteLibrary.h"
 
 namespace {
 	constexpr float cellFill = 0.9f;
 	constexpr float cameraFov = 30.0f;
 	constexpr float generatedFps = 12.0f;
-
-	string fileSafe(const string & text) {
-		string out;
-		for (unsigned char c : text) {
-			if (isalnum(c)) out += static_cast<char>(tolower(c));
-			else if (!out.empty() && out.back() != '-') out += '-';
-		}
-		while (!out.empty() && out.back() == '-') out.pop_back();
-		return out.empty() ? "objet" : out;
-	}
 }
 
 bool SpriteSheetGenerator::generateRotation(SceneObject & object, int frameCount, int cellSize,
@@ -53,7 +44,7 @@ bool SpriteSheetGenerator::generateRotation(SceneObject & object, int frameCount
 		cellPixels.pasteInto(sheetPixels, (i % columns) * cellSize, (i / columns) * cellSize);
 	}
 
-	const string baseName = fileSafe(object.name);
+	const string baseName = SpriteLibrary::fileSafeName(object.name);
 	const string fileName = baseName + "_" + ofToString(cellSize) + "px_" + ofToString(frameCount)
 		+ "f_" + ofGetTimestampString("%Y%m%d-%H%M%S") + ".png";
 	const string relativePath = outputFolder + "/" + fileName;

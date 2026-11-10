@@ -1526,6 +1526,7 @@ void Application::exit() {
 	showAllButton.removeListener(this, &Application::showWholeScene);
 	spriteFps.removeListener(this, &Application::onSpriteFpsChanged);
 	generateSpriteButton.removeListener(this, &Application::onGenerateSpritePressed);
+	importSpriteFileButton.removeListener(this, &Application::onImportSpriteFilePressed);
 	spritePlaying.removeListener(this, &Application::onSpritePlayingChanged);
 
 	for (auto * parameter : transformParameters()) {
@@ -1560,6 +1561,15 @@ void Application::setupSpriteGui() {
 	generateSpriteButton.setup("generer une feuille (rotation)");
 	generateSpriteButton.addListener(this, &Application::onGenerateSpritePressed);
 	groupSprites.add(&generateSpriteButton);
+
+	groupSprites.add(spriteImportDetect.set("detecter la grille", true));
+	groupSprites.add(spriteImportColumns.set("import : colonnes", 4, 1, SpriteLibrary::maxGridDivisions));
+	groupSprites.add(spriteImportRows.set("import : lignes", 1, 1, SpriteLibrary::maxGridDivisions));
+	groupSprites.add(spriteImportFrames.set("import : cases (0 = toutes)", 0, 0,
+		SpriteLibrary::maxGridDivisions * SpriteLibrary::maxGridDivisions));
+	importSpriteFileButton.setup("importer une feuille de sprites");
+	importSpriteFileButton.addListener(this, &Application::onImportSpriteFilePressed);
+	groupSprites.add(&importSpriteFileButton);
 
 	gui.add(&groupSprites);
 }
@@ -1659,5 +1669,38 @@ void Application::onGenerateSpritePressed() {
 	}
 
 	size_t index = spriteLibrary.add(result.animation, result.sheet);
+	selectSpriteAnimation(index);
+}
+
+void Application::onImportSpriteFilePressed() {
+	ofFileDialogResult result = ofSystemLoadDialog("Choisir une feuille de sprites");
+	if (!result.bSuccess) return;
+
+	SpriteLibrary::ImportSettings settings;
+	settings.columns = spriteImportColumns;
+	settings.rows = spriteImportRows;
+	settings.frameCount = spriteImportFrames;
+	settings.fps = spriteFps;
+	settings.detectGrid = spriteImportDetect;
+
+	size_t index = 0;
+	string error;
+	const bool imported = spriteLibrary.import(ofBufferFromFile(result.getPath(), true),
+		ofFilePath::removeExt(result.getName()), settings, index, error);
+
+	if (settings.detected) {
+		spriteImportColumns = settings.columns;
+		spriteImportRows = settings.rows;
+		spriteImportFrames = settings.frameCount;
+		ofLog() << "<grille detectee: " << settings.columns << " x " << settings.rows
+				<< ", " << settings.frameCount << " cases>";
+	} else if (settings.detectGrid) {
+		ofLog() << "<grille non detectee, valeurs du panneau utilisees>";
+	}
+
+	if (!imported) {
+		ofLogError() << "<import de la feuille de sprites : " << error << ">";
+		return;
+	}
 	selectSpriteAnimation(index);
 }
