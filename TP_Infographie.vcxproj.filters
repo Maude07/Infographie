@@ -28,6 +28,9 @@
     <ClCompile Include="src\domain\scene\sceneImage.cpp">
       <Filter>src\domain\scene</Filter>
     </ClCompile>
+    <ClCompile Include="src\domain\scene\sceneSprite.cpp">
+      <Filter>src\domain\scene</Filter>
+    </ClCompile>
     <ClCompile Include="src\domain\shapes\2d\scenePrimitiveEllipse.cpp">
       <Filter>src\domain\shapes\2d</Filter>
     </ClCompile>
@@ -64,6 +67,9 @@
     <ClCompile Include="src\infrastructure\modelLibrary.cpp">
       <Filter>src\infrastructure</Filter>
     </ClCompile>
+    <ClCompile Include="src\infrastructure\spriteLibrary.cpp">
+      <Filter>src\infrastructure</Filter>
+    </ClCompile>
     <ClCompile Include="src\presentation\bezierStrokeTool.cpp">
       <Filter>src\presentation</Filter>
     </ClCompile>
@@ -74,6 +80,9 @@
       <Filter>src\presentation</Filter>
     </ClCompile>
     <ClCompile Include="src\presentation\depthOfField.cpp">
+      <Filter>src\presentation</Filter>
+    </ClCompile>
+    <ClCompile Include="src\presentation\spriteSheetGenerator.cpp">
       <Filter>src\presentation</Filter>
     </ClCompile>
     <ClCompile Include="src\presentation\transformTool.cpp">
@@ -167,6 +176,9 @@
     </Filter>
     <Filter Include="src\domain">
       <UniqueIdentifier>{AB55C46B--330-D-4E-4E-A-7D4-ECE663EF19BA}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\domain\animation">
+      <UniqueIdentifier>{9DCC246C-6D73-4BBE-BFBD-ED0F1505E71D}</UniqueIdentifier>
     </Filter>
     <Filter Include="src\domain\commands">
       <UniqueIdentifier>{25BE5D80--175-2-43-63-A-BE5-300A3ED8BA52}</UniqueIdentifier>
@@ -275,6 +287,12 @@
     <ClInclude Include="src\domain\scene\sceneImage.h">
       <Filter>src\domain\scene</Filter>
     </ClInclude>
+    <ClInclude Include="src\domain\animation\spriteAnimation.h">
+      <Filter>src\domain\animation</Filter>
+    </ClInclude>
+    <ClInclude Include="src\domain\scene\sceneSprite.h">
+      <Filter>src\domain\scene</Filter>
+    </ClInclude>
     <ClInclude Include="src\domain\scene\sceneObject.h">
       <Filter>src\domain\scene</Filter>
     </ClInclude>
@@ -320,6 +338,9 @@
     <ClInclude Include="src\infrastructure\modelLibrary.h">
       <Filter>src\infrastructure</Filter>
     </ClInclude>
+    <ClInclude Include="src\infrastructure\spriteLibrary.h">
+      <Filter>src\infrastructure</Filter>
+    </ClInclude>
     <ClInclude Include="src\presentation\bezierStrokeTool.h">
       <Filter>src\presentation</Filter>
     </ClInclude>
@@ -330,6 +351,9 @@
       <Filter>src\presentation</Filter>
     </ClInclude>
     <ClInclude Include="src\presentation\depthOfField.h">
+      <Filter>src\presentation</Filter>
+    </ClInclude>
+    <ClInclude Include="src\presentation\spriteSheetGenerator.h">
       <Filter>src\presentation</Filter>
     </ClInclude>
     <ClInclude Include="src\presentation\transformTool.h">
