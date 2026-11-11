@@ -129,6 +129,8 @@ private:
 	ofParameter<ofColor> fillColor;
 	ofParameter<float> strokeWeight;
 	ofParameter<bool> checkerTexture;
+	bool checkerDefault = false;
+	bool isSyncingCheckerGui = false;
 
 	ofParameter<int> exportFps;
 	ofParameter<float> exportDuration;
@@ -206,6 +208,7 @@ private:
 	void placeInspector();
 
 	void syncTransformGui();
+	void syncCheckerGui();
 	void addColorPicker(ofxColorSlider & slider, ofParameter<ofColor> & color, PalettePreview & preview,
 		const string & name, const ofColor & initialColor);
 	glm::vec2 modelListOrigin() const;

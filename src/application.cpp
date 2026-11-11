@@ -300,6 +300,7 @@ void Application::update() {
 	renderer.backgroundColor = backgroundColor;
 	syncSkyboxSliderBounds();
 	syncTransformGui();
+	syncCheckerGui();
 	sceneTreePanel.rightOffset = ofGetWidth() - canvasRight();
 	transformTool.setCanvas(ofRectangle(canvasLeft(), 0, canvasRight() - canvasLeft(), ofGetHeight()));
 
@@ -681,13 +682,41 @@ void Application::onFillColorChanged(ofColor & color) {
 	}
 }
 
+void Application::syncCheckerGui() {
+	bool hasPrimitive = false;
+	bool allCheckered = true;
+	for (SceneObject * object : transformTool.getSelection()) {
+		if (auto * primitive = dynamic_cast<ScenePrimitive3d *>(object)) {
+			hasPrimitive = true;
+			allCheckered = allCheckered && primitive->checkered;
+		}
+	}
+
+	bool value = hasPrimitive ? allCheckered : checkerDefault;
+	if (checkerTexture.get() == value) return;
+
+	isSyncingCheckerGui = true;
+	checkerTexture = value;
+	isSyncingCheckerGui = false;
+}
+
 void Application::onCheckerTextureChanged(bool & enabled) {
+	if (isSyncingCheckerGui) return;
+
 	vector<unique_ptr<Command>> changes;
+	bool hasPrimitive = false;
 	for (SceneObject * object : transformTool.getSelection()) {
 		auto * primitive = dynamic_cast<ScenePrimitive3d *>(object);
-		if (primitive && primitive->checkered != enabled) {
+		if (!primitive) continue;
+		hasPrimitive = true;
+		if (primitive->checkered != enabled) {
 			changes.push_back(make_unique<ValueCommand<bool>>(primitive->checkered, primitive->checkered, enabled));
 		}
+	}
+
+	if (!hasPrimitive) {
+		checkerDefault = enabled;
+		return;
 	}
 	if (changes.empty()) return;
 
@@ -1014,6 +1043,7 @@ void Application::onResetPressed() {
 	strokeColor = defaults::defaultStrokeColor;
 	fillColor = defaults::defaultFillColor;
 	strokeWeight = defaults::defaultStrokeWeight;
+	checkerDefault = true;
 	checkerTexture = true;
 
 	resetVariantGui();
@@ -1304,7 +1334,7 @@ unique_ptr<ScenePrimitive3d> Application::makePrimitive3d(const glm::vec2 & star
 	primitive->camera = &activeCamera();
 	primitive->name = primitive3dLabel(currentPrimitive3d);
 	primitive->color = fillColor;
-	primitive->checkered = checkerTexture;
+	primitive->checkered = checkerDefault;
 	return primitive;
 }
 

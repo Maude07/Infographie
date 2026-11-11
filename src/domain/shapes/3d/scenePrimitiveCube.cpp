@@ -4,7 +4,6 @@ const ofMesh & ScenePrimitiveCube::mesh() const {
     static const ofMesh cube = generate();
     return cube;
 }
-
     
 ofMesh ScenePrimitiveCube::generate() {
     ofMesh mesh;

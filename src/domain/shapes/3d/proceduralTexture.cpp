@@ -1,8 +1,8 @@
 #include "proceduralTexture.h"
 
 namespace {
-    constexpr int checkerResolution = 64;    // 64 x 64 pixels
-    constexpr int checkerCells = 8;          // 8 x 8 cases de 8 pixels
+    constexpr int checkerResolution = 64;
+    constexpr int checkerCells = 8;
     constexpr float darkFactor = 60.0f / 255.0f;
 }
 
@@ -25,7 +25,7 @@ namespace proceduralTexture {
     void loadCheckerboard(ofTexture & texture, const ofColor & baseColor) {
         ofColor dark(baseColor.r * darkFactor, baseColor.g * darkFactor, baseColor.b * darkFactor);
         texture.loadData(checkerboardPixels(checkerResolution, checkerCells, baseColor, dark));
-        texture.setTextureMinMagFilter(GL_NEAREST, GL_NEAREST); // bords de cases nets
-        texture.setTextureWrap(GL_REPEAT, GL_REPEAT);           // u > 1 repete le damier
+        texture.setTextureMinMagFilter(GL_NEAREST, GL_NEAREST);
+        texture.setTextureWrap(GL_REPEAT, GL_REPEAT);
     }
 }
