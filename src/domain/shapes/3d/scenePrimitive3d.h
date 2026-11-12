@@ -2,11 +2,13 @@
 
 #include "ofMain.h"
 #include "sceneObject3d.h"
+#include "proceduralTexture.h"
 
 class ScenePrimitive3d : public SceneObject3d {
 public: 
     ofColor color = ofColor::white;
     bool checkered = true;
+    TextureFilter textureFilter = TextureFilter::None;
 
     void draw() const override;
 
@@ -35,5 +37,6 @@ protected:
 private:
     mutable ofTexture checkerTexture;
     mutable ofColor checkerColor;
+    mutable TextureFilter checkerTextureFilter = TextureFilter::None;
     mutable bool checkerReady = false;
 };
