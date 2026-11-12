@@ -210,8 +210,8 @@ private:
 	ofxButton resetButton;
 	ofxButton histogramButton;
 	ofxButton importModelButton;
-	ofxButton buttonUndo;
-	ofxButton buttonRedo;
+	ofxButton undoButton;
+	ofxButton redoButton;
 
 	ToolType toolType = ToolType::Select;
 	glm::vec2 mousePressPos;
@@ -250,8 +250,8 @@ private:
 	void onTransformChanged(float & value);
 
 	void setupHistoryGui();
-	void buttonUndoPressed();
-	void buttonRedoPressed();
+	void onUndoPressed();
+	void onRedoPressed();
 	void commitColorChanges();
 	void commitTransformChanges();
 	void syncColorReferences();
@@ -323,4 +323,13 @@ private:
 	void selectPrimitive3d(Primitive3dType type);
 
 	array<ofParameter<float> *, 5> transformParameters();
+
+	template <typename Method>
+	void listenToButton(ofxButton & button, Method method) {
+		guiListeners.push(button.getParameter().cast<void>().newListener(this, method));
+	}
+
+	//Must stay declared last : members are destroyed in reverse order, so these listeners
+	//disconnect before the parameters and buttons they watch
+	ofEventListeners guiListeners;
 };

@@ -168,11 +168,11 @@ void Application::setupTheme() {
 
 void Application::setupImportGui() {
 	importButton.setup("Importer une image");
-	importButton.addListener(this, &Application::onImportPressed);
+	listenToButton(importButton, &Application::onImportPressed);
 	gui.add(&importButton);
 
 	importModelButton.setup("Importer un modele 3D");
-	importModelButton.addListener(this, &Application::onImportModelPressed);
+	listenToButton(importModelButton, &Application::onImportModelPressed);
 	gui.add(&importModelButton);
 }
 
@@ -184,10 +184,10 @@ void Application::setupDrawGui() {
 	addColorPicker(fillSlider, fillColor, palettePreviews[2], "couleur de remplissage", defaults::defaultFillColor);
 	groupDraw.add(strokeWeight.set("largeur de la ligne", defaults::defaultStrokeWeight, 0.0f, 10.0f));
 	groupDraw.add(checkerTexture.set("texture damier", true));
-	checkerTexture.addListener(this, &Application::onCheckerTextureChanged);
+	guiListeners.push(checkerTexture.newListener(this, &Application::onCheckerTextureChanged));
 
-	strokeColor.addListener(this, &Application::onStrokeColorChanged);
-	fillColor.addListener(this, &Application::onFillColorChanged);
+	guiListeners.push(strokeColor.newListener(this, &Application::onStrokeColorChanged));
+	guiListeners.push(fillColor.newListener(this, &Application::onFillColorChanged));
 	setupVariantGui();
 	groupDraw.add(&groupVariants);
 
@@ -209,7 +209,7 @@ void Application::setupVariantGui() {
 	palettePreviews[3].setup(palette, variantTintColor, groupVariants.getWidth());
 	variantTintSlider.add(&palettePreviews[3]);
 	groupVariants.add(&variantTintSlider);
-	variantTintColor.addListener(this, &Application::onColorChanged);
+	guiListeners.push(variantTintColor.newListener(this, &Application::onColorChanged));
 
 	groupVariants.add(variantMetallic.set("metallique", false));
 	groupVariants.add(variantMetalness.set("degre metallique", defaults::defaultMetalness, 0.0f, 1.0f));
@@ -249,7 +249,7 @@ void Application::setupTransformGui() {
 	groupTransform.add(transformHeight.set("hauteur", 100.0f, SceneObject::minSize, 2000.0f));
 
 	for (auto * parameter : transformParameters()) {
-		parameter->addListener(this, &Application::onTransformChanged);
+		guiListeners.push(parameter->newListener(this, &Application::onTransformChanged));
 	}
 	inspector.add(&groupTransform);
 }
@@ -265,7 +265,7 @@ void Application::addColorPicker(ofxColorSlider & slider, ofParameter<ofColor> &
 	preview.setup(palette, color, groupDraw.getWidth());
 	slider.add(&preview);
 	groupDraw.add(&slider);
-	color.addListener(this, &Application::onColorChanged);
+	guiListeners.push(color.newListener(this, &Application::onColorChanged));
 }
 
 glm::vec2 Application::modelListOrigin() const {
@@ -282,7 +282,7 @@ void Application::setupExportGui() {
 	groupExport.add(exportDuration.set("duree (s, 0=illimite)", 5.0f, 0.0f, 60.0f));
 
 	recordButton.setup("enregistrer / arreter (r)");
-	recordButton.addListener(this, &Application::onRecordPressed);
+	listenToButton(recordButton, &Application::onRecordPressed);
 	groupExport.add(&recordButton);
 
 	gui.add(&groupExport);
@@ -290,14 +290,14 @@ void Application::setupExportGui() {
 
 void Application::setupMiscGui() {
 	resetButton.setup("Reinitialiser");
-	resetButton.addListener(this, &Application::onResetPressed);
+	listenToButton(resetButton, &Application::onResetPressed);
 	gui.add(&resetButton);
 
 	gui.add(showGui.set("visible", true));
 	gui.add(showSceneTree.set("graphe de scene (i)", false));
 
 	histogramButton.setup("Calculer l'histogramme");
-	histogramButton.addListener(this, &Application::onHistogramPressed);
+	listenToButton(histogramButton, &Application::onHistogramPressed);
 	gui.add(&histogramButton);
 }
 
@@ -391,18 +391,18 @@ void Application::setScrollFromThumbY(float thumbScreenY) {
 void Application::setupHistoryGui() {
 	groupHistory.setup("historique");
 
-	buttonUndo.setup("annuler (ctrl+z)");
-	buttonUndo.addListener(this, &Application::buttonUndoPressed);
-	groupHistory.add(&buttonUndo);
+	undoButton.setup("annuler (ctrl+z)");
+	listenToButton(undoButton, &Application::onUndoPressed);
+	groupHistory.add(&undoButton);
 
-	buttonRedo.setup("refaire (ctrl+y)");
-	buttonRedo.addListener(this, &Application::buttonRedoPressed);
-	groupHistory.add(&buttonRedo);
+	redoButton.setup("refaire (ctrl+y)");
+	listenToButton(redoButton, &Application::onRedoPressed);
+	groupHistory.add(&redoButton);
 
 	gui.add(&groupHistory);
 }
 
-void Application::buttonUndoPressed() {
+void Application::onUndoPressed() {
 	if (history.canUndo()) {
 		transformTool.clearSelection();
 		history.undo();
@@ -410,7 +410,7 @@ void Application::buttonUndoPressed() {
 	}
 }
 
-void Application::buttonRedoPressed() {
+void Application::onRedoPressed() {
 	if (history.canRedo()) {
 		transformTool.clearSelection();
 		history.redo();
@@ -536,8 +536,8 @@ void Application::draw() {
 		sceneTreePanel.draw(scene, transformTool.getSelection(), glm::vec2(ofGetMouseX(), ofGetMouseY()));
 	}
 
-	buttonUndo.setBackgroundColor(history.canUndo() ? ofColor(90, 140, 240) : ofColor(50, 50, 55));
-	buttonRedo.setBackgroundColor(history.canRedo() ? ofColor(90, 140, 240) : ofColor(50, 50, 55));
+	undoButton.setBackgroundColor(history.canUndo() ? ofColor(90, 140, 240) : ofColor(50, 50, 55));
+	redoButton.setBackgroundColor(history.canRedo() ? ofColor(90, 140, 240) : ofColor(50, 50, 55));
 
 	if (showGui) {
 		updateSidebarScroll();
@@ -1381,22 +1381,22 @@ void Application::setupCameraGui() {
 	cameraNameLabel.set("vue", cameras[0].getName());
 	cameraNameLabelGui.setup(cameraNameLabel);
 	groupCamera.add(&cameraNameLabelGui);
-	cameraSelector.addListener(this, &Application::onCameraSelectorChanged);
+	guiListeners.push(cameraSelector.newListener(this, &Application::onCameraSelectorChanged));
 	groupCamera.add(cameraFov.set("champ de vision (deg)", SceneCamera::DEFAULT_FOV, 10.f, 120.f));
 	groupCamera.add(cameraNear.set("plan proche", SceneCamera::DEFAULT_NEAR, 0.1f, 3000.f));
 	groupCamera.add(cameraFar.set("plan eloigne", SceneCamera::DEFAULT_FAR, 10.f, 20000.f));
 	groupCamera.add(cameraOrtho.set("orthographique (p)", false));
 
 	resetCameraButton.setup("reinitialiser la camera (c)");
-	resetCameraButton.addListener(this, &Application::resetCamera);
+	listenToButton(resetCameraButton, &Application::resetCamera);
 	groupCamera.add(&resetCameraButton);
 
 	frameCameraButton.setup("centrer sur l'objet (f)");
-	frameCameraButton.addListener(this, &Application::onFocusPressed);
+	listenToButton(frameCameraButton, &Application::onFocusPressed);
 	groupCamera.add(&frameCameraButton);
 
 	showAllButton.setup("afficher toute la scene (0)");
-	showAllButton.addListener(this, &Application::showWholeScene);
+	listenToButton(showAllButton, &Application::showWholeScene);
 	groupCamera.add(&showAllButton);
 
 	gui.add(&groupCamera);
@@ -1410,7 +1410,7 @@ void Application::setupSkyboxGui() {
 	const int lastIndex = std::max(0, static_cast<int>(count) - 1);
 	if (count >= 2) {
 		groupSkybox.add(skyboxIndex.set("environnement", 0, 0, lastIndex));
-		skyboxIndex.addListener(this, &Application::onSkyboxIndexChanged);
+		guiListeners.push(skyboxIndex.newListener(this, &Application::onSkyboxIndexChanged));
 	}
 
 	skyboxFileLabel.set("fichier", "");
@@ -1613,32 +1613,7 @@ float Application::canvasRight() const {
 }
 
 void Application::exit() {
-	importButton.removeListener(this, &Application::onImportPressed);
-	recordButton.removeListener(this, &Application::onRecordPressed);
-	resetButton.removeListener(this, &Application::onResetPressed);
-	histogramButton.removeListener(this, &Application::onHistogramPressed);
-	buttonUndo.removeListener(this, &Application::buttonUndoPressed);
-	buttonRedo.removeListener(this, &Application::buttonRedoPressed);
-	variantTintColor.removeListener(this, &Application::onColorChanged);
-
-	backgroundColor.removeListener(this, &Application::onColorChanged);
-	strokeColor.removeListener(this, &Application::onColorChanged);
-	strokeColor.removeListener(this, &Application::onStrokeColorChanged);
-	fillColor.removeListener(this, &Application::onFillColorChanged);
-	checkerTexture.removeListener(this, &Application::onCheckerTextureChanged);
-	fillColor.removeListener(this, &Application::onColorChanged);
-	importModelButton.removeListener(this, &Application::onImportModelPressed);
-	cameraSelector.removeListener(this, &Application::onCameraSelectorChanged);
-	frameCameraButton.removeListener(this, &Application::onFocusPressed);
-	showAllButton.removeListener(this, &Application::showWholeScene);
-	spriteFps.removeListener(this, &Application::onSpriteFpsChanged);
-	generateSpriteButton.removeListener(this, &Application::onGenerateSpritePressed);
-	importSpriteFileButton.removeListener(this, &Application::onImportSpriteFilePressed);
-	spritePlaying.removeListener(this, &Application::onSpritePlayingChanged);
-
-	for (auto * parameter : transformParameters()) {
-		parameter->removeListener(this, &Application::onTransformChanged);
-	}
+	guiListeners.unsubscribeAll();
 
 	cursor.exit();
 
@@ -1660,13 +1635,13 @@ void Application::setupSpriteGui() {
 
 	groupSprites.add(spriteFps.set("images par seconde", 12.0f, 1.0f, 30.0f));
 	groupSprites.add(spritePlaying.set("lecture", true));
-	spriteFps.addListener(this, &Application::onSpriteFpsChanged);
-	spritePlaying.addListener(this, &Application::onSpritePlayingChanged);
+	guiListeners.push(spriteFps.newListener(this, &Application::onSpriteFpsChanged));
+	guiListeners.push(spritePlaying.newListener(this, &Application::onSpritePlayingChanged));
 
 	groupSprites.add(spriteGenFrames.set("cases a generer", 12, 4, 24));
 	groupSprites.add(spriteGenCellSize.set("taille d'une case (px)", 128, 32, 256));
 	generateSpriteButton.setup("generer une feuille (rotation)");
-	generateSpriteButton.addListener(this, &Application::onGenerateSpritePressed);
+	listenToButton(generateSpriteButton, &Application::onGenerateSpritePressed);
 	groupSprites.add(&generateSpriteButton);
 
 	groupSprites.add(spriteImportDetect.set("detecter la grille", true));
@@ -1675,7 +1650,7 @@ void Application::setupSpriteGui() {
 	groupSprites.add(spriteImportFrames.set("import : cases (0 = toutes)", 0, 0,
 		SpriteLibrary::maxGridDivisions * SpriteLibrary::maxGridDivisions));
 	importSpriteFileButton.setup("importer une feuille de sprites");
-	importSpriteFileButton.addListener(this, &Application::onImportSpriteFilePressed);
+	listenToButton(importSpriteFileButton, &Application::onImportSpriteFilePressed);
 	groupSprites.add(&importSpriteFileButton);
 
 	gui.add(&groupSprites);
