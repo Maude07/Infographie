@@ -1,4 +1,5 @@
 #include "scenePrimitive3d.h"
+#include "proceduralTexture.h"
 
 namespace {
 
@@ -52,15 +53,36 @@ void ScenePrimitive3d::draw() const {
     ofPushMatrix();
     ofMultMatrix(localTransform());
 
+    const ofTexture * tex = texture();
+    if (tex) tex->bind();
+
     ofEnableDepthTest();
     mesh().draw();
     ofDisableDepthTest();
+
+    if (tex) tex->unbind();
     ofPopMatrix();
 
     material.end();
     light.disable();
     ofDisableLighting();
     ofPopStyle();
+}
+
+const ofTexture * ScenePrimitive3d::texture() const {
+    if (!checkered || !mesh().hasTexCoords()) return nullptr;
+    if (!checkerReady || checkerColor != color) {
+        proceduralTexture::loadCheckerboard(checkerTexture, color);
+        checkerColor = color;
+        checkerReady = true;
+    }
+    return &checkerTexture;
+}
+
+void ScenePrimitive3d::addTexCoords(ofMesh & mesh, const glm::vec2 & a, const glm::vec2 & b, const glm::vec2 & c) {
+    mesh.addTexCoord(a);
+    mesh.addTexCoord(b);
+    mesh.addTexCoord(c);
 }
 
 void ScenePrimitive3d::addTriangle(ofMesh & mesh,
@@ -85,5 +107,8 @@ void ScenePrimitive3d::addCap(ofMesh & mesh, float y, const glm::vec3 & normal) 
         glm::vec3 point0 = circlePoint(segment) * half + center;
         glm::vec3 point1 = circlePoint(segment + 1) * half + center;
         addTriangle(mesh, center, point0, point1, normal, normal, normal);
+
+        auto planar = [](const glm::vec3 & p) { return glm::vec2(0.5f + p.x, 0.5f + p.z); };
+        addTexCoords(mesh, planar(center), planar(point0), planar(point1));
     }
 }

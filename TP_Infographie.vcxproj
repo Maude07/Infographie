@@ -244,6 +244,7 @@
     <ClCompile Include="src\domain\shapes\2d\scenePrimitiveRect.cpp" />
     <ClCompile Include="src\domain\shapes\3d\sceneModel3d.cpp" />
     <ClCompile Include="src\domain\shapes\3d\scenePrimitive3d.cpp" />
+    <ClCompile Include="src\domain\shapes\3d\proceduralTexture.cpp" />
     <ClCompile Include="src\domain\shapes\3d\scenePrimitiveCube.cpp" />
     <ClCompile Include="src\domain\shapes\3d\scenePrimitiveSphere.cpp" />
     <ClCompile Include="src\domain\shapes\3d\scenePrimitiveCylinder.cpp" />
@@ -286,6 +287,7 @@
     <ClInclude Include="src\domain\camera\sceneCamera.h" />
     <ClInclude Include="src\domain\commands\addObjectCommand.h" />
     <ClInclude Include="src\domain\commands\colorCommand.h" />
+    <ClInclude Include="src\domain\commands\valueCommand.h" />
     <ClInclude Include="src\domain\commands\command.h" />
     <ClInclude Include="src\domain\commands\compositeCommand.h" />
     <ClInclude Include="src\domain\commands\depthCommand.h" />
@@ -308,6 +310,7 @@
     <ClInclude Include="src\domain\shapes\3d\sceneModel3d.h" />
     <ClInclude Include="src\domain\shapes\3d\sceneObject3d.h" />
     <ClInclude Include="src\domain\shapes\3d\scenePrimitive3d.h" />
+    <ClInclude Include="src\domain\shapes\3d\proceduralTexture.h" />
     <ClInclude Include="src\domain\shapes\3d\scenePrimitiveCube.h" />
     <ClInclude Include="src\domain\shapes\3d\scenePrimitiveSphere.h" />
     <ClInclude Include="src\domain\shapes\3d\scenePrimitiveCylinder.h" />
