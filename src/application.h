@@ -136,6 +136,10 @@ private:
 	ofParameter<ofColor> fillColor;
 	ofParameter<float> strokeWeight;
 	ofParameter<bool> checkerTexture;
+	ofParameter<int> textureFilterIndex;
+	ofParameter<string> textureFilterLabel;
+	TextureFilter textureFilterDefault = TextureFilter::None;
+	bool isSyncingTextureFilterGui = false;
 	bool checkerDefault = false;
 	bool isSyncingCheckerGui = false;
 
@@ -232,6 +236,7 @@ private:
 
 	void syncTransformGui();
 	void syncCheckerGui();
+	void syncTextureFilterGui();
 	void addColorPicker(ofxColorSlider & slider, ofParameter<ofColor> & color, PalettePreview & preview,
 		const string & name, const ofColor & initialColor);
 	glm::vec2 modelListOrigin() const;
@@ -241,6 +246,7 @@ private:
 	void onStrokeColorChanged(ofColor & color);
 	void onFillColorChanged(ofColor & color);
 	void onCheckerTextureChanged(bool & enabled);
+	void onTextureFilterChanged(int & selectedIndex);
 	void onImportPressed();
 	void onRecordPressed();
 	void onResetPressed();

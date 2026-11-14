@@ -71,9 +71,10 @@ void ScenePrimitive3d::draw() const {
 
 const ofTexture * ScenePrimitive3d::texture() const {
     if (!checkered || !mesh().hasTexCoords()) return nullptr;
-    if (!checkerReady || checkerColor != color) {
-        proceduralTexture::loadCheckerboard(checkerTexture, color);
+    if (!checkerReady || checkerColor != color || checkerTextureFilter != textureFilter) {
+        proceduralTexture::loadCheckerboard(checkerTexture, color, textureFilter);
         checkerColor = color;
+        checkerTextureFilter = textureFilter;
         checkerReady = true;
     }
     return &checkerTexture;

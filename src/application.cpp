@@ -186,6 +186,11 @@ void Application::setupDrawGui() {
 	groupDraw.add(checkerTexture.set("texture damier", true));
 	checkerTexture.addListener(this, &Application::onCheckerTextureChanged);
 
+	const int lastFilterIndex = static_cast<int>(TextureFilter::Count) -1;
+	groupDraw.add(textureFilterIndex.set("filtre de texture", 0, 0, lastFilterIndex));
+	groupDraw.add(textureFilterLabel.set("filtre actif", proceduralTexture::filterName(TextureFilter::None)));
+	textureFilterIndex.addListener(this, &Application::onTextureFilterChanged);
+
 	strokeColor.addListener(this, &Application::onStrokeColorChanged);
 	fillColor.addListener(this, &Application::onFillColorChanged);
 	setupVariantGui();
@@ -306,6 +311,7 @@ void Application::update() {
 	syncSkyboxSliderBounds();
 	syncTransformGui();
 	syncCheckerGui();
+	syncTextureFilterGui();
 	sceneTreePanel.rightOffset = ofGetWidth() - canvasRight();
 	transformTool.setCanvas(ofRectangle(canvasLeft(), 0, canvasRight() - canvasLeft(), ofGetHeight()));
 
@@ -738,6 +744,54 @@ void Application::onCheckerTextureChanged(bool & enabled) {
 	}
 }
 
+void Application::syncTextureFilterGui() {
+	TextureFilter displayedFilter = textureFilterDefault;
+	for (SceneObject * object : transformTool.getSelection()) {
+		if (auto * primitive = dynamic_cast<ScenePrimitive3d *>(object)) {
+			displayedFilter = primitive->textureFilter;
+			break;
+		}
+	}
+
+	textureFilterLabel = proceduralTexture::filterName(displayedFilter);
+	const int displayedIndex = static_cast<int>(displayedFilter);
+	if (textureFilterIndex.get() == displayedIndex) return;
+
+	isSyncingTextureFilterGui = true;
+	textureFilterIndex = displayedIndex;
+	isSyncingTextureFilterGui = false;
+}
+
+void Application::onTextureFilterChanged(int & selectedIndex) {
+	if (isSyncingTextureFilterGui) return;
+	const TextureFilter selectedFilter = static_cast<TextureFilter>(selectedIndex);
+
+	vector<unique_ptr<Command>> changes;
+	bool hasPrimitive = false;
+	for (SceneObject * object : transformTool.getSelection()) {
+		auto * primitive = dynamic_cast<ScenePrimitive3d *>(object);
+		if (!primitive) continue;
+		hasPrimitive = true;
+		if (primitive->textureFilter != selectedFilter) {
+			changes.push_back(make_unique<ValueCommand<TextureFilter>>(
+				primitive->textureFilter, primitive->textureFilter, selectedFilter));
+		}
+	}
+
+	if (!hasPrimitive) {
+		textureFilterDefault = selectedFilter;
+		return;
+	}
+
+	if (changes.empty()) return;
+
+	if (changes.size() == 1) {
+		history.execute(move(changes.front()));
+	} else {
+		history.execute(make_unique<CompositeCommand>(move(changes)));
+	}
+}
+
 void Application::keyPressed(ofKeyEventArgs & args) {
 	if (args.key == OF_KEY_LEFT || args.key == OF_KEY_RIGHT) {
 		rotateSelectedModels(args.key == OF_KEY_LEFT ? -rotationStep : rotationStep);
@@ -1069,6 +1123,8 @@ void Application::onResetPressed() {
 	fillColor = defaults::defaultFillColor;
 	strokeWeight = defaults::defaultStrokeWeight;
 	checkerDefault = true;
+	textureFilterDefault = TextureFilter::None;
+	textureFilterIndex = 0;
 	checkerTexture = true;
 
 	resetVariantGui();
@@ -1361,6 +1417,7 @@ unique_ptr<ScenePrimitive3d> Application::makePrimitive3d(const glm::vec2 & star
 	primitive->name = primitive3dLabel(currentPrimitive3d);
 	primitive->color = fillColor;
 	primitive->checkered = checkerDefault;
+	primitive->textureFilter = textureFilterDefault;
 	return primitive;
 }
 
@@ -1635,6 +1692,7 @@ void Application::exit() {
 	generateSpriteButton.removeListener(this, &Application::onGenerateSpritePressed);
 	importSpriteFileButton.removeListener(this, &Application::onImportSpriteFilePressed);
 	spritePlaying.removeListener(this, &Application::onSpritePlayingChanged);
+	textureFilterIndex.removeListener(this, &Application::onTextureFilterChanged);
 
 	for (auto * parameter : transformParameters()) {
 		parameter->removeListener(this, &Application::onTransformChanged);
