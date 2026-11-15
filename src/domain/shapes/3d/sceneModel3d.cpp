@@ -1,4 +1,5 @@
 #include "sceneModel3d.h"
+#include "presentation/celShading.h"
 
 namespace {
 	const ofColor neutralBase(255);
@@ -90,6 +91,89 @@ float SceneModel3d::worldBoundingRadius() const {
 	return glm::length(dims) * 0.5f * scale;
 }
 
+bool SceneModel3d::drawCel(const ofColor & litColor, bool replaceMaterial) const {
+	ofShader * program = celShading::shader();
+	if (!program || !model) return false;
+
+	const glm::vec3 stretch = variant.scaleFactors();
+	const glm::vec3 dims = (model->getSceneMax() - model->getSceneMin()) * stretch;
+	const float largest = max({ dims.x, dims.y, dims.z });
+	if (largest <= 0.0f) return false;
+
+	const glm::vec3 sceneCenter = model->getSceneCenter();
+	const glm::vec2 center = position + size * 0.5f;
+	const float side = min(size.x, size.y);
+	const float scale = side / largest;
+	const glm::vec3 lightWorld(center.x - side, center.y - side, depth + side * 3.0f);
+	const glm::vec3 lightView = glm::vec3(ofGetCurrentViewMatrix() * glm::vec4(lightWorld, 1.0f));
+
+	ofPushStyle();
+	ofPushMatrix();
+	ofTranslate(center.x, center.y, depth);
+	ofRotateYDeg(rotationY);
+	ofScale(scale * stretch.x, scale * stretch.y, scale * stretch.z);
+	ofEnableDepthTest();
+
+	ofPushMatrix();
+	ofTranslate(sceneCenter.x, sceneCenter.y, -sceneCenter.z);
+
+	program->begin();
+	program->setUniform3f("lightView", lightView);
+	program->setUniform1f("bands", static_cast<float>(max(celBands, 2)));
+	program->setUniform1f("ambient", celAmbient);
+	program->setUniform1f("outline", celOutline);
+
+	ofPushMatrix();
+	ofMultMatrix(model->getModelMatrix());
+
+	for (unsigned int index = 0; index < model->getMeshCount(); ++index) {
+		ofxAssimpMeshHelper & mesh = model->getMeshHelper(index);
+		if (mesh.indices.empty()) continue;
+
+		ofPushMatrix();
+		ofMultMatrix(mesh.matrix);
+
+		const bool hasTexture = mesh.hasTexture(aiTextureType_DIFFUSE);
+		const bool hasNormals = mesh.mesh && mesh.mesh->HasNormals();
+		const bool hasColors = mesh.mesh && mesh.mesh->HasVertexColors(0);
+		const ofFloatColor albedo = replaceMaterial
+			? ofFloatColor(litColor)
+			: mesh.material.getDiffuseColor();
+
+		program->setUniform4f("baseColor", albedo);
+		program->setUniform1f("useTexture", hasTexture ? 1.0f : 0.0f);
+		program->setUniform1f("useVertexColor", hasColors ? 1.0f : 0.0f);
+		program->setUniform1f("hasNormals", hasNormals ? 1.0f : 0.0f);
+		if (hasTexture) {
+			program->setUniformTexture("colorTex", mesh.getTextureRef(aiTextureType_DIFFUSE), 0);
+		}
+
+		ofEnableBlendMode(mesh.blendMode);
+		mesh.vbo.drawElements(GL_TRIANGLES, mesh.indices.size());
+		ofPopMatrix();
+	}
+
+	ofPopMatrix();
+	program->end();
+
+	if (bShowBoundingBox) {
+		const glm::vec3 boxDims = model->getSceneMax() - model->getSceneMin();
+		ofPushStyle();
+		ofDisableLighting();
+		ofNoFill();
+		ofSetColor(255, 172, 28);
+		ofSetLineWidth(2.0f);
+		ofDrawBox(0, 0, 0, boxDims.x, boxDims.y, boxDims.z);
+		ofPopStyle();
+	}
+
+	ofPopMatrix();
+	ofDisableDepthTest();
+	ofPopMatrix();
+	ofPopStyle();
+	return true;
+}
+
 void SceneModel3d::draw() const {
 	if (!model) return;
 
@@ -125,6 +209,8 @@ void SceneModel3d::draw() const {
 	material.setAmbientColor(diffuse * 0.25f);
 	material.setSpecularColor(specular);
 	material.setShininess(shininess);
+
+	if (celShaded && drawCel(diffuse, variant.overridesMaterial())) return;
 
 	const bool overrideMaterial = variant.overridesMaterial();
 	if (overrideMaterial) {

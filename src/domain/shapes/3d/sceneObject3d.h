@@ -10,6 +10,11 @@ public:
     float depth = 0.0f;
     const SceneCamera * camera = nullptr;
 
+    bool celShaded = false;
+    int celBands = 3;
+    float celAmbient = 0.2f;
+    float celOutline = 0.0f;
+
     bool isSquare() const override { return true; }
 
     void setBounds(const ofRectangle & bounds) override {

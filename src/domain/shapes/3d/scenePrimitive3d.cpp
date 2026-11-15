@@ -1,5 +1,6 @@
 #include "scenePrimitive3d.h"
 #include "proceduralTexture.h"
+#include "presentation/celShading.h"
 
 namespace {
 
@@ -46,26 +47,43 @@ void ScenePrimitive3d::draw() const {
     material.setAmbientColor(color * 0.3f);
 
     ofPushStyle();
-    ofEnableLighting();
-    light.enable();
-    material.begin();
-
     ofPushMatrix();
     ofMultMatrix(localTransform());
+    ofEnableDepthTest();
 
     const ofTexture * tex = texture();
-    if (tex) tex->bind();
+    ofShader * shader = celShaded ? celShading::shader() : nullptr;
+    if (shader) {
+        const glm::vec3 lightWorld(center.x - side, center.y - side, depth + side * 3.0f);
+        const glm::vec3 lightView = glm::vec3(ofGetCurrentViewMatrix() * glm::vec4(lightWorld, 1.0f));
+        const ofFloatColor base = tex ? ofFloatColor(1.0f, 1.0f, 1.0f, 1.0f) : ofFloatColor(color);
 
-    ofEnableDepthTest();
-    mesh().draw();
+        shader->begin();
+        shader->setUniform3f("lightView", lightView);
+        shader->setUniform4f("baseColor", base);
+        shader->setUniform1f("bands", static_cast<float>(max(celBands, 2)));
+        shader->setUniform1f("ambient", celAmbient);
+        shader->setUniform1f("outline", celOutline);
+        shader->setUniform1f("useTexture", tex ? 1.0f : 0.0f);
+        shader->setUniform1f("useVertexColor", 0.0f);
+        shader->setUniform1f("hasNormals", 1.0f);
+        if (tex) shader->setUniformTexture("colorTex", *tex, 0);
+        mesh().draw();
+        shader->end();
+    } else {
+        ofEnableLighting();
+        light.enable();
+        material.begin();
+        if (tex) tex->bind();
+        mesh().draw();
+        if (tex) tex->unbind();
+        material.end();
+        light.disable();
+        ofDisableLighting();
+    }
+
     ofDisableDepthTest();
-
-    if (tex) tex->unbind();
     ofPopMatrix();
-
-    material.end();
-    light.disable();
-    ofDisableLighting();
     ofPopStyle();
 }
 

@@ -113,6 +113,7 @@ private:
 	ofxPanel gui;
 	ofxPanel inspector;
 	ofxGuiGroup groupDraw;
+	ofxGuiGroup groupCel;
 	ofxGuiGroup groupExport;
 	ofxGuiGroup groupTransform;
 
@@ -142,6 +143,16 @@ private:
 	bool isSyncingTextureFilterGui = false;
 	bool checkerDefault = false;
 	bool isSyncingCheckerGui = false;
+
+	ofParameter<bool> celShading;
+	ofParameter<int> celBands;
+	ofParameter<float> celAmbient;
+	ofParameter<float> celOutline;
+	bool celDefault = false;
+	int celBandsDefault = 3;
+	float celAmbientDefault = 0.2f;
+	float celOutlineDefault = 0.0f;
+	bool isSyncingCelGui = false;
 
 	ofParameter<int> exportFps;
 	ofParameter<float> exportDuration;
@@ -237,6 +248,8 @@ private:
 	void syncTransformGui();
 	void syncCheckerGui();
 	void syncTextureFilterGui();
+	void syncCelGui();
+	void setupCelGui();
 	void addColorPicker(ofxColorSlider & slider, ofParameter<ofColor> & color, PalettePreview & preview,
 		const string & name, const ofColor & initialColor);
 	glm::vec2 modelListOrigin() const;
@@ -247,6 +260,10 @@ private:
 	void onFillColorChanged(ofColor & color);
 	void onCheckerTextureChanged(bool & enabled);
 	void onTextureFilterChanged(int & selectedIndex);
+	void onCelShadingChanged(bool & enabled);
+	void onCelBandsChanged(int & bands);
+	void onCelAmbientChanged(float & ambient);
+	void onCelOutlineChanged(float & outline);
 	void onImportPressed();
 	void onRecordPressed();
 	void onResetPressed();
