@@ -225,8 +225,8 @@ private:
 	ofxButton resetButton;
 	ofxButton histogramButton;
 	ofxButton importModelButton;
-	ofxButton buttonUndo;
-	ofxButton buttonRedo;
+	ofxButton undoButton;
+	ofxButton redoButton;
 
 	ToolType toolType = ToolType::Select;
 	glm::vec2 mousePressPos;
@@ -273,8 +273,8 @@ private:
 	void onTransformChanged(float & value);
 
 	void setupHistoryGui();
-	void buttonUndoPressed();
-	void buttonRedoPressed();
+	void onUndoPressed();
+	void onRedoPressed();
 	void commitColorChanges();
 	void commitTransformChanges();
 	void syncColorReferences();
@@ -352,6 +352,7 @@ private:
 		guiListeners.push(button.getParameter().cast<void>().newListener(this, method));
 	}
 
-	// Destroyed last so listeners disconnect before the widgets they watch.
+	// Must stay declared last: members are destroyed in reverse order, so these listeners
+	// disconnect before the parameters and buttons they watch.
 	ofEventListeners guiListeners;
 };

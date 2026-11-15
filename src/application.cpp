@@ -413,18 +413,18 @@ void Application::setScrollFromThumbY(float thumbScreenY) {
 void Application::setupHistoryGui() {
 	groupHistory.setup("historique");
 
-	buttonUndo.setup("annuler (ctrl+z)");
-	listenToButton(buttonUndo, &Application::buttonUndoPressed);
-	groupHistory.add(&buttonUndo);
+	undoButton.setup("annuler (ctrl+z)");
+	listenToButton(undoButton, &Application::onUndoPressed);
+	groupHistory.add(&undoButton);
 
-	buttonRedo.setup("refaire (ctrl+y)");
-	listenToButton(buttonRedo, &Application::buttonRedoPressed);
-	groupHistory.add(&buttonRedo);
+	redoButton.setup("refaire (ctrl+y)");
+	listenToButton(redoButton, &Application::onRedoPressed);
+	groupHistory.add(&redoButton);
 
 	gui.add(&groupHistory);
 }
 
-void Application::buttonUndoPressed() {
+void Application::onUndoPressed() {
 	if (history.canUndo()) {
 		transformTool.clearSelection();
 		history.undo();
@@ -432,7 +432,7 @@ void Application::buttonUndoPressed() {
 	}
 }
 
-void Application::buttonRedoPressed() {
+void Application::onRedoPressed() {
 	if (history.canRedo()) {
 		transformTool.clearSelection();
 		history.redo();
@@ -558,8 +558,8 @@ void Application::draw() {
 		sceneTreePanel.draw(scene, transformTool.getSelection(), glm::vec2(ofGetMouseX(), ofGetMouseY()));
 	}
 
-	buttonUndo.setBackgroundColor(history.canUndo() ? ofColor(90, 140, 240) : ofColor(50, 50, 55));
-	buttonRedo.setBackgroundColor(history.canRedo() ? ofColor(90, 140, 240) : ofColor(50, 50, 55));
+	undoButton.setBackgroundColor(history.canUndo() ? ofColor(90, 140, 240) : ofColor(50, 50, 55));
+	redoButton.setBackgroundColor(history.canRedo() ? ofColor(90, 140, 240) : ofColor(50, 50, 55));
 
 	if (showGui) {
 		updateSidebarScroll();
