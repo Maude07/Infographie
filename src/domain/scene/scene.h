@@ -2,6 +2,7 @@
 #include "domain/scene/sceneObject.h"
 #include "domain/shapes/3d/sceneModel3d.h"
 #include "domain/camera/sceneCamera.h"
+#include "domain/lighting/lightRig.h"
 #include <functional>
 #include <unordered_set>
 
@@ -26,6 +27,7 @@ public:
 	const unordered_set<SceneObject *> & getIsolated() const { return isolated; }
 
 	SceneCamera * camera = nullptr;
+	LightRig lighting;
     
     const vector<unique_ptr<SceneObject>> & getObjects() const { return objects; }
     size_t size() const { return objects.size(); }
