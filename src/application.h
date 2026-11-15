@@ -346,4 +346,12 @@ private:
 	void selectPrimitive3d(Primitive3dType type);
 
 	array<ofParameter<float> *, 5> transformParameters();
+
+	template <typename Method>
+	void listenToButton(ofxButton & button, Method method) {
+		guiListeners.push(button.getParameter().cast<void>().newListener(this, method));
+	}
+
+	// Destroyed last so listeners disconnect before the widgets they watch.
+	ofEventListeners guiListeners;
 };
