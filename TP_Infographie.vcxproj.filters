@@ -172,6 +172,16 @@
     <ClCompile Include="src\domain\camera\sceneCamera.cpp">
       <Filter>src\domain\camera</Filter>
     </ClCompile>
+    <ClCompile Include="src\infrastructure\skyboxCatalog.cpp" />
+    <ClCompile Include="src\domain\lighting\sceneLight.cpp">
+      <Filter>src\domain\lighting</Filter>
+    </ClCompile>
+    <ClCompile Include="src\domain\lighting\lightRig.cpp">
+      <Filter>src\domain\lighting</Filter>
+    </ClCompile>
+    <ClCompile Include="src\presentation\lightGizmo.cpp">
+      <Filter>src\presentation</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="src">
@@ -254,6 +264,9 @@
     </Filter>
     <Filter Include="src\domain\camera">
       <UniqueIdentifier>{53a209e6-2e18-4eac-a9d1-8779766bca66}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\domain\lighting">
+      <UniqueIdentifier>{fff782c3-6f30-489f-a02c-d604c7063e39}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -748,6 +761,16 @@
     </ClInclude>
     <ClInclude Include="src\presentation\ui\defaults.h">
       <Filter>src\presentation\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\infrastructure\skyboxCatalog.h" />
+    <ClInclude Include="src\domain\lighting\sceneLight.h">
+      <Filter>src\domain\lighting</Filter>
+    </ClInclude>
+    <ClInclude Include="src\domain\lighting\lightRig.h">
+      <Filter>src\domain\lighting</Filter>
+    </ClInclude>
+    <ClInclude Include="src\presentation\lightGizmo.h">
+      <Filter>src\presentation</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -32,22 +32,15 @@ ofRectangle ScenePrimitive3d::getScreenBounds() const {
 
 
 void ScenePrimitive3d::draw() const {
-    const glm::vec2 center = position + size * 0.5f;
     const float side = min(size.x, size.y);
     if (side <= 0.0f) return;
-
-    static ofLight light;
-    light.setPointLight();
-    light.setDiffuseColor(ofColor(255));
-    light.setPosition(center.x - side, center.y - side, depth + side * 3.0f);
 
     static ofMaterial material;
     material.setDiffuseColor(color);
     material.setAmbientColor(color * 0.3f);
 
     ofPushStyle();
-    ofEnableLighting();
-    light.enable();
+    ofEnableLighting(); // eclaire par les lumieres de la scene (LightRig)
     material.begin();
 
     ofPushMatrix();
@@ -64,7 +57,6 @@ void ScenePrimitive3d::draw() const {
     ofPopMatrix();
 
     material.end();
-    light.disable();
     ofDisableLighting();
     ofPopStyle();
 }

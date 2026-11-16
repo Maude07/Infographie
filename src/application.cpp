@@ -140,6 +140,7 @@ void Application::setup() {
 	setupExportGui();
 	setupHistoryGui();
 	setupCameraGui();
+	setupLightGui();
 	setupSkyboxGui();
 	setupDepthOfFieldGui();
 
@@ -313,6 +314,7 @@ void Application::update() {
 	syncSkyboxSliderBounds();
 	syncTransformGui();
 	syncCheckerGui();
+	syncLightGui();
 	syncTextureFilterGui();
 	sceneTreePanel.rightOffset = ofGetWidth() - canvasRight();
 	transformTool.setCanvas(ofRectangle(canvasLeft(), 0, canvasRight() - canvasLeft(), ofGetHeight()));
@@ -498,6 +500,12 @@ void Application::draw() {
 	exporter.captureHeight = static_cast<int>(canvas.height);
 	exporter.capture();
 
+	if (showLightGizmos) {
+		activeCamera().begin();
+		lightGizmo::draw(scene.lighting, selectedLightIndex());
+		activeCamera().end();
+	}
+
 	if (showGui) {
 		drawSidebarBackground();
 	}
@@ -511,13 +519,17 @@ void Application::draw() {
 		} else if (toolType == ToolType::Model3d) {
 			if (auto preview = makeModel(mousePressPos, mouseCurrentPos)) {
 				activeCamera().begin();
+				scene.lighting.enableAll();
 				preview->render();
+				scene.lighting.disableAll();
 				activeCamera().end();
 			}
 		} else if (toolType == ToolType::Primitive3d) {
 			auto preview = makePrimitive3d(mousePressPos, mouseCurrentPos);
 			activeCamera().begin();
+			scene.lighting.enableAll();
 			preview->render();
+			scene.lighting.disableAll();
 			activeCamera().end();
 		} else if (toolType == ToolType::Sprite) {
 			if (auto preview = makeSprite(mousePressPos, mouseCurrentPos)) preview->render();
@@ -1130,6 +1142,7 @@ void Application::onResetPressed() {
 	checkerTexture = true;
 
 	resetVariantGui();
+	resetLights();
 
 	palette = defaults::defaultPalette();
 	clearPaletteSelection();
@@ -1459,6 +1472,90 @@ void Application::setupCameraGui() {
 	groupCamera.add(&showAllButton);
 
 	gui.add(&groupCamera);
+}
+
+void Application::setupLightGui() {
+	resetLights();
+
+	groupLights.setup("lumieres");
+	groupLights.add(lightSelector.set("lumiere a editer", 1, 1, static_cast<int>(scene.lighting.lights.size())));
+	lightNameLabel.set("nom", "");
+	lightNameLabelGui.setup(lightNameLabel);
+	groupLights.add(&lightNameLabelGui);
+
+	groupLights.add(lightEnabled.set("allumee", true));
+	groupLights.add(lightType.set("type (0 a 3)", 0, 0, SceneLight::typeCount - 1));
+	lightTypeLabel.set("type", "");
+	lightTypeLabelGui.setup(lightTypeLabel);
+	groupLights.add(&lightTypeLabelGui);
+
+	groupLights.add(lightColor.set("couleur", ofColor::white, ofColor(0, 0), ofColor(255, 255)));
+	groupLights.add(lightPosition.set("position", glm::vec3(0), glm::vec3(-2000), glm::vec3(4000)));
+	groupLights.add(lightTarget.set("cible (orientation)", glm::vec3(0), glm::vec3(-2000), glm::vec3(4000)));
+
+	groupLights.add(lightConstant.set("attenuation constante", 1.0f, 0.1f, 5.0f));
+	groupLights.add(lightLinear.set("attenuation lineaire", 0.0f, 0.0f, 0.01f));
+	groupLights.add(lightQuadratic.set("attenuation quadratique", 0.0f, 0.0f, 0.00005f));
+
+	groupLights.add(lightSpotAngle.set("projecteur : angle (deg)", 30.0f, 1.0f, 90.0f));
+	groupLights.add(lightSpotConcentration.set("projecteur : concentration", 2.0f, 0.0f, 128.0f));
+
+	groupLights.add(showLightGizmos.set("afficher les reperes", true));
+
+	loadLightToGui(0);
+	gui.add(&groupLights);
+}
+
+void Application::resetLights() {
+	scene.lighting.setupDefaults(glm::vec3(ofGetWidth() * 0.5f, ofGetHeight() * 0.5f, 0.0f));
+	loadedLightIndex = -1;
+}
+
+int Application::selectedLightIndex() const {
+	const int count = static_cast<int>(scene.lighting.lights.size());
+	return count == 0 ? -1 : std::clamp(lightSelector.get() - 1, 0, count - 1);
+}
+
+void Application::loadLightToGui(int index) {
+	if (index < 0 || index >= static_cast<int>(scene.lighting.lights.size())) return;
+	const SceneLight & light = scene.lighting.lights[index];
+
+	lightNameLabel = light.name;
+	lightEnabled = light.enabled;
+	lightType = static_cast<int>(light.type);
+	lightColor = light.color;
+	lightPosition = light.position;
+	lightTarget = light.target;
+	lightConstant = light.constant;
+	lightLinear = light.linear;
+	lightQuadratic = light.quadratic;
+	lightSpotAngle = light.spotAngle;
+	lightSpotConcentration = light.spotConcentration;
+	loadedLightIndex = index;
+}
+
+void Application::syncLightGui() {
+	const int index = selectedLightIndex();
+	if (index < 0) return;
+
+	if (index != loadedLightIndex) {
+		loadLightToGui(index);
+	} else {
+		SceneLight & light = scene.lighting.lights[index];
+		light.enabled = lightEnabled;
+		light.type = static_cast<LightType>(std::clamp(lightType.get(), 0, SceneLight::typeCount - 1));
+		light.color = lightColor;
+		light.position = lightPosition;
+		light.target = lightTarget;
+		light.constant = lightConstant;
+		light.linear = lightLinear;
+		light.quadratic = lightQuadratic;
+		light.spotAngle = lightSpotAngle;
+		light.spotConcentration = lightSpotConcentration;
+	}
+
+	const string label = SceneLight::typeLabel(scene.lighting.lights[index].type);
+	if (lightTypeLabel.get() != label) lightTypeLabel = label;
 }
 
 void Application::setupSkyboxGui() {

@@ -114,12 +114,6 @@ void SceneModel3d::draw() const {
 	const ofColor specular = lerpColor(matteSpecular, lerpColor(ofColor(255), base, metalSpecularTint), m);
 	const float shininess = ofLerp(matteShininess, metalShininess, m);
 
-	static ofLight light;
-	light.setPointLight();
-	light.setPosition(center.x - side, center.y - side, depth + side * 3.0f);
-	light.setDiffuseColor(ofColor(255));
-	light.setSpecularColor(ofColor(255));
-
 	static ofMaterial material;
 	material.setDiffuseColor(diffuse);
 	material.setAmbientColor(diffuse * 0.25f);
@@ -134,7 +128,6 @@ void SceneModel3d::draw() const {
 	ofPushStyle();
 	ofSetColor(overrideMaterial ? diffuse : ofColor(255));
 	ofEnableLighting();
-	light.enable();
 	material.begin();
 
 	ofPushMatrix();
@@ -164,7 +157,6 @@ void SceneModel3d::draw() const {
 	ofPopMatrix();
 
 	material.end();
-	light.disable();
 	ofDisableLighting();
 	ofPopStyle();
 

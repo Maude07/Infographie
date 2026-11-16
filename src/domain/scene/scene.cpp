@@ -1,5 +1,6 @@
 #include "ofMain.h"
 #include "domain/scene/scene.h"
+#include "domain/lighting/lightRig.h"
 
 using namespace std;
 
@@ -17,10 +18,12 @@ void Scene::draw(SceneCamera* camera, const function<void()> & drawSkybox) const
 		if (drawSkybox) {
 			drawSkybox();
 		}
+		lighting.enableAll();
 		cameraActive = true;
 	};
 	auto endCameraPass = [&]() {
 		if (!cameraActive) return;
+		lighting.disableAll();
 		camera->end();
 		cameraActive = false;
 	};

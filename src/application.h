@@ -33,6 +33,7 @@
 #include "domain/scene/sceneSprite.h"
 #include "infrastructure/spriteLibrary.h"
 #include "presentation/spriteSheetGenerator.h"
+#include "presentation/lightGizmo.h"
 
 enum class Primitive3dType {
 	Cube,
@@ -203,6 +204,25 @@ private:
 	bool isSyncingSpriteGui = false;
 	const SceneSprite * spriteGuiSource = nullptr;
   
+	ofxGuiGroup groupLights;
+	ofParameter<int> lightSelector;
+	ofParameter<string> lightNameLabel;
+	ofxLabel lightNameLabelGui;
+	ofParameter<bool> lightEnabled;
+	ofParameter<int> lightType;
+	ofParameter<string> lightTypeLabel;
+	ofxLabel lightTypeLabelGui;
+	ofParameter<ofColor> lightColor;
+	ofParameter<glm::vec3> lightPosition;
+	ofParameter<glm::vec3> lightTarget;
+	ofParameter<float> lightConstant;
+	ofParameter<float> lightLinear;
+	ofParameter<float> lightQuadratic;
+	ofParameter<float> lightSpotAngle;
+	ofParameter<float> lightSpotConcentration;
+	ofParameter<bool> showLightGizmos;
+	int loadedLightIndex = -1;
+
 	ofxGuiGroup groupSkybox;
 	ofParameter<bool> skyboxEnabled;
 	ofParameter<int> skyboxIndex;
@@ -309,6 +329,11 @@ private:
 
 	void setupCameraGui();
 	void setupSkyboxGui();
+	void setupLightGui();
+	void resetLights();
+	int selectedLightIndex() const;
+	void loadLightToGui(int index);
+	void syncLightGui();
 	void syncSkyboxSliderBounds();
 	void syncSkyboxFileLabel();
 	void onSkyboxIndexChanged(int & value);
