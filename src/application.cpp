@@ -141,6 +141,7 @@ void Application::setup() {
 	setupHistoryGui();
 	setupCameraGui();
 	setupLightGui();
+	setupMaterialGui();
 	setupSkyboxGui();
 	setupDepthOfFieldGui();
 
@@ -316,6 +317,7 @@ void Application::update() {
 	syncCheckerGui();
 	syncLightGui();
 	syncTextureFilterGui();
+	syncMaterialGui();
 	sceneTreePanel.rightOffset = ofGetWidth() - canvasRight();
 	transformTool.setCanvas(ofRectangle(canvasLeft(), 0, canvasRight() - canvasLeft(), ofGetHeight()));
 
@@ -1321,6 +1323,7 @@ unique_ptr<SceneModel3d> Application::makeModel(const glm::vec2 & start, const g
 
 	auto instance = make_unique<SceneModel3d>(currentModelId, model, center, footprint, currentVariant);
 	instance->camera = &activeCamera();
+	instance->materialIndex = materialDefault;
 	return instance;
 }
 
@@ -1433,6 +1436,7 @@ unique_ptr<ScenePrimitive3d> Application::makePrimitive3d(const glm::vec2 & star
 	primitive->color = fillColor;
 	primitive->checkered = checkerDefault;
 	primitive->textureFilter = textureFilterDefault;
+	primitive->materialIndex = materialDefault;
 	return primitive;
 }
 
@@ -1556,6 +1560,67 @@ void Application::syncLightGui() {
 
 	const string label = SceneLight::typeLabel(scene.lighting.lights[index].type);
 	if (lightTypeLabel.get() != label) lightTypeLabel = label;
+}
+
+void Application::setupMaterialGui() {
+	groupMaterials.setup("materiaux");
+	groupMaterials.add(materialSelector.set("materiau", materialLibrary::defaultIndex, 0, materialLibrary::count() - 1));
+	materialNameLabel.set("actif", materialLibrary::get(materialLibrary::defaultIndex).name);
+	materialNameLabelGui.setup(materialNameLabel);
+	groupMaterials.add(&materialNameLabelGui);
+	groupMaterials.add(materialsEnabled.set("activer les materiaux", true));
+	guiListeners.push(materialSelector.newListener(this, &Application::onMaterialChanged));
+	guiListeners.push(materialsEnabled.newListener(this, &Application::onMaterialsEnabledChanged));
+	gui.add(&groupMaterials);
+}
+
+void Application::onMaterialsEnabledChanged(bool & enabled) {
+	materialLibrary::enabled() = enabled;
+}
+
+void Application::syncMaterialGui() {
+	int displayedIndex = materialDefault;
+	for (SceneObject * object : transformTool.getSelection()) {
+		if (auto * object3d = dynamic_cast<SceneObject3d *>(object)) {
+			displayedIndex = object3d->materialIndex;
+			break;
+		}
+	}
+
+	const string & name = materialLibrary::get(displayedIndex).name;
+	if (materialNameLabel.get() != name) materialNameLabel = name;
+	if (materialSelector.get() == displayedIndex) return;
+
+	isSyncingMaterialGui = true;
+	materialSelector = displayedIndex;
+	isSyncingMaterialGui = false;
+}
+
+void Application::onMaterialChanged(int & index) {
+	if (isSyncingMaterialGui) return;
+
+	vector<unique_ptr<Command>> changes;
+	bool has3d = false;
+	for (SceneObject * object : transformTool.getSelection()) {
+		auto * object3d = dynamic_cast<SceneObject3d *>(object);
+		if (!object3d) continue;
+		has3d = true;
+		if (object3d->materialIndex != index) {
+			changes.push_back(make_unique<ValueCommand<int>>(object3d->materialIndex, object3d->materialIndex, index));
+		}
+	}
+
+	if (!has3d) {
+		materialDefault = index;
+		return;
+	}
+	if (changes.empty()) return;
+
+	if (changes.size() == 1) {
+		history.execute(move(changes.front()));
+	} else {
+		history.execute(make_unique<CompositeCommand>(move(changes)));
+	}
 }
 
 void Application::setupSkyboxGui() {

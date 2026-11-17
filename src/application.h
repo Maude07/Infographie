@@ -34,6 +34,7 @@
 #include "infrastructure/spriteLibrary.h"
 #include "presentation/spriteSheetGenerator.h"
 #include "presentation/lightGizmo.h"
+#include "domain/lighting/materialLibrary.h"
 
 enum class Primitive3dType {
 	Cube,
@@ -223,6 +224,14 @@ private:
 	ofParameter<bool> showLightGizmos;
 	int loadedLightIndex = -1;
 
+	ofxGuiGroup groupMaterials;
+	ofParameter<int> materialSelector;
+	ofParameter<string> materialNameLabel;
+	ofxLabel materialNameLabelGui;
+	ofParameter<bool> materialsEnabled;
+	int materialDefault = materialLibrary::defaultIndex;
+	bool isSyncingMaterialGui = false;
+
 	ofxGuiGroup groupSkybox;
 	ofParameter<bool> skyboxEnabled;
 	ofParameter<int> skyboxIndex;
@@ -329,6 +338,10 @@ private:
 
 	void setupCameraGui();
 	void setupSkyboxGui();
+	void setupMaterialGui();
+	void syncMaterialGui();
+	void onMaterialChanged(int & index);
+	void onMaterialsEnabledChanged(bool & enabled);
 	void setupLightGui();
 	void resetLights();
 	int selectedLightIndex() const;
