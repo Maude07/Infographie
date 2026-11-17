@@ -252,6 +252,9 @@
     <ClCompile Include="src\domain\shapes\3d\scenePrimitiveSphere.cpp" />
     <ClCompile Include="src\domain\shapes\3d\scenePrimitiveCylinder.cpp" />
     <ClCompile Include="src\domain\shapes\3d\scenePrimitiveCone.cpp" />
+    <ClCompile Include="src\domain\shapes\3d\scenePrimitiveBezierSurface.cpp" />
+    <ClCompile Include="src\domain\shapes\3d\scenePrimitiveCoonsSurface.cpp" />
+    <ClCompile Include="src\domain\shapes\3d\sceneParametricSurface.cpp" />
     <ClCompile Include="src\infrastructure\imageExporter.cpp" />
     <ClCompile Include="src\infrastructure\modelLibrary.cpp" />
     <ClCompile Include="src\infrastructure\spriteLibrary.cpp" />
@@ -322,6 +325,9 @@
     <ClInclude Include="src\domain\shapes\3d\scenePrimitiveSphere.h" />
     <ClInclude Include="src\domain\shapes\3d\scenePrimitiveCylinder.h" />
     <ClInclude Include="src\domain\shapes\3d\scenePrimitiveCone.h" />
+    <ClInclude Include="src\domain\shapes\3d\scenePrimitiveBezierSurface.h" />
+    <ClInclude Include="src\domain\shapes\3d\scenePrimitiveCoonsSurface.h" />
+    <ClInclude Include="src\domain\shapes\3d\sceneParametricSurface.h" />
     <ClInclude Include="src\infrastructure\imageExporter.h" />
     <ClInclude Include="src\infrastructure\modelLibrary.h" />
     <ClInclude Include="src\infrastructure\spriteLibrary.h" />

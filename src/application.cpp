@@ -106,6 +106,10 @@ namespace {
 			return "cylindre";
 		case Primitive3dType::Cone:
 			return "cone";
+		case Primitive3dType::BezierSurface:
+			return "surface de bezier";
+		case Primitive3dType::CoonsSurface:
+			return "surface de coons";
 		}
 		return "primitive 3d";
 	}
@@ -142,6 +146,7 @@ void Application::setup() {
 	setupCameraGui();
 	setupLightGui();
 	setupMaterialGui();
+	setupSurfaceGui();
 	setupSkyboxGui();
 	setupDepthOfFieldGui();
 
@@ -297,6 +302,88 @@ void Application::setupExportGui() {
 	gui.add(&groupExport);
 }
 
+void Application::setupSurfaceGui() {
+	groupSurface.setup("surface parametrique");
+	groupSurface.add(surfaceAmplitude.set("amplitude", surfaceDefault.amplitude, 0.0f, 1.0f));
+	groupSurface.add(surfaceResolution.set("resolution", surfaceDefault.resolution, SceneParametricSurface::minResolution, SceneParametricSurface::maxResolution));
+	groupSurface.add(surfaceShowControlNet.set("afficher le controle", surfaceDefault.showControlNet));
+	guiListeners.push(surfaceAmplitude.newListener(this, &Application::onSurfaceAmplitudeChanged));
+	guiListeners.push(surfaceResolution.newListener(this, &Application::onSurfaceResolutionChanged));
+	guiListeners.push(surfaceShowControlNet.newListener(this, &Application::onSurfaceShowControlNetChanged));
+	gui.add(&groupSurface);
+}
+
+vector<SceneParametricSurface *> Application::selectedSurfaces() const {
+	vector<SceneParametricSurface *> surfaces;
+	for (SceneObject * object : transformTool.getSelection()) {
+		if (auto * surface = dynamic_cast<SceneParametricSurface *>(object)) surfaces.push_back(surface);
+	}
+	return surfaces;
+}
+
+void Application::syncSurfaceGui() {
+	const auto surfaces = selectedSurfaces();
+	const SurfaceState displayed = surfaces.empty()
+		? surfaceDefault
+		: SurfaceState { surfaces.front()->amplitude, surfaces.front()->resolution, surfaces.front()->showControlNet };
+
+	isSyncingSurfaceGui = true;
+	if (surfaceAmplitude.get() != displayed.amplitude) surfaceAmplitude = displayed.amplitude;
+	if (surfaceResolution.get() != displayed.resolution) surfaceResolution = displayed.resolution;
+	if (surfaceShowControlNet.get() != displayed.showControlNet) surfaceShowControlNet = displayed.showControlNet;
+	isSyncingSurfaceGui = false;
+}
+
+void Application::applySurfaceGui() {
+	if (isSyncingSurfaceGui) return;
+
+	const SurfaceState state { surfaceAmplitude.get(), surfaceResolution.get(), surfaceShowControlNet.get() };
+	const auto surfaces = selectedSurfaces();
+	if (surfaces.empty()) {
+		surfaceDefault = state;
+		return;
+	}
+	for (SceneParametricSurface * surface : surfaces) {
+		surface->amplitude = state.amplitude;
+		surface->resolution = state.resolution;
+		surface->showControlNet = state.showControlNet;
+	}
+}
+
+void Application::onSurfaceAmplitudeChanged(float &) { applySurfaceGui(); }
+void Application::onSurfaceResolutionChanged(int &) { applySurfaceGui(); }
+void Application::onSurfaceShowControlNetChanged(bool &) { applySurfaceGui(); }
+
+void Application::syncSurfaceReferences() {
+	surfaceRefSelection.clear();
+	for (SceneParametricSurface * surface : selectedSurfaces()) {
+		surfaceRefSelection[surface] = { surface->amplitude, surface->resolution, surface->showControlNet };
+	}
+}
+
+void Application::commitSurfaceChanges() {
+	vector<unique_ptr<Command>> changes;
+	for (auto & [surface, before] : surfaceRefSelection) {
+		if (before.amplitude != surface->amplitude) {
+			changes.push_back(make_unique<ValueCommand<float>>(surface->amplitude, before.amplitude, surface->amplitude));
+		}
+		if (before.resolution != surface->resolution) {
+			changes.push_back(make_unique<ValueCommand<int>>(surface->resolution, before.resolution, surface->resolution));
+		}
+		if (before.showControlNet != surface->showControlNet) {
+			changes.push_back(make_unique<ValueCommand<bool>>(surface->showControlNet, before.showControlNet, surface->showControlNet));
+		}
+	}
+
+	if (changes.empty()) return;
+
+	if (changes.size() == 1) {
+		history.push(move(changes.front()));
+	} else {
+		history.push(make_unique<CompositeCommand>(move(changes)));
+	}
+}
+
 void Application::setupMiscGui() {
 	resetButton.setup("Reinitialiser");
 	listenToButton(resetButton, &Application::onResetPressed);
@@ -318,6 +405,7 @@ void Application::update() {
 	syncLightGui();
 	syncTextureFilterGui();
 	syncMaterialGui();
+	syncSurfaceGui();
 	sceneTreePanel.rightOffset = ofGetWidth() - canvasRight();
 	transformTool.setCanvas(ofRectangle(canvasLeft(), 0, canvasRight() - canvasLeft(), ofGetHeight()));
 
@@ -336,10 +424,12 @@ void Application::update() {
 
 	if (!mouseDown && wasMousePressedLastFrame) {
 		commitColorChanges();
+		commitSurfaceChanges();
 	}
 
 	if (!mouseDown) {
 		syncColorReferences();
+		syncSurfaceReferences();
 		commitTransformChanges();
 	}
 
@@ -419,6 +509,7 @@ void Application::onUndoPressed() {
 		transformTool.clearSelection();
 		history.undo();
 		syncColorReferences();
+		syncSurfaceReferences();
 	}
 }
 
@@ -427,6 +518,7 @@ void Application::onRedoPressed() {
 		transformTool.clearSelection();
 		history.redo();
 		syncColorReferences();
+		syncSurfaceReferences();
 	}
 }
 
@@ -877,7 +969,7 @@ void Application::keyPressed(ofKeyEventArgs & args) {
 		break;
 	case '9':
 		if (toolType == ToolType::Primitive3d) {
-			selectPrimitive3d(static_cast<Primitive3dType>((static_cast<int>(currentPrimitive3d) + 1) % 4));
+			selectPrimitive3d(static_cast<Primitive3dType>((static_cast<int>(currentPrimitive3d) + 1) % 6));
 		} else {
 			selectPrimitive3d(currentPrimitive3d);
 		}
@@ -1421,6 +1513,18 @@ unique_ptr<ScenePrimitive3d> Application::makePrimitive3d(const glm::vec2 & star
 	case Primitive3dType::Cone:
 		primitive = make_unique<ScenePrimitiveCone>();
 		break;
+	case Primitive3dType::BezierSurface:
+		primitive = make_unique<ScenePrimitiveBezierSurface>();
+		break;
+	case Primitive3dType::CoonsSurface:
+		primitive = make_unique<ScenePrimitiveCoonsSurface>();
+		break;
+	}
+
+	if (auto * surface = dynamic_cast<SceneParametricSurface *>(primitive.get())) {
+		surface->amplitude = surfaceDefault.amplitude;
+		surface->resolution = surfaceDefault.resolution;
+		surface->showControlNet = surfaceDefault.showControlNet;
 	}
 
 	glm::vec2 worldStart = activeCamera().screenToPlane(start, 0.f);
