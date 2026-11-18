@@ -769,6 +769,9 @@
     <ClInclude Include="src\domain\lighting\lightRig.h">
       <Filter>src\domain\lighting</Filter>
     </ClInclude>
+    <ClInclude Include="src\domain\lighting\materialLibrary.h">
+      <Filter>src\domain\lighting</Filter>
+    </ClInclude>
     <ClInclude Include="src\presentation\lightGizmo.h">
       <Filter>src\presentation</Filter>
     </ClInclude>

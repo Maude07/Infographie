@@ -286,6 +286,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\domain\lighting\lightRig.h" />
+    <ClInclude Include="src\domain\lighting\materialLibrary.h" />
     <ClInclude Include="src\presentation\lightGizmo.h" />
     <ClInclude Include="src\domain\lighting\sceneLight.h" />
     <ClInclude Include="src\application.h" />

@@ -1,5 +1,6 @@
 #include "scenePrimitive3d.h"
 #include "proceduralTexture.h"
+#include "../../lighting/materialLibrary.h"
 
 namespace {
 
@@ -35,18 +36,29 @@ void ScenePrimitive3d::draw() const {
     const float side = min(size.x, size.y);
     if (side <= 0.0f) return;
 
+    const bool customMaterial = materialLibrary::isCustom(materialIndex);
+
     static ofMaterial material;
-    material.setDiffuseColor(color);
-    material.setAmbientColor(color * 0.3f);
+    if (customMaterial) {
+        materialLibrary::apply(material, materialLibrary::get(materialIndex));
+    } else {
+        materialLibrary::apply(material, materialLibrary::get(materialLibrary::defaultIndex));
+        material.setDiffuseColor(color);
+        material.setAmbientColor(color * 0.3f);
+    }
 
     ofPushStyle();
+    if (customMaterial) {
+        ofDisableAlphaBlending();
+        ofSetColor(255);
+    }
     ofEnableLighting(); // eclaire par les lumieres de la scene (LightRig)
     material.begin();
 
     ofPushMatrix();
     ofMultMatrix(localTransform());
 
-    const ofTexture * tex = texture();
+    const ofTexture * tex = customMaterial ? nullptr : texture();
     if (tex) tex->bind();
 
     ofEnableDepthTest();
