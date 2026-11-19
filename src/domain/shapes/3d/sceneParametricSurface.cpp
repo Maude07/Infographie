@@ -53,8 +53,32 @@ void SceneParametricSurface::rebuild() const {
         }
     }
 
+    cachedBoundsPoints.clear();
+    for (int i = 0; i <= boundsSamples; ++i) {
+        for (int j = 0; j <= boundsSamples; ++j) {
+            cachedBoundsPoints.push_back(evaluate(static_cast<float>(i) / boundsSamples, static_cast<float>(j) / boundsSamples));
+        }
+    }
+
     cachedAmplitude = amplitude;
     cachedResolution = resolution;
+}
+
+ofRectangle SceneParametricSurface::getScreenBounds() const {
+    const float side = min(size.x, size.y);
+    if (!camera || side <= 0.0f) return getBounds();
+
+    mesh();
+    const glm::mat4 transform = localTransform();
+    ofRectangle bounds;
+    bool first = true;
+    for (const glm::vec3 & point : cachedBoundsPoints) {
+        const glm::vec3 world = transform * glm::vec4(point, 1.0f);
+        const glm::vec3 screen = camera->worldToScreen(world);
+        if (first) { bounds.set(screen.x, screen.y, 0, 0); first = false; }
+        else bounds.growToInclude(screen.x, screen.y);
+    }
+    return bounds;
 }
 
 void SceneParametricSurface::draw() const {

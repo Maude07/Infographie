@@ -245,7 +245,7 @@ private:
 	ofParameter<float> surfaceAmplitude;
 	ofParameter<int> surfaceResolution;
 	ofParameter<bool> surfaceShowControlNet;
-	SurfaceState surfaceDefault { 0.35f, 24, true };
+	SurfaceState surfaceDefault { 0.35f, 12, true };
 	unordered_map<SceneParametricSurface *, SurfaceState> surfaceRefSelection;
 	bool isSyncingSurfaceGui = false;
 

@@ -9,10 +9,11 @@ public:
     static constexpr int maxResolution = 64;
 
     float amplitude = 0.35f;
-    int resolution = 24;
+    int resolution = 12;
     bool showControlNet = true;
 
     void draw() const override;
+    ofRectangle getScreenBounds() const override;
 
     virtual glm::vec3 evaluate(float u, float v) const = 0;
     virtual glm::vec3 normalAt(float u, float v) const;
@@ -26,10 +27,12 @@ protected:
 
 private:
     static constexpr float shellOffset = 0.004f;
+    static constexpr int boundsSamples = 8;
 
     void rebuild() const;
 
-    mutable ofMesh cachedMesh;
+    mutable ofVboMesh cachedMesh;
+    mutable std::vector<glm::vec3> cachedBoundsPoints;
     mutable float cachedAmplitude = -1.0f;
     mutable int cachedResolution = 0;
 };
