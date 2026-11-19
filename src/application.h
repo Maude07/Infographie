@@ -28,6 +28,8 @@
 #include "domain/shapes/3d/scenePrimitiveSphere.h"
 #include "domain/shapes/3d/scenePrimitiveCylinder.h"
 #include "domain/shapes/3d/scenePrimitiveCone.h"
+#include "domain/shapes/3d/scenePrimitiveBezierSurface.h"
+#include "domain/shapes/3d/scenePrimitiveCoonsSurface.h"
 #include "domain/shapes/3d/scenePrimitive3d.h"
 #include "domain/commands/historyManager.h"
 #include "domain/scene/sceneSprite.h"
@@ -40,7 +42,9 @@ enum class Primitive3dType {
 	Cube,
 	Sphere,
 	Cylinder,
-	Cone
+	Cone,
+	BezierSurface,
+	CoonsSurface
 };
 
 enum class ToolType {
@@ -232,6 +236,19 @@ private:
 	int materialDefault = materialLibrary::defaultIndex;
 	bool isSyncingMaterialGui = false;
 
+	struct SurfaceState {
+		float amplitude;
+		int resolution;
+		bool showControlNet;
+	};
+	ofxGuiGroup groupSurface;
+	ofParameter<float> surfaceAmplitude;
+	ofParameter<int> surfaceResolution;
+	ofParameter<bool> surfaceShowControlNet;
+	SurfaceState surfaceDefault { 0.35f, 24, true };
+	unordered_map<SceneParametricSurface *, SurfaceState> surfaceRefSelection;
+	bool isSyncingSurfaceGui = false;
+
 	ofxGuiGroup groupSkybox;
 	ofParameter<bool> skyboxEnabled;
 	ofParameter<int> skyboxIndex;
@@ -290,6 +307,15 @@ private:
 	void commitColorChanges();
 	void commitTransformChanges();
 	void syncColorReferences();
+	void setupSurfaceGui();
+	void syncSurfaceGui();
+	void applySurfaceGui();
+	void onSurfaceAmplitudeChanged(float & value);
+	void onSurfaceResolutionChanged(int & value);
+	void onSurfaceShowControlNetChanged(bool & value);
+	vector<SceneParametricSurface *> selectedSurfaces() const;
+	void syncSurfaceReferences();
+	void commitSurfaceChanges();
 
 	void setupVariantGui();
 	void resetVariantGui();

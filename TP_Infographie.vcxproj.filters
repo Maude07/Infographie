@@ -64,6 +64,15 @@
     <ClCompile Include="src\domain\shapes\3d\scenePrimitiveCone.cpp">
       <Filter>src\domain\shapes\3d</Filter>
     </ClCompile>
+    <ClCompile Include="src\domain\shapes\3d\scenePrimitiveBezierSurface.cpp">
+      <Filter>src\domain\shapes\3d</Filter>
+    </ClCompile>
+    <ClCompile Include="src\domain\shapes\3d\scenePrimitiveCoonsSurface.cpp">
+      <Filter>src\domain\shapes\3d</Filter>
+    </ClCompile>
+    <ClCompile Include="src\domain\shapes\3d\sceneParametricSurface.cpp">
+      <Filter>src\domain\shapes\3d</Filter>
+    </ClCompile>
     <ClCompile Include="src\infrastructure\imageExporter.cpp">
       <Filter>src\infrastructure</Filter>
     </ClCompile>
@@ -349,6 +358,15 @@
       <Filter>src\domain\shapes\3d</Filter>
     </ClInclude>
     <ClInclude Include="src\domain\shapes\3d\scenePrimitiveCone.h">
+      <Filter>src\domain\shapes\3d</Filter>
+    </ClInclude>
+    <ClInclude Include="src\domain\shapes\3d\scenePrimitiveBezierSurface.h">
+      <Filter>src\domain\shapes\3d</Filter>
+    </ClInclude>
+    <ClInclude Include="src\domain\shapes\3d\scenePrimitiveCoonsSurface.h">
+      <Filter>src\domain\shapes\3d</Filter>
+    </ClInclude>
+    <ClInclude Include="src\domain\shapes\3d\sceneParametricSurface.h">
       <Filter>src\domain\shapes\3d</Filter>
     </ClInclude>
     <ClInclude Include="src\infrastructure\imageExporter.h">
