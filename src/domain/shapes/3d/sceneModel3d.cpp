@@ -105,10 +105,12 @@ bool SceneModel3d::drawCel(const ofColor & litColor, bool replaceMaterial) const
 	const glm::vec2 center = position + size * 0.5f;
 	const float side = min(size.x, size.y);
 	const float scale = side / largest;
-	const glm::vec3 lightWorld(center.x - side, center.y - side, depth + side * 3.0f);
+	const glm::vec3 fallbackLight(center.x - side, center.y - side, depth + side * 3.0f);
+	const glm::vec3 lightWorld = celShading::lightWorldPosition(fallbackLight);
 	const glm::vec3 lightView = glm::vec3(ofGetCurrentViewMatrix() * glm::vec4(lightWorld, 1.0f));
 
 	ofPushStyle();
+	ofDisableLighting();
 	ofPushMatrix();
 	ofTranslate(center.x, center.y, depth);
 	ofRotateYDeg(rotationY);
@@ -135,7 +137,7 @@ bool SceneModel3d::drawCel(const ofColor & litColor, bool replaceMaterial) const
 		ofMultMatrix(mesh.matrix);
 
 		const bool hasTexture = mesh.hasTexture(aiTextureType_DIFFUSE);
-		const bool hasNormals = mesh.mesh && mesh.mesh->HasNormals();
+		const bool hasNormals = mesh.vbo.getUsingNormals();
 		const bool hasColors = mesh.mesh && mesh.mesh->HasVertexColors(0);
 		const ofFloatColor albedo = replaceMaterial
 			? ofFloatColor(litColor)
@@ -171,6 +173,7 @@ bool SceneModel3d::drawCel(const ofColor & litColor, bool replaceMaterial) const
 	ofPopMatrix();
 	ofDisableDepthTest();
 	ofPopMatrix();
+	ofEnableLighting();
 	ofPopStyle();
 	return true;
 }

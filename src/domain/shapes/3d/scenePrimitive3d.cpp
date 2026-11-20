@@ -62,11 +62,13 @@ void ScenePrimitive3d::draw() const {
     ofShader * shader = celShaded ? celShading::shader() : nullptr;
 
     if (shader) {
-        const glm::vec3 lightWorld(center.x - side, center.y - side, depth + side * 3.0f);
+        const glm::vec3 fallbackLight(center.x - side, center.y - side, depth + side * 3.0f);
+        const glm::vec3 lightWorld = celShading::lightWorldPosition(fallbackLight);
         const glm::vec3 lightView = glm::vec3(ofGetCurrentViewMatrix() * glm::vec4(lightWorld, 1.0f));
         const ofFloatColor base = tex ? ofFloatColor(1.0f, 1.0f, 1.0f, 1.0f)
             : (customMaterial ? materialLibrary::get(materialIndex).diffuse : ofFloatColor(color));
 
+        ofDisableLighting();
         shader->begin();
         shader->setUniform3f("lightView", lightView);
         shader->setUniform4f("baseColor", base);
@@ -79,6 +81,7 @@ void ScenePrimitive3d::draw() const {
         if (tex) shader->setUniformTexture("colorTex", *tex, 0);
         mesh().draw();
         shader->end();
+        ofEnableLighting();
     } else {
         ofEnableLighting();
         material.begin();
@@ -92,6 +95,17 @@ void ScenePrimitive3d::draw() const {
     ofDisableDepthTest();
     ofPopMatrix();
     ofPopStyle();
+}
+
+const ofTexture * ScenePrimitive3d::texture() const {
+    if (!checkered || !mesh().hasTexCoords()) return nullptr;
+    if (!checkerReady || checkerColor != color || checkerTextureFilter != textureFilter) {
+        proceduralTexture::loadCheckerboard(checkerTexture, color, textureFilter);
+        checkerColor = color;
+        checkerTextureFilter = textureFilter;
+        checkerReady = true;
+    }
+    return &checkerTexture;
 }
 
 void ScenePrimitive3d::addTexCoords(ofMesh & mesh, const glm::vec2 & a, const glm::vec2 & b, const glm::vec2 & c) {
