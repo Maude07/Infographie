@@ -1,5 +1,6 @@
 #include "scenePrimitive3d.h"
 #include "proceduralTexture.h"
+#include "presentation/celShading.h"
 #include "../../lighting/materialLibrary.h"
 
 namespace {
@@ -31,8 +32,8 @@ ofRectangle ScenePrimitive3d::getScreenBounds() const {
     return bounds;
 }
 
-
 void ScenePrimitive3d::draw() const {
+    const glm::vec2 center = position + size * 0.5f;
     const float side = min(size.x, size.y);
     if (side <= 0.0f) return;
 
@@ -52,24 +53,47 @@ void ScenePrimitive3d::draw() const {
         ofDisableAlphaBlending();
         ofSetColor(255);
     }
-    ofEnableLighting(); // eclaire par les lumieres de la scene (LightRig)
-    material.begin();
 
     ofPushMatrix();
     ofMultMatrix(localTransform());
+    ofEnableDepthTest();
 
     const ofTexture * tex = customMaterial ? nullptr : texture();
-    if (tex) tex->bind();
+    ofShader * shader = celShaded ? celShading::shader() : nullptr;
 
-    ofEnableDepthTest();
-    mesh().draw();
+    if (shader) {
+        const glm::vec3 fallbackLight(center.x - side, center.y - side, depth + side * 3.0f);
+        const glm::vec3 lightWorld = celShading::lightWorldPosition(fallbackLight);
+        const glm::vec3 lightView = glm::vec3(ofGetCurrentViewMatrix() * glm::vec4(lightWorld, 1.0f));
+        const ofFloatColor base = tex ? ofFloatColor(1.0f, 1.0f, 1.0f, 1.0f)
+            : (customMaterial ? materialLibrary::get(materialIndex).diffuse : ofFloatColor(color));
+
+        ofDisableLighting();
+        shader->begin();
+        shader->setUniform3f("lightView", lightView);
+        shader->setUniform4f("baseColor", base);
+        shader->setUniform1f("bands", static_cast<float>(max(celBands, 2)));
+        shader->setUniform1f("ambient", celAmbient);
+        shader->setUniform1f("outline", celOutline);
+        shader->setUniform1f("useTexture", tex ? 1.0f : 0.0f);
+        shader->setUniform1f("useVertexColor", 0.0f);
+        shader->setUniform1f("hasNormals", 1.0f);
+        if (tex) shader->setUniformTexture("colorTex", *tex, 0);
+        mesh().draw();
+        shader->end();
+        ofEnableLighting();
+    } else {
+        ofEnableLighting();
+        material.begin();
+        if (tex) tex->bind();
+        mesh().draw();
+        if (tex) tex->unbind();
+        material.end();
+        ofDisableLighting();
+    }
+
     ofDisableDepthTest();
-
-    if (tex) tex->unbind();
     ofPopMatrix();
-
-    material.end();
-    ofDisableLighting();
     ofPopStyle();
 }
 

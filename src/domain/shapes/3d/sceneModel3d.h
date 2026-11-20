@@ -47,7 +47,8 @@ public:
 	bool bShowBoundingBox = false;
 
 private:
+	bool drawCel(const ofColor & litColor, bool replaceMaterial) const;
+
 	string modelId;
 	shared_ptr<ofxAssimpModelLoader> model;
 };
-

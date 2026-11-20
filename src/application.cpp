@@ -198,14 +198,27 @@ void Application::setupDrawGui() {
 	groupDraw.add(textureFilterLabel.set("filtre actif", proceduralTexture::filterName(TextureFilter::None)));
 	guiListeners.push(textureFilterIndex.newListener(this, &Application::onTextureFilterChanged));
 
-	guiListeners.push(strokeColor.newListener(this, &Application::onStrokeColorChanged));
-	guiListeners.push(fillColor.newListener(this, &Application::onFillColorChanged));
+	setupCelGui();
+
 	guiListeners.push(strokeColor.newListener(this, &Application::onStrokeColorChanged));
 	guiListeners.push(fillColor.newListener(this, &Application::onFillColorChanged));
 	setupVariantGui();
 	groupDraw.add(&groupVariants);
 
 	gui.add(&groupDraw);
+}
+
+void Application::setupCelGui() {
+	groupCel.setup("cel shading");
+	groupCel.add(celShading.set("activer", false));
+	groupCel.add(celBands.set("bandes", 3, 2, 6));
+	groupCel.add(celAmbient.set("ambiance", 0.2f, 0.0f, 1.0f));
+	groupCel.add(celOutline.set("contour", 0.0f, 0.0f, 0.5f));
+	guiListeners.push(celShading.newListener(this, &Application::onCelShadingChanged));
+	guiListeners.push(celBands.newListener(this, &Application::onCelBandsChanged));
+	guiListeners.push(celAmbient.newListener(this, &Application::onCelAmbientChanged));
+	guiListeners.push(celOutline.newListener(this, &Application::onCelOutlineChanged));
+	groupDraw.add(&groupCel);
 }
 
 void Application::setupVariantGui() {
@@ -404,6 +417,7 @@ void Application::update() {
 	syncCheckerGui();
 	syncLightGui();
 	syncTextureFilterGui();
+	syncCelGui();
 	syncMaterialGui();
 	syncSurfaceGui();
 	sceneTreePanel.rightOffset = ofGetWidth() - canvasRight();
@@ -900,6 +914,88 @@ void Application::onTextureFilterChanged(int & selectedIndex) {
 	}
 }
 
+template <typename T>
+void assignCelParameter(const unordered_set<SceneObject *> & selection, T SceneObject3d::* member, const T & value, T & fallback) {
+	bool hasPrimitive = false;
+	for (SceneObject * object : selection) {
+		auto * object3d = dynamic_cast<SceneObject3d *>(object);
+		if (!object3d) continue;
+		hasPrimitive = true;
+		object3d->*member = value;
+	}
+	if (!hasPrimitive) fallback = value;
+}
+
+void Application::syncCelGui() {
+	bool hasPrimitive = false;
+	bool allCel = true;
+	int displayedBands = celBandsDefault;
+	float displayedAmbient = celAmbientDefault;
+	float displayedOutline = celOutlineDefault;
+
+	for (SceneObject * object : transformTool.getSelection()) {
+		if (auto * object3d = dynamic_cast<SceneObject3d *>(object)) {
+			if (!hasPrimitive) {
+				displayedBands = object3d->celBands;
+				displayedAmbient = object3d->celAmbient;
+				displayedOutline = object3d->celOutline;
+			}
+			hasPrimitive = true;
+			allCel = allCel && object3d->celShaded;
+		}
+	}
+
+	const bool enabled = hasPrimitive ? allCel : celDefault;
+	isSyncingCelGui = true;
+	if (celShading.get() != enabled) celShading = enabled;
+	if (celBands.get() != displayedBands) celBands = displayedBands;
+	if (celAmbient.get() != displayedAmbient) celAmbient = displayedAmbient;
+	if (celOutline.get() != displayedOutline) celOutline = displayedOutline;
+	isSyncingCelGui = false;
+}
+
+void Application::onCelShadingChanged(bool & enabled) {
+	if (isSyncingCelGui) return;
+
+	vector<unique_ptr<Command>> changes;
+	bool hasPrimitive = false;
+	for (SceneObject * object : transformTool.getSelection()) {
+		auto * object3d = dynamic_cast<SceneObject3d *>(object);
+		if (!object3d) continue;
+		hasPrimitive = true;
+		if (object3d->celShaded != enabled) {
+			changes.push_back(make_unique<ValueCommand<bool>>(object3d->celShaded, object3d->celShaded, enabled));
+		}
+	}
+
+	if (!hasPrimitive) {
+		celDefault = enabled;
+		return;
+	}
+	if (changes.empty()) return;
+
+	if (changes.size() == 1) {
+		history.execute(move(changes.front()));
+	} else {
+		history.execute(make_unique<CompositeCommand>(move(changes)));
+	}
+}
+
+void Application::onCelBandsChanged(int & bands) {
+	if (isSyncingCelGui) return;
+	assignCelParameter(transformTool.getSelection(), &SceneObject3d::celBands, bands, celBandsDefault);
+}
+
+void Application::onCelAmbientChanged(float & ambient) {
+	if (isSyncingCelGui) return;
+	assignCelParameter(transformTool.getSelection(), &SceneObject3d::celAmbient, ambient, celAmbientDefault);
+}
+
+void Application::onCelOutlineChanged(float & outline) {
+	if (isSyncingCelGui) return;
+	assignCelParameter(transformTool.getSelection(), &SceneObject3d::celOutline, outline, celOutlineDefault);
+}
+
 void Application::keyPressed(ofKeyEventArgs & args) {
 	if (args.key == OF_KEY_LEFT || args.key == OF_KEY_RIGHT) {
 		rotateSelectedModels(args.key == OF_KEY_LEFT ? -rotationStep : rotationStep);
@@ -1234,6 +1330,14 @@ void Application::onResetPressed() {
 	textureFilterDefault = TextureFilter::None;
 	textureFilterIndex = 0;
 	checkerTexture = true;
+	celDefault = false;
+	celBandsDefault = 3;
+	celAmbientDefault = 0.2f;
+	celOutlineDefault = 0.0f;
+	celShading = false;
+	celBands = 3;
+	celAmbient = 0.2f;
+	celOutline = 0.0f;
 
 	resetVariantGui();
 	resetLights();
@@ -1415,6 +1519,10 @@ unique_ptr<SceneModel3d> Application::makeModel(const glm::vec2 & start, const g
 
 	auto instance = make_unique<SceneModel3d>(currentModelId, model, center, footprint, currentVariant);
 	instance->camera = &activeCamera();
+	instance->celShaded = celDefault;
+	instance->celBands = celBandsDefault;
+	instance->celAmbient = celAmbientDefault;
+	instance->celOutline = celOutlineDefault;
 	instance->materialIndex = materialDefault;
 	return instance;
 }
@@ -1540,6 +1648,10 @@ unique_ptr<ScenePrimitive3d> Application::makePrimitive3d(const glm::vec2 & star
 	primitive->color = fillColor;
 	primitive->checkered = checkerDefault;
 	primitive->textureFilter = textureFilterDefault;
+	primitive->celShaded = celDefault;
+	primitive->celBands = celBandsDefault;
+	primitive->celAmbient = celAmbientDefault;
+	primitive->celOutline = celOutlineDefault;
 	primitive->materialIndex = materialDefault;
 	return primitive;
 }

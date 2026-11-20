@@ -1,6 +1,7 @@
 #include "ofMain.h"
 #include "domain/scene/scene.h"
 #include "domain/lighting/lightRig.h"
+#include "presentation/celShading.h"
 
 using namespace std;
 
@@ -19,10 +20,12 @@ void Scene::draw(SceneCamera* camera, const function<void()> & drawSkybox) const
 			drawSkybox();
 		}
 		lighting.enableAll();
+		celShading::setLightRig(&lighting);
 		cameraActive = true;
 	};
 	auto endCameraPass = [&]() {
 		if (!cameraActive) return;
+		celShading::setLightRig(nullptr);
 		lighting.disableAll();
 		camera->end();
 		cameraActive = false;
