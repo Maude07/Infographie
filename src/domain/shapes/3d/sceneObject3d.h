@@ -8,6 +8,7 @@ class SceneObject3d : public SceneObject {
 public:
     float rotationY = 0.0f;
     float depth = 0.0f;
+    int materialIndex = 0;
     const SceneCamera * camera = nullptr;
 
     bool celShaded = false;

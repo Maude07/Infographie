@@ -1,6 +1,7 @@
 #include "scenePrimitive3d.h"
 #include "proceduralTexture.h"
 #include "presentation/celShading.h"
+#include "../../lighting/materialLibrary.h"
 
 namespace {
 
@@ -31,32 +32,40 @@ ofRectangle ScenePrimitive3d::getScreenBounds() const {
     return bounds;
 }
 
-
 void ScenePrimitive3d::draw() const {
     const glm::vec2 center = position + size * 0.5f;
     const float side = min(size.x, size.y);
     if (side <= 0.0f) return;
 
-    static ofLight light;
-    light.setPointLight();
-    light.setDiffuseColor(ofColor(255));
-    light.setPosition(center.x - side, center.y - side, depth + side * 3.0f);
+    const bool customMaterial = materialLibrary::isCustom(materialIndex);
 
     static ofMaterial material;
-    material.setDiffuseColor(color);
-    material.setAmbientColor(color * 0.3f);
+    if (customMaterial) {
+        materialLibrary::apply(material, materialLibrary::get(materialIndex));
+    } else {
+        materialLibrary::apply(material, materialLibrary::get(materialLibrary::defaultIndex));
+        material.setDiffuseColor(color);
+        material.setAmbientColor(color * 0.3f);
+    }
 
     ofPushStyle();
+    if (customMaterial) {
+        ofDisableAlphaBlending();
+        ofSetColor(255);
+    }
+
     ofPushMatrix();
     ofMultMatrix(localTransform());
     ofEnableDepthTest();
 
-    const ofTexture * tex = texture();
+    const ofTexture * tex = customMaterial ? nullptr : texture();
     ofShader * shader = celShaded ? celShading::shader() : nullptr;
+
     if (shader) {
         const glm::vec3 lightWorld(center.x - side, center.y - side, depth + side * 3.0f);
         const glm::vec3 lightView = glm::vec3(ofGetCurrentViewMatrix() * glm::vec4(lightWorld, 1.0f));
-        const ofFloatColor base = tex ? ofFloatColor(1.0f, 1.0f, 1.0f, 1.0f) : ofFloatColor(color);
+        const ofFloatColor base = tex ? ofFloatColor(1.0f, 1.0f, 1.0f, 1.0f)
+            : (customMaterial ? materialLibrary::get(materialIndex).diffuse : ofFloatColor(color));
 
         shader->begin();
         shader->setUniform3f("lightView", lightView);
@@ -72,30 +81,17 @@ void ScenePrimitive3d::draw() const {
         shader->end();
     } else {
         ofEnableLighting();
-        light.enable();
         material.begin();
         if (tex) tex->bind();
         mesh().draw();
         if (tex) tex->unbind();
         material.end();
-        light.disable();
         ofDisableLighting();
     }
 
     ofDisableDepthTest();
     ofPopMatrix();
     ofPopStyle();
-}
-
-const ofTexture * ScenePrimitive3d::texture() const {
-    if (!checkered || !mesh().hasTexCoords()) return nullptr;
-    if (!checkerReady || checkerColor != color || checkerTextureFilter != textureFilter) {
-        proceduralTexture::loadCheckerboard(checkerTexture, color, textureFilter);
-        checkerColor = color;
-        checkerTextureFilter = textureFilter;
-        checkerReady = true;
-    }
-    return &checkerTexture;
 }
 
 void ScenePrimitive3d::addTexCoords(ofMesh & mesh, const glm::vec2 & a, const glm::vec2 & b, const glm::vec2 & c) {

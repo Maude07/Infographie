@@ -39,9 +39,7 @@ public:
 		const ModelVariant & variant = ModelVariant());
 
 	void draw() const override;
-
 	ofRectangle getScreenBounds() const override;
-
 	glm::vec3 worldCenter() const;
 	float worldBoundingRadius() const;
 

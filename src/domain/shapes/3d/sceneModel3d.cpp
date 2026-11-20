@@ -1,5 +1,6 @@
 #include "sceneModel3d.h"
 #include "presentation/celShading.h"
+#include "../../lighting/materialLibrary.h"
 
 namespace {
 	const ofColor neutralBase(255);
@@ -198,29 +199,36 @@ void SceneModel3d::draw() const {
 	const ofColor specular = lerpColor(matteSpecular, lerpColor(ofColor(255), base, metalSpecularTint), m);
 	const float shininess = ofLerp(matteShininess, metalShininess, m);
 
-	static ofLight light;
-	light.setPointLight();
-	light.setPosition(center.x - side, center.y - side, depth + side * 3.0f);
-	light.setDiffuseColor(ofColor(255));
-	light.setSpecularColor(ofColor(255));
+	const bool customMaterial = materialLibrary::isCustom(materialIndex);
 
 	static ofMaterial material;
-	material.setDiffuseColor(diffuse);
-	material.setAmbientColor(diffuse * 0.25f);
-	material.setSpecularColor(specular);
-	material.setShininess(shininess);
+	if (customMaterial) {
+		materialLibrary::apply(material, materialLibrary::get(materialIndex));
+	} else {
+		material.setDiffuseColor(diffuse);
+		material.setAmbientColor(diffuse * 0.25f);
+		material.setSpecularColor(specular);
+		material.setEmissiveColor(ofFloatColor(0.0f));
+		material.setShininess(shininess);
+	}
+
 
 	if (celShaded && drawCel(diffuse, variant.overridesMaterial())) return;
 
-	const bool overrideMaterial = variant.overridesMaterial();
+	const bool overrideMaterial = customMaterial || variant.overridesMaterial();
+  
 	if (overrideMaterial) {
 		model->disableMaterials();
 	}
+	if (customMaterial) {
+		model->disableTextures();
+		model->disableColors();
+	}
 
 	ofPushStyle();
-	ofSetColor(overrideMaterial ? diffuse : ofColor(255));
+	ofSetColor(overrideMaterial && !customMaterial ? diffuse : ofColor(255));
+	if (customMaterial) ofDisableAlphaBlending();
 	ofEnableLighting();
-	light.enable();
 	material.begin();
 
 	ofPushMatrix();
@@ -250,11 +258,14 @@ void SceneModel3d::draw() const {
 	ofPopMatrix();
 
 	material.end();
-	light.disable();
 	ofDisableLighting();
 	ofPopStyle();
 
 	if (overrideMaterial) {
 		model->enableMaterials();
+	}
+	if (customMaterial) {
+		model->enableTextures();
+		model->enableColors();
 	}
 }

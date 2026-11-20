@@ -28,17 +28,23 @@
 #include "domain/shapes/3d/scenePrimitiveSphere.h"
 #include "domain/shapes/3d/scenePrimitiveCylinder.h"
 #include "domain/shapes/3d/scenePrimitiveCone.h"
+#include "domain/shapes/3d/scenePrimitiveBezierSurface.h"
+#include "domain/shapes/3d/scenePrimitiveCoonsSurface.h"
 #include "domain/shapes/3d/scenePrimitive3d.h"
 #include "domain/commands/historyManager.h"
 #include "domain/scene/sceneSprite.h"
 #include "infrastructure/spriteLibrary.h"
 #include "presentation/spriteSheetGenerator.h"
+#include "presentation/lightGizmo.h"
+#include "domain/lighting/materialLibrary.h"
 
 enum class Primitive3dType {
 	Cube,
 	Sphere,
 	Cylinder,
-	Cone
+	Cone,
+	BezierSurface,
+	CoonsSurface
 };
 
 enum class ToolType {
@@ -214,6 +220,46 @@ private:
 	bool isSyncingSpriteGui = false;
 	const SceneSprite * spriteGuiSource = nullptr;
   
+	ofxGuiGroup groupLights;
+	ofParameter<int> lightSelector;
+	ofParameter<string> lightNameLabel;
+	ofxLabel lightNameLabelGui;
+	ofParameter<bool> lightEnabled;
+	ofParameter<int> lightType;
+	ofParameter<string> lightTypeLabel;
+	ofxLabel lightTypeLabelGui;
+	ofParameter<ofColor> lightColor;
+	ofParameter<glm::vec3> lightPosition;
+	ofParameter<glm::vec3> lightTarget;
+	ofParameter<float> lightConstant;
+	ofParameter<float> lightLinear;
+	ofParameter<float> lightQuadratic;
+	ofParameter<float> lightSpotAngle;
+	ofParameter<float> lightSpotConcentration;
+	ofParameter<bool> showLightGizmos;
+	int loadedLightIndex = -1;
+
+	ofxGuiGroup groupMaterials;
+	ofParameter<int> materialSelector;
+	ofParameter<string> materialNameLabel;
+	ofxLabel materialNameLabelGui;
+	ofParameter<bool> materialsEnabled;
+	int materialDefault = materialLibrary::defaultIndex;
+	bool isSyncingMaterialGui = false;
+
+	struct SurfaceState {
+		float amplitude;
+		int resolution;
+		bool showControlNet;
+	};
+	ofxGuiGroup groupSurface;
+	ofParameter<float> surfaceAmplitude;
+	ofParameter<int> surfaceResolution;
+	ofParameter<bool> surfaceShowControlNet;
+	SurfaceState surfaceDefault { 0.35f, 12, true };
+	unordered_map<SceneParametricSurface *, SurfaceState> surfaceRefSelection;
+	bool isSyncingSurfaceGui = false;
+
 	ofxGuiGroup groupSkybox;
 	ofParameter<bool> skyboxEnabled;
 	ofParameter<int> skyboxIndex;
@@ -278,6 +324,15 @@ private:
 	void commitColorChanges();
 	void commitTransformChanges();
 	void syncColorReferences();
+	void setupSurfaceGui();
+	void syncSurfaceGui();
+	void applySurfaceGui();
+	void onSurfaceAmplitudeChanged(float & value);
+	void onSurfaceResolutionChanged(int & value);
+	void onSurfaceShowControlNetChanged(bool & value);
+	vector<SceneParametricSurface *> selectedSurfaces() const;
+	void syncSurfaceReferences();
+	void commitSurfaceChanges();
 
 	void setupVariantGui();
 	void resetVariantGui();
@@ -326,6 +381,15 @@ private:
 
 	void setupCameraGui();
 	void setupSkyboxGui();
+	void setupMaterialGui();
+	void syncMaterialGui();
+	void onMaterialChanged(int & index);
+	void onMaterialsEnabledChanged(bool & enabled);
+	void setupLightGui();
+	void resetLights();
+	int selectedLightIndex() const;
+	void loadLightToGui(int index);
+	void syncLightGui();
 	void syncSkyboxSliderBounds();
 	void syncSkyboxFileLabel();
 	void onSkyboxIndexChanged(int & value);

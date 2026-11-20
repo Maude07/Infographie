@@ -2,6 +2,7 @@
 #include "ofMain.h"
 #include "domain/scene/sceneObject.h"
 #include "domain/animation/spriteAnimation.h"
+#include "domain/lighting/lightRig.h"
 
 using namespace std;
 
@@ -18,6 +19,8 @@ public:
 private:
 	void renderFrame2d(const SceneObject & object, float angle, int cellSize);
 	void renderFrame3d(SceneObject & object, float angle, int cellSize);
+	void placeStudioLights(const glm::vec3 & center, float distance);
 
 	ofFbo cellFbo;
+	LightRig studioLights;
 };

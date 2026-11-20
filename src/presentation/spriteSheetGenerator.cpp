@@ -7,6 +7,29 @@ namespace {
 	constexpr float cellFill = 0.9f;
 	constexpr float cameraFov = 30.0f;
 	constexpr float generatedFps = 12.0f;
+
+	const ofColor studioAmbient(255);
+	const ofColor studioKey(230);
+}
+
+void SpriteSheetGenerator::placeStudioLights(const glm::vec3 & center, float distance) {
+	if (studioLights.lights.empty()) {
+		SceneLight ambient;
+		ambient.name = "studio ambiante";
+		ambient.type = LightType::Ambient;
+		ambient.color = studioAmbient;
+		studioLights.lights.push_back(ambient);
+
+		SceneLight key;
+		key.name = "studio principale";
+		key.type = LightType::Directional;
+		key.color = studioKey;
+		studioLights.lights.push_back(key);
+	}
+
+	studioLights.lights[0].position = center;
+	studioLights.lights[1].position = center + glm::vec3(-0.5f, -0.7f, 1.0f) * distance;
+	studioLights.lights[1].target = center;
 }
 
 bool SpriteSheetGenerator::generateRotation(SceneObject & object, int frameCount, int cellSize,
@@ -108,8 +131,12 @@ void SpriteSheetGenerator::renderFrame3d(SceneObject & object, float angle, int 
 	const float originalRotation = object3d.rotationY;
 	object3d.rotationY = originalRotation + angle;
 
+	placeStudioLights(center, distance);
+
 	camera.begin();
+	studioLights.enableAll();
 	object3d.draw();
+	studioLights.disableAll();
 	camera.end();
 
 	object3d.rotationY = originalRotation;

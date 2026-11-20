@@ -106,6 +106,10 @@ namespace {
 			return "cylindre";
 		case Primitive3dType::Cone:
 			return "cone";
+		case Primitive3dType::BezierSurface:
+			return "surface de bezier";
+		case Primitive3dType::CoonsSurface:
+			return "surface de coons";
 		}
 		return "primitive 3d";
 	}
@@ -140,6 +144,9 @@ void Application::setup() {
 	setupExportGui();
 	setupHistoryGui();
 	setupCameraGui();
+	setupLightGui();
+	setupMaterialGui();
+	setupSurfaceGui();
 	setupSkyboxGui();
 	setupDepthOfFieldGui();
 
@@ -308,6 +315,88 @@ void Application::setupExportGui() {
 	gui.add(&groupExport);
 }
 
+void Application::setupSurfaceGui() {
+	groupSurface.setup("surface parametrique");
+	groupSurface.add(surfaceAmplitude.set("amplitude", surfaceDefault.amplitude, 0.0f, 1.0f));
+	groupSurface.add(surfaceResolution.set("resolution", surfaceDefault.resolution, SceneParametricSurface::minResolution, SceneParametricSurface::maxResolution));
+	groupSurface.add(surfaceShowControlNet.set("afficher le controle", surfaceDefault.showControlNet));
+	guiListeners.push(surfaceAmplitude.newListener(this, &Application::onSurfaceAmplitudeChanged));
+	guiListeners.push(surfaceResolution.newListener(this, &Application::onSurfaceResolutionChanged));
+	guiListeners.push(surfaceShowControlNet.newListener(this, &Application::onSurfaceShowControlNetChanged));
+	gui.add(&groupSurface);
+}
+
+vector<SceneParametricSurface *> Application::selectedSurfaces() const {
+	vector<SceneParametricSurface *> surfaces;
+	for (SceneObject * object : transformTool.getSelection()) {
+		if (auto * surface = dynamic_cast<SceneParametricSurface *>(object)) surfaces.push_back(surface);
+	}
+	return surfaces;
+}
+
+void Application::syncSurfaceGui() {
+	const auto surfaces = selectedSurfaces();
+	const SurfaceState displayed = surfaces.empty()
+		? surfaceDefault
+		: SurfaceState { surfaces.front()->amplitude, surfaces.front()->resolution, surfaces.front()->showControlNet };
+
+	isSyncingSurfaceGui = true;
+	if (surfaceAmplitude.get() != displayed.amplitude) surfaceAmplitude = displayed.amplitude;
+	if (surfaceResolution.get() != displayed.resolution) surfaceResolution = displayed.resolution;
+	if (surfaceShowControlNet.get() != displayed.showControlNet) surfaceShowControlNet = displayed.showControlNet;
+	isSyncingSurfaceGui = false;
+}
+
+void Application::applySurfaceGui() {
+	if (isSyncingSurfaceGui) return;
+
+	const SurfaceState state { surfaceAmplitude.get(), surfaceResolution.get(), surfaceShowControlNet.get() };
+	const auto surfaces = selectedSurfaces();
+	if (surfaces.empty()) {
+		surfaceDefault = state;
+		return;
+	}
+	for (SceneParametricSurface * surface : surfaces) {
+		surface->amplitude = state.amplitude;
+		surface->resolution = state.resolution;
+		surface->showControlNet = state.showControlNet;
+	}
+}
+
+void Application::onSurfaceAmplitudeChanged(float &) { applySurfaceGui(); }
+void Application::onSurfaceResolutionChanged(int &) { applySurfaceGui(); }
+void Application::onSurfaceShowControlNetChanged(bool &) { applySurfaceGui(); }
+
+void Application::syncSurfaceReferences() {
+	surfaceRefSelection.clear();
+	for (SceneParametricSurface * surface : selectedSurfaces()) {
+		surfaceRefSelection[surface] = { surface->amplitude, surface->resolution, surface->showControlNet };
+	}
+}
+
+void Application::commitSurfaceChanges() {
+	vector<unique_ptr<Command>> changes;
+	for (auto & [surface, before] : surfaceRefSelection) {
+		if (before.amplitude != surface->amplitude) {
+			changes.push_back(make_unique<ValueCommand<float>>(surface->amplitude, before.amplitude, surface->amplitude));
+		}
+		if (before.resolution != surface->resolution) {
+			changes.push_back(make_unique<ValueCommand<int>>(surface->resolution, before.resolution, surface->resolution));
+		}
+		if (before.showControlNet != surface->showControlNet) {
+			changes.push_back(make_unique<ValueCommand<bool>>(surface->showControlNet, before.showControlNet, surface->showControlNet));
+		}
+	}
+
+	if (changes.empty()) return;
+
+	if (changes.size() == 1) {
+		history.push(move(changes.front()));
+	} else {
+		history.push(make_unique<CompositeCommand>(move(changes)));
+	}
+}
+
 void Application::setupMiscGui() {
 	resetButton.setup("Reinitialiser");
 	listenToButton(resetButton, &Application::onResetPressed);
@@ -326,8 +415,11 @@ void Application::update() {
 	syncSkyboxSliderBounds();
 	syncTransformGui();
 	syncCheckerGui();
+	syncLightGui();
 	syncTextureFilterGui();
 	syncCelGui();
+	syncMaterialGui();
+	syncSurfaceGui();
 	sceneTreePanel.rightOffset = ofGetWidth() - canvasRight();
 	transformTool.setCanvas(ofRectangle(canvasLeft(), 0, canvasRight() - canvasLeft(), ofGetHeight()));
 
@@ -346,10 +438,12 @@ void Application::update() {
 
 	if (!mouseDown && wasMousePressedLastFrame) {
 		commitColorChanges();
+		commitSurfaceChanges();
 	}
 
 	if (!mouseDown) {
 		syncColorReferences();
+		syncSurfaceReferences();
 		commitTransformChanges();
 	}
 
@@ -429,6 +523,7 @@ void Application::onUndoPressed() {
 		transformTool.clearSelection();
 		history.undo();
 		syncColorReferences();
+		syncSurfaceReferences();
 	}
 }
 
@@ -437,6 +532,7 @@ void Application::onRedoPressed() {
 		transformTool.clearSelection();
 		history.redo();
 		syncColorReferences();
+		syncSurfaceReferences();
 	}
 }
 
@@ -512,6 +608,12 @@ void Application::draw() {
 	exporter.captureHeight = static_cast<int>(canvas.height);
 	exporter.capture();
 
+	if (showLightGizmos) {
+		activeCamera().begin();
+		lightGizmo::draw(scene.lighting, selectedLightIndex());
+		activeCamera().end();
+	}
+
 	if (showGui) {
 		drawSidebarBackground();
 	}
@@ -525,13 +627,17 @@ void Application::draw() {
 		} else if (toolType == ToolType::Model3d) {
 			if (auto preview = makeModel(mousePressPos, mouseCurrentPos)) {
 				activeCamera().begin();
+				scene.lighting.enableAll();
 				preview->render();
+				scene.lighting.disableAll();
 				activeCamera().end();
 			}
 		} else if (toolType == ToolType::Primitive3d) {
 			auto preview = makePrimitive3d(mousePressPos, mouseCurrentPos);
 			activeCamera().begin();
+			scene.lighting.enableAll();
 			preview->render();
+			scene.lighting.disableAll();
 			activeCamera().end();
 		} else if (toolType == ToolType::Sprite) {
 			if (auto preview = makeSprite(mousePressPos, mouseCurrentPos)) preview->render();
@@ -959,7 +1065,7 @@ void Application::keyPressed(ofKeyEventArgs & args) {
 		break;
 	case '9':
 		if (toolType == ToolType::Primitive3d) {
-			selectPrimitive3d(static_cast<Primitive3dType>((static_cast<int>(currentPrimitive3d) + 1) % 4));
+			selectPrimitive3d(static_cast<Primitive3dType>((static_cast<int>(currentPrimitive3d) + 1) % 6));
 		} else {
 			selectPrimitive3d(currentPrimitive3d);
 		}
@@ -1234,6 +1340,7 @@ void Application::onResetPressed() {
 	celOutline = 0.0f;
 
 	resetVariantGui();
+	resetLights();
 
 	palette = defaults::defaultPalette();
 	clearPaletteSelection();
@@ -1416,6 +1523,7 @@ unique_ptr<SceneModel3d> Application::makeModel(const glm::vec2 & start, const g
 	instance->celBands = celBandsDefault;
 	instance->celAmbient = celAmbientDefault;
 	instance->celOutline = celOutlineDefault;
+	instance->materialIndex = materialDefault;
 	return instance;
 }
 
@@ -1513,6 +1621,18 @@ unique_ptr<ScenePrimitive3d> Application::makePrimitive3d(const glm::vec2 & star
 	case Primitive3dType::Cone:
 		primitive = make_unique<ScenePrimitiveCone>();
 		break;
+	case Primitive3dType::BezierSurface:
+		primitive = make_unique<ScenePrimitiveBezierSurface>();
+		break;
+	case Primitive3dType::CoonsSurface:
+		primitive = make_unique<ScenePrimitiveCoonsSurface>();
+		break;
+	}
+
+	if (auto * surface = dynamic_cast<SceneParametricSurface *>(primitive.get())) {
+		surface->amplitude = surfaceDefault.amplitude;
+		surface->resolution = surfaceDefault.resolution;
+		surface->showControlNet = surfaceDefault.showControlNet;
 	}
 
 	glm::vec2 worldStart = activeCamera().screenToPlane(start, 0.f);
@@ -1532,6 +1652,7 @@ unique_ptr<ScenePrimitive3d> Application::makePrimitive3d(const glm::vec2 & star
 	primitive->celBands = celBandsDefault;
 	primitive->celAmbient = celAmbientDefault;
 	primitive->celOutline = celOutlineDefault;
+	primitive->materialIndex = materialDefault;
 	return primitive;
 }
 
@@ -1571,6 +1692,151 @@ void Application::setupCameraGui() {
 	groupCamera.add(&showAllButton);
 
 	gui.add(&groupCamera);
+}
+
+void Application::setupLightGui() {
+	resetLights();
+
+	groupLights.setup("lumieres");
+	groupLights.add(lightSelector.set("lumiere a editer", 1, 1, static_cast<int>(scene.lighting.lights.size())));
+	lightNameLabel.set("nom", "");
+	lightNameLabelGui.setup(lightNameLabel);
+	groupLights.add(&lightNameLabelGui);
+
+	groupLights.add(lightEnabled.set("allumee", true));
+	groupLights.add(lightType.set("type (0 a 3)", 0, 0, SceneLight::typeCount - 1));
+	lightTypeLabel.set("type", "");
+	lightTypeLabelGui.setup(lightTypeLabel);
+	groupLights.add(&lightTypeLabelGui);
+
+	groupLights.add(lightColor.set("couleur", ofColor::white, ofColor(0, 0), ofColor(255, 255)));
+	groupLights.add(lightPosition.set("position", glm::vec3(0), glm::vec3(-2000), glm::vec3(4000)));
+	groupLights.add(lightTarget.set("cible (orientation)", glm::vec3(0), glm::vec3(-2000), glm::vec3(4000)));
+
+	groupLights.add(lightConstant.set("attenuation constante", 1.0f, 0.1f, 5.0f));
+	groupLights.add(lightLinear.set("attenuation lineaire", 0.0f, 0.0f, 0.01f));
+	groupLights.add(lightQuadratic.set("attenuation quadratique", 0.0f, 0.0f, 0.00005f));
+
+	groupLights.add(lightSpotAngle.set("projecteur : angle (deg)", 30.0f, 1.0f, 90.0f));
+	groupLights.add(lightSpotConcentration.set("projecteur : concentration", 2.0f, 0.0f, 128.0f));
+
+	groupLights.add(showLightGizmos.set("afficher les reperes", true));
+
+	loadLightToGui(0);
+	gui.add(&groupLights);
+}
+
+void Application::resetLights() {
+	scene.lighting.setupDefaults(glm::vec3(ofGetWidth() * 0.5f, ofGetHeight() * 0.5f, 0.0f));
+	loadedLightIndex = -1;
+}
+
+int Application::selectedLightIndex() const {
+	const int count = static_cast<int>(scene.lighting.lights.size());
+	return count == 0 ? -1 : std::clamp(lightSelector.get() - 1, 0, count - 1);
+}
+
+void Application::loadLightToGui(int index) {
+	if (index < 0 || index >= static_cast<int>(scene.lighting.lights.size())) return;
+	const SceneLight & light = scene.lighting.lights[index];
+
+	lightNameLabel = light.name;
+	lightEnabled = light.enabled;
+	lightType = static_cast<int>(light.type);
+	lightColor = light.color;
+	lightPosition = light.position;
+	lightTarget = light.target;
+	lightConstant = light.constant;
+	lightLinear = light.linear;
+	lightQuadratic = light.quadratic;
+	lightSpotAngle = light.spotAngle;
+	lightSpotConcentration = light.spotConcentration;
+	loadedLightIndex = index;
+}
+
+void Application::syncLightGui() {
+	const int index = selectedLightIndex();
+	if (index < 0) return;
+
+	if (index != loadedLightIndex) {
+		loadLightToGui(index);
+	} else {
+		SceneLight & light = scene.lighting.lights[index];
+		light.enabled = lightEnabled;
+		light.type = static_cast<LightType>(std::clamp(lightType.get(), 0, SceneLight::typeCount - 1));
+		light.color = lightColor;
+		light.position = lightPosition;
+		light.target = lightTarget;
+		light.constant = lightConstant;
+		light.linear = lightLinear;
+		light.quadratic = lightQuadratic;
+		light.spotAngle = lightSpotAngle;
+		light.spotConcentration = lightSpotConcentration;
+	}
+
+	const string label = SceneLight::typeLabel(scene.lighting.lights[index].type);
+	if (lightTypeLabel.get() != label) lightTypeLabel = label;
+}
+
+void Application::setupMaterialGui() {
+	groupMaterials.setup("materiaux");
+	groupMaterials.add(materialSelector.set("materiau", materialLibrary::defaultIndex, 0, materialLibrary::count() - 1));
+	materialNameLabel.set("actif", materialLibrary::get(materialLibrary::defaultIndex).name);
+	materialNameLabelGui.setup(materialNameLabel);
+	groupMaterials.add(&materialNameLabelGui);
+	groupMaterials.add(materialsEnabled.set("activer les materiaux", true));
+	guiListeners.push(materialSelector.newListener(this, &Application::onMaterialChanged));
+	guiListeners.push(materialsEnabled.newListener(this, &Application::onMaterialsEnabledChanged));
+	gui.add(&groupMaterials);
+}
+
+void Application::onMaterialsEnabledChanged(bool & enabled) {
+	materialLibrary::enabled() = enabled;
+}
+
+void Application::syncMaterialGui() {
+	int displayedIndex = materialDefault;
+	for (SceneObject * object : transformTool.getSelection()) {
+		if (auto * object3d = dynamic_cast<SceneObject3d *>(object)) {
+			displayedIndex = object3d->materialIndex;
+			break;
+		}
+	}
+
+	const string & name = materialLibrary::get(displayedIndex).name;
+	if (materialNameLabel.get() != name) materialNameLabel = name;
+	if (materialSelector.get() == displayedIndex) return;
+
+	isSyncingMaterialGui = true;
+	materialSelector = displayedIndex;
+	isSyncingMaterialGui = false;
+}
+
+void Application::onMaterialChanged(int & index) {
+	if (isSyncingMaterialGui) return;
+
+	vector<unique_ptr<Command>> changes;
+	bool has3d = false;
+	for (SceneObject * object : transformTool.getSelection()) {
+		auto * object3d = dynamic_cast<SceneObject3d *>(object);
+		if (!object3d) continue;
+		has3d = true;
+		if (object3d->materialIndex != index) {
+			changes.push_back(make_unique<ValueCommand<int>>(object3d->materialIndex, object3d->materialIndex, index));
+		}
+	}
+
+	if (!has3d) {
+		materialDefault = index;
+		return;
+	}
+	if (changes.empty()) return;
+
+	if (changes.size() == 1) {
+		history.execute(move(changes.front()));
+	} else {
+		history.execute(make_unique<CompositeCommand>(move(changes)));
+	}
 }
 
 void Application::setupSkyboxGui() {
