@@ -226,6 +226,9 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\domain\geometry\delaunay.cpp" />
+    <ClCompile Include="src\domain\shapes\2d\scenePrimitiveTriangulation.cpp" />
+    <ClCompile Include="src\presentation\triangulationTool.cpp" />
     <ClCompile Include="src\domain\lighting\lightRig.cpp" />
     <ClCompile Include="src\presentation\lightGizmo.cpp" />
     <ClCompile Include="src\domain\lighting\sceneLight.cpp" />
@@ -288,6 +291,9 @@
     <ClCompile Include="src\third_party\ofxPathFitter\ofxPathFitter.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\domain\geometry\delaunay.h" />
+    <ClInclude Include="src\domain\shapes\2d\scenePrimitiveTriangulation.h" />
+    <ClInclude Include="src\presentation\triangulationTool.h" />
     <ClInclude Include="src\domain\lighting\lightRig.h" />
     <ClInclude Include="src\domain\lighting\materialLibrary.h" />
     <ClInclude Include="src\presentation\lightGizmo.h" />
