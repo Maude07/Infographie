@@ -200,6 +200,15 @@
     <ClCompile Include="src\presentation\lightGizmo.cpp">
       <Filter>src\presentation</Filter>
     </ClCompile>
+    <ClCompile Include="src\domain\shapes\2d\scenePrimitiveTriangulation.cpp">
+      <Filter>src\domain\shapes\2d</Filter>
+    </ClCompile>
+    <ClCompile Include="src\presentation\triangulationTool.cpp">
+      <Filter>src\presentation</Filter>
+    </ClCompile>
+    <ClCompile Include="src\domain\geometry\delaunay.cpp">
+      <Filter>src\domain\geometry</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="src">
@@ -285,6 +294,9 @@
     </Filter>
     <Filter Include="src\domain\lighting">
       <UniqueIdentifier>{fff782c3-6f30-489f-a02c-d604c7063e39}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\domain\geometry">
+      <UniqueIdentifier>{e26cd0ce-40b6-415e-b6b1-b2f33f79cb0b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -810,6 +822,15 @@
     </ClInclude>
     <ClInclude Include="src\presentation\lightGizmo.h">
       <Filter>src\presentation</Filter>
+    </ClInclude>
+    <ClInclude Include="src\domain\shapes\2d\scenePrimitiveTriangulation.h">
+      <Filter>src\domain\shapes\2d</Filter>
+    </ClInclude>
+    <ClInclude Include="src\presentation\triangulationTool.h">
+      <Filter>src\presentation</Filter>
+    </ClInclude>
+    <ClInclude Include="src\domain\geometry\delaunay.h">
+      <Filter>src\domain\geometry</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

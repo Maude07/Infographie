@@ -63,14 +63,12 @@ void ScenePrimitive3d::draw() const {
 
     if (shader) {
         const glm::vec3 fallbackLight(center.x - side, center.y - side, depth + side * 3.0f);
-        const glm::vec3 lightWorld = celShading::lightWorldPosition(fallbackLight);
-        const glm::vec3 lightView = glm::vec3(ofGetCurrentViewMatrix() * glm::vec4(lightWorld, 1.0f));
         const ofFloatColor base = tex ? ofFloatColor(1.0f, 1.0f, 1.0f, 1.0f)
             : (customMaterial ? materialLibrary::get(materialIndex).diffuse : ofFloatColor(color));
 
         ofDisableLighting();
         shader->begin();
-        shader->setUniform3f("lightView", lightView);
+        celShading::setLightUniforms(*shader, fallbackLight);
         shader->setUniform4f("baseColor", base);
         shader->setUniform1f("bands", static_cast<float>(max(celBands, 2)));
         shader->setUniform1f("ambient", celAmbient);

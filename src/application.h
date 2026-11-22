@@ -9,6 +9,7 @@
 #include "infrastructure/imageExporter.h"
 #include "presentation/bezierStrokeTool.h"
 #include "presentation/catmullRomTool.h"
+#include "presentation/triangulationTool.h"
 #include "presentation/transformTool.h"
 #include "presentation/ui/palettePreview.h"
 #include "presentation/ui/sceneTreePanel.h"
@@ -61,7 +62,8 @@ enum class ToolType {
 	CatmullRom,
 	Model3d,
 	Primitive3d,
-	Sprite
+	Sprite,
+	Triangulation
 };
 
 class Application : public ofBaseApp {
@@ -278,6 +280,7 @@ private:
 	ofxButton redoButton;
 
 	ToolType toolType = ToolType::Select;
+	TriangulationTool triangulationTool;
 	glm::vec2 mousePressPos;
 	glm::vec2 mouseCurrentPos;
 	bool isMouseButtonPressed = false;
@@ -361,6 +364,7 @@ private:
 
 	unique_ptr<ScenePrimitive> makeShape(ToolType type, const glm::vec2 & start, const glm::vec2 & end) const;
 	void addVectorShape();
+	void commitTriangulation();
 	void applyDrawStyle(ScenePrimitive & primitive) const;
 
 	unique_ptr<SceneModel3d> makeModel(const glm::vec2 & start, const glm::vec2 & end) const;
