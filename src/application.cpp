@@ -64,6 +64,7 @@ namespace {
 		case ToolType::Select:
 		case ToolType::Primitive3d:
 		case ToolType::Sprite:
+		case ToolType::Triangulation:
 			return true;
 		}
 		return true;
@@ -87,6 +88,8 @@ namespace {
 			return "cercles funky";
 		case ToolType::Bezier:
 			return "bezier";
+		case ToolType::Triangulation:
+			return "triangulation";
 		case ToolType::Select:
 		case ToolType::Model3d:
 		case ToolType::Primitive3d:
@@ -646,6 +649,13 @@ void Application::draw() {
 		}
 	}
 
+	if (toolType == ToolType::Triangulation) {
+		triangulationTool.draw(strokeColor);
+		ofDrawBitmapString("triangulation : " + ofToString(triangulationTool.pointCount())
+			+ " sommets  [clic] ajouter  [entree] trianguler  [retour arriere] retirer",
+			canvasLeft() + 10, ofGetHeight() - 10);
+	}
+
 	if (exporter.isRecording) {
 		drawRecordingIndicator();
 	}
@@ -787,6 +797,7 @@ CursorState Application::currentCursorState(const glm::vec2 & mouse) const {
 	case ToolType::Sprite:
 		return CursorState::Crosshair;
 	case ToolType::Point:
+	case ToolType::Triangulation:
 		return CursorState::Point;
 	case ToolType::Select:
 		break;
@@ -1073,6 +1084,9 @@ void Application::keyPressed(ofKeyEventArgs & args) {
 	case 'b':
 		setToolType(ToolType::Bezier);
 		break;
+	case 't':
+		setToolType(ToolType::Triangulation);
+		break;
 	case 'n':
 		if (spriteLibrary.animations().empty()) {
 			ofLog() << "<aucune feuille de sprites chargee>";
@@ -1103,7 +1117,9 @@ void Application::keyPressed(ofKeyEventArgs & args) {
 
 	case OF_KEY_DEL:
 	case OF_KEY_BACKSPACE:
-		if (transformTool.hasSelection()) {
+		if (toolType == ToolType::Triangulation && triangulationTool.hasPoints()) {
+			triangulationTool.removeLastPoint();
+		} else if (transformTool.hasSelection()) {
 			deleteSelectedObject();
 		} else {
 			removeSelectedPaletteColor();
@@ -1111,6 +1127,10 @@ void Application::keyPressed(ofKeyEventArgs & args) {
 		break;
 
 	case OF_KEY_RETURN:
+		if (toolType == ToolType::Triangulation) {
+			commitTriangulation();
+			break;
+		}
 		palette.push_back(lastActiveColor);
 		ofLog() << "<added color: " << lastActiveColor << ">";
 		break;
@@ -1154,6 +1174,7 @@ void Application::setToolType(ToolType mode) {
 	transformTool.clearSelection();
 	isMouseButtonPressed = false;
 	bezierStrokeTool.cancel();
+	triangulationTool.cancel();
 }
 
 void Application::removeSelectedPaletteColor() {
@@ -1293,6 +1314,11 @@ void Application::mouseReleased(int x, int y, int button) {
 
 	if (toolType == ToolType::Sprite) {
 		addSprite();
+		return;
+	}
+
+	if (toolType == ToolType::Triangulation) {
+		triangulationTool.addPoint(mouseCurrentPos);
 		return;
 	}
 
@@ -1483,6 +1509,7 @@ unique_ptr<ScenePrimitive> Application::makeShape(ToolType type, const glm::vec2
 	case ToolType::Model3d:
 	case ToolType::Primitive3d:
 	case ToolType::Sprite:
+	case ToolType::Triangulation:
 	case ToolType::Select:
 		return nullptr;
 	}
@@ -1498,6 +1525,19 @@ void Application::addVectorShape() {
 	if (auto shape = makeShape(toolType, mousePressPos, mouseCurrentPos)) {
 		history.execute(make_unique<AddObjectCommand>(&scene, move(shape)));
 	}
+}
+
+void Application::commitTriangulation() {
+	auto mesh = triangulationTool.commit();
+	if (!mesh) {
+		ofLog() << "<triangulation: il faut au moins 3 sommets non colineaires>";
+		return;
+	}
+	mesh->name = shapeLabel(ToolType::Triangulation);
+	applyDrawStyle(*mesh);
+	ofLog() << "<triangulation: " << mesh->vertexCount() << " sommets, "
+		<< mesh->triangleCount() << " triangles>";
+	history.execute(make_unique<AddObjectCommand>(&scene, move(mesh)));
 }
 
 void Application::applyDrawStyle(ScenePrimitive & primitive) const {
