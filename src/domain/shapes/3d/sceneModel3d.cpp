@@ -1,5 +1,6 @@
 #include "sceneModel3d.h"
 #include "presentation/celShading.h"
+#include "presentation/reliefMapping.h"
 #include "../../lighting/materialLibrary.h"
 
 namespace {
@@ -176,6 +177,99 @@ bool SceneModel3d::drawCel(const ofColor & litColor, bool replaceMaterial) const
 	return true;
 }
 
+bool SceneModel3d::drawRelief(const ofColor & litColor, const ofColor & specular, float shininess, bool customMaterial) const {
+	ofShader * program = reliefMapping::shader();
+	if (!program || !model) return false;
+
+	bool hasTexCoords = false;
+	for (unsigned int index = 0; index < model->getMeshCount(); ++index) {
+		if (model->getMeshHelper(index).vbo.getUsingTexCoords()) {
+			hasTexCoords = true;
+			break;
+		}
+	}
+	if (!hasTexCoords) return false;
+
+	const glm::vec3 stretch = variant.scaleFactors();
+	const glm::vec3 dims = (model->getSceneMax() - model->getSceneMin()) * stretch;
+	const float largest = max({ dims.x, dims.y, dims.z });
+	if (largest <= 0.0f) return false;
+
+	const glm::vec3 sceneCenter = model->getSceneCenter();
+	const glm::vec2 center = position + size * 0.5f;
+	const float side = min(size.x, size.y);
+	const float scale = side / largest;
+	const glm::vec3 fallbackLight(center.x - side, center.y - side, depth + side * 3.0f);
+	const ofFloatColor specularColor(specular);
+
+	ofPushStyle();
+	ofDisableLighting();
+	ofPushMatrix();
+	ofTranslate(center.x, center.y, depth);
+	ofRotateYDeg(rotationY);
+	ofScale(scale * stretch.x, scale * stretch.y, scale * stretch.z);
+	ofEnableDepthTest();
+
+	ofPushMatrix();
+	ofTranslate(sceneCenter.x, sceneCenter.y, -sceneCenter.z);
+
+	program->begin();
+	celShading::setLightUniforms(*program, fallbackLight);
+
+	ofPushMatrix();
+	ofMultMatrix(model->getModelMatrix());
+
+	for (unsigned int index = 0; index < model->getMeshCount(); ++index) {
+		ofxAssimpMeshHelper & mesh = model->getMeshHelper(index);
+		if (mesh.indices.empty()) continue;
+
+		ofPushMatrix();
+		ofMultMatrix(mesh.matrix);
+
+		const bool hasTexture = !customMaterial && mesh.hasTexture(aiTextureType_DIFFUSE);
+		const bool hasNormals = mesh.vbo.getUsingNormals();
+		const bool hasNormalMap = mesh.hasTexture(aiTextureType_NORMALS);
+		const ofFloatColor albedo = (customMaterial || variant.overridesMaterial())
+			? ofFloatColor(litColor)
+			: mesh.material.getDiffuseColor();
+
+		reliefMapping::setMaterialUniforms(*program, albedo, specularColor, shininess, hasTexture,
+			reliefColumns, reliefRows, reliefMortar);
+		program->setUniform1f("hasNormals", hasNormals ? 1.0f : 0.0f);
+		if (hasTexture) {
+			program->setUniformTexture("colorTex", mesh.getTextureRef(aiTextureType_DIFFUSE), 0);
+		}
+		if (hasNormalMap) {
+			program->setUniformTexture("normalTex", mesh.getTextureRef(aiTextureType_NORMALS), 1);
+		}
+
+		ofEnableBlendMode(mesh.blendMode);
+		mesh.vbo.drawElements(GL_TRIANGLES, mesh.indices.size());
+		ofPopMatrix();
+	}
+
+	ofPopMatrix();
+	program->end();
+
+	if (bShowBoundingBox) {
+		const glm::vec3 boxDims = model->getSceneMax() - model->getSceneMin();
+		ofPushStyle();
+		ofDisableLighting();
+		ofNoFill();
+		ofSetColor(255, 172, 28);
+		ofSetLineWidth(2.0f);
+		ofDrawBox(0, 0, 0, boxDims.x, boxDims.y, boxDims.z);
+		ofPopStyle();
+	}
+
+	ofPopMatrix();
+	ofDisableDepthTest();
+	ofPopMatrix();
+	ofEnableLighting();
+	ofPopStyle();
+	return true;
+}
+
 void SceneModel3d::draw() const {
 	if (!model) return;
 
@@ -214,6 +308,16 @@ void SceneModel3d::draw() const {
 	}
 
 
+	ofColor reliefDiffuse = diffuse;
+	ofColor reliefSpecular = specular;
+	float reliefShininess = shininess;
+	if (customMaterial) {
+		const MaterialPreset & preset = materialLibrary::get(materialIndex);
+		reliefDiffuse = preset.diffuse;
+		reliefSpecular = preset.specular;
+		reliefShininess = preset.shininess;
+	}
+	if (relief && drawRelief(reliefDiffuse, reliefSpecular, reliefShininess, customMaterial)) return;
 	if (celShaded && drawCel(diffuse, variant.overridesMaterial())) return;
 
 	const bool overrideMaterial = customMaterial || variant.overridesMaterial();

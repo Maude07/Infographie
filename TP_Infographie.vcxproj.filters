@@ -97,6 +97,9 @@
     <ClCompile Include="src\presentation\celShading.cpp">
       <Filter>src\presentation</Filter>
     </ClCompile>
+    <ClCompile Include="src\presentation\reliefMapping.cpp">
+      <Filter>src\presentation</Filter>
+    </ClCompile>
     <ClCompile Include="src\presentation\depthOfField.cpp">
       <Filter>src\presentation</Filter>
     </ClCompile>
@@ -412,6 +415,9 @@
       <Filter>src\presentation</Filter>
     </ClInclude>
     <ClInclude Include="src\presentation\celShading.h">
+      <Filter>src\presentation</Filter>
+    </ClInclude>
+    <ClInclude Include="src\presentation\reliefMapping.h">
       <Filter>src\presentation</Filter>
     </ClInclude>
     <ClInclude Include="src\presentation\depthOfField.h">

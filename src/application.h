@@ -160,9 +160,18 @@ private:
 	ofParameter<float> celAmbient;
 	ofParameter<float> celOutline;
 	bool celDefault = false;
-	int celBandsDefault = 3;
-	float celAmbientDefault = 0.2f;
-	float celOutlineDefault = 0.0f;
+	ofParameter<bool> reliefEnabled;
+	ofParameter<int> reliefColumns;
+	ofParameter<int> reliefRows;
+	ofParameter<float> reliefMortar;
+	bool reliefDefault = false;
+	int reliefColumnsDefault = SceneObject3d::defaultReliefColumns;
+	int reliefRowsDefault = SceneObject3d::defaultReliefRows;
+	float reliefMortarDefault = SceneObject3d::defaultReliefMortar;
+	bool isSyncingReliefGui = false;
+	int celBandsDefault = SceneObject3d::defaultCelBands;
+	float celAmbientDefault = SceneObject3d::defaultCelAmbient;
+	float celOutlineDefault = SceneObject3d::defaultCelOutline;
 	bool isSyncingCelGui = false;
 
 	ofParameter<int> exportFps;
@@ -301,6 +310,7 @@ private:
 	void syncCheckerGui();
 	void syncTextureFilterGui();
 	void syncCelGui();
+	void syncReliefGui();
 	void setupCelGui();
 	void addColorPicker(ofxColorSlider & slider, ofParameter<ofColor> & color, PalettePreview & preview,
 		const string & name, const ofColor & initialColor);
@@ -316,6 +326,10 @@ private:
 	void onCelBandsChanged(int & bands);
 	void onCelAmbientChanged(float & ambient);
 	void onCelOutlineChanged(float & outline);
+	void onReliefChanged(bool & enabled);
+	void onReliefColumnsChanged(int & columns);
+	void onReliefRowsChanged(int & rows);
+	void onReliefMortarChanged(float & mortar);
 	void onImportPressed();
 	void onRecordPressed();
 	void onResetPressed();

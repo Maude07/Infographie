@@ -48,6 +48,7 @@ public:
 
 private:
 	bool drawCel(const ofColor & litColor, bool replaceMaterial) const;
+	bool drawRelief(const ofColor & litColor, const ofColor & specular, float shininess, bool customMaterial) const;
 
 	string modelId;
 	shared_ptr<ofxAssimpModelLoader> model;

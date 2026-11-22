@@ -203,6 +203,14 @@ void Application::setupDrawGui() {
 	groupDraw.add(textureFilterIndex.set("filtre de texture", 0, 0, lastFilterIndex));
 	groupDraw.add(textureFilterLabel.set("filtre actif", proceduralTexture::filterName(TextureFilter::None)));
 	guiListeners.push(textureFilterIndex.newListener(this, &Application::onTextureFilterChanged));
+	groupDraw.add(reliefEnabled.set("effet de relief", false));
+	groupDraw.add(reliefColumns.set("briques en largeur", SceneObject3d::defaultReliefColumns, 1, 16));
+	groupDraw.add(reliefRows.set("briques en hauteur", SceneObject3d::defaultReliefRows, 1, 24));
+	groupDraw.add(reliefMortar.set("largeur du joint", SceneObject3d::defaultReliefMortar, 0.02f, 0.45f));
+	guiListeners.push(reliefEnabled.newListener(this, &Application::onReliefChanged));
+	guiListeners.push(reliefColumns.newListener(this, &Application::onReliefColumnsChanged));
+	guiListeners.push(reliefRows.newListener(this, &Application::onReliefRowsChanged));
+	guiListeners.push(reliefMortar.newListener(this, &Application::onReliefMortarChanged));
 
 	setupCelGui();
 
@@ -217,9 +225,9 @@ void Application::setupDrawGui() {
 void Application::setupCelGui() {
 	groupCel.setup("cel shading");
 	groupCel.add(celShading.set("activer", false));
-	groupCel.add(celBands.set("bandes", 3, 2, 6));
-	groupCel.add(celAmbient.set("ambiance", 0.2f, 0.0f, 1.0f));
-	groupCel.add(celOutline.set("contour", 0.0f, 0.0f, 0.5f));
+	groupCel.add(celBands.set("bandes", SceneObject3d::defaultCelBands, 2, 6));
+	groupCel.add(celAmbient.set("ambiance", SceneObject3d::defaultCelAmbient, 0.0f, 1.0f));
+	groupCel.add(celOutline.set("contour", SceneObject3d::defaultCelOutline, 0.0f, 0.5f));
 	guiListeners.push(celShading.newListener(this, &Application::onCelShadingChanged));
 	guiListeners.push(celBands.newListener(this, &Application::onCelBandsChanged));
 	guiListeners.push(celAmbient.newListener(this, &Application::onCelAmbientChanged));
@@ -424,6 +432,7 @@ void Application::update() {
 	syncLightGui();
 	syncTextureFilterGui();
 	syncCelGui();
+	syncReliefGui();
 	syncMaterialGui();
 	syncSurfaceGui();
 	sceneTreePanel.rightOffset = ofGetWidth() - canvasRight();
@@ -1015,6 +1024,76 @@ void Application::onCelOutlineChanged(float & outline) {
 	assignCelParameter(transformTool.getSelection(), &SceneObject3d::celOutline, outline, celOutlineDefault);
 }
 
+void Application::syncReliefGui() {
+	bool hasObject = false;
+	bool allRelief = true;
+	int displayedColumns = reliefColumnsDefault;
+	int displayedRows = reliefRowsDefault;
+	float displayedMortar = reliefMortarDefault;
+
+	for (SceneObject * object : transformTool.getSelection()) {
+		if (auto * object3d = dynamic_cast<SceneObject3d *>(object)) {
+			if (!hasObject) {
+				displayedColumns = object3d->reliefColumns;
+				displayedRows = object3d->reliefRows;
+				displayedMortar = object3d->reliefMortar;
+			}
+			hasObject = true;
+			allRelief = allRelief && object3d->relief;
+		}
+	}
+
+	const bool enabled = hasObject ? allRelief : reliefDefault;
+	isSyncingReliefGui = true;
+	if (reliefEnabled.get() != enabled) reliefEnabled = enabled;
+	if (reliefColumns.get() != displayedColumns) reliefColumns = displayedColumns;
+	if (reliefRows.get() != displayedRows) reliefRows = displayedRows;
+	if (reliefMortar.get() != displayedMortar) reliefMortar = displayedMortar;
+	isSyncingReliefGui = false;
+}
+
+void Application::onReliefChanged(bool & enabled) {
+	if (isSyncingReliefGui) return;
+
+	vector<unique_ptr<Command>> changes;
+	bool hasObject = false;
+	for (SceneObject * object : transformTool.getSelection()) {
+		auto * object3d = dynamic_cast<SceneObject3d *>(object);
+		if (!object3d) continue;
+		hasObject = true;
+		if (object3d->relief != enabled) {
+			changes.push_back(make_unique<ValueCommand<bool>>(object3d->relief, object3d->relief, enabled));
+		}
+	}
+
+	if (!hasObject) {
+		reliefDefault = enabled;
+		return;
+	}
+	if (changes.empty()) return;
+
+	if (changes.size() == 1) {
+		history.execute(move(changes.front()));
+	} else {
+		history.execute(make_unique<CompositeCommand>(move(changes)));
+	}
+}
+
+void Application::onReliefColumnsChanged(int & columns) {
+	if (isSyncingReliefGui) return;
+	assignCelParameter(transformTool.getSelection(), &SceneObject3d::reliefColumns, columns, reliefColumnsDefault);
+}
+
+void Application::onReliefRowsChanged(int & rows) {
+	if (isSyncingReliefGui) return;
+	assignCelParameter(transformTool.getSelection(), &SceneObject3d::reliefRows, rows, reliefRowsDefault);
+}
+
+void Application::onReliefMortarChanged(float & mortar) {
+	if (isSyncingReliefGui) return;
+	assignCelParameter(transformTool.getSelection(), &SceneObject3d::reliefMortar, mortar, reliefMortarDefault);
+}
+
 void Application::keyPressed(ofKeyEventArgs & args) {
 	if (args.key == OF_KEY_LEFT || args.key == OF_KEY_RIGHT) {
 		rotateSelectedModels(args.key == OF_KEY_LEFT ? -rotationStep : rotationStep);
@@ -1384,13 +1463,21 @@ void Application::onResetPressed() {
 	textureFilterIndex = 0;
 	checkerTexture = true;
 	celDefault = false;
-	celBandsDefault = 3;
-	celAmbientDefault = 0.2f;
-	celOutlineDefault = 0.0f;
+	celBandsDefault = SceneObject3d::defaultCelBands;
+	celAmbientDefault = SceneObject3d::defaultCelAmbient;
+	celOutlineDefault = SceneObject3d::defaultCelOutline;
 	celShading = false;
-	celBands = 3;
-	celAmbient = 0.2f;
-	celOutline = 0.0f;
+	celBands = celBandsDefault;
+	celAmbient = celAmbientDefault;
+	celOutline = celOutlineDefault;
+	reliefDefault = false;
+	reliefColumnsDefault = SceneObject3d::defaultReliefColumns;
+	reliefRowsDefault = SceneObject3d::defaultReliefRows;
+	reliefMortarDefault = SceneObject3d::defaultReliefMortar;
+	reliefEnabled = false;
+	reliefColumns = reliefColumnsDefault;
+	reliefRows = reliefRowsDefault;
+	reliefMortar = reliefMortarDefault;
 
 	resetVariantGui();
 	resetLights();
@@ -1592,6 +1679,10 @@ unique_ptr<SceneModel3d> Application::makeModel(const glm::vec2 & start, const g
 	instance->celAmbient = celAmbientDefault;
 	instance->celOutline = celOutlineDefault;
 	instance->materialIndex = materialDefault;
+	instance->relief = reliefDefault;
+	instance->reliefColumns = reliefColumnsDefault;
+	instance->reliefRows = reliefRowsDefault;
+	instance->reliefMortar = reliefMortarDefault;
 	return instance;
 }
 
@@ -1721,6 +1812,10 @@ unique_ptr<ScenePrimitive3d> Application::makePrimitive3d(const glm::vec2 & star
 	primitive->celAmbient = celAmbientDefault;
 	primitive->celOutline = celOutlineDefault;
 	primitive->materialIndex = materialDefault;
+	primitive->relief = reliefDefault;
+	primitive->reliefColumns = reliefColumnsDefault;
+	primitive->reliefRows = reliefRowsDefault;
+	primitive->reliefMortar = reliefMortarDefault;
 	return primitive;
 }
 
