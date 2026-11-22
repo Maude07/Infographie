@@ -1094,6 +1094,7 @@ void Application::keyPressed(ofKeyEventArgs & args) {
 		break;
 	case 'k':
 		setToolType(ToolType::CatmullRom);
+		break;
 	case 't':
 		setToolType(ToolType::Triangulation);
 		break;
@@ -1129,7 +1130,7 @@ void Application::keyPressed(ofKeyEventArgs & args) {
 	case OF_KEY_BACKSPACE:
 		if (toolType == ToolType::CatmullRom && catmullRomTool.isActive()) {
 			catmullRomTool.removeLastPoint();
-		if (toolType == ToolType::Triangulation && triangulationTool.hasPoints()) {
+		} else if (toolType == ToolType::Triangulation && triangulationTool.hasPoints()) {
 			triangulationTool.removeLastPoint();
 		} else if (transformTool.hasSelection()) {
 			deleteSelectedObject();
