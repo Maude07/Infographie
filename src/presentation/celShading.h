@@ -5,7 +5,10 @@
 class LightRig;
 
 namespace celShading {
+	constexpr int maxLights = 8;
+
 	ofShader * shader();
 	void setLightRig(const LightRig * rig);
-	glm::vec3 lightWorldPosition(const glm::vec3 & fallback);
+
+	void setLightUniforms(ofShader & program, const glm::vec3 & fallbackLightWorld);
 }

@@ -106,8 +106,6 @@ bool SceneModel3d::drawCel(const ofColor & litColor, bool replaceMaterial) const
 	const float side = min(size.x, size.y);
 	const float scale = side / largest;
 	const glm::vec3 fallbackLight(center.x - side, center.y - side, depth + side * 3.0f);
-	const glm::vec3 lightWorld = celShading::lightWorldPosition(fallbackLight);
-	const glm::vec3 lightView = glm::vec3(ofGetCurrentViewMatrix() * glm::vec4(lightWorld, 1.0f));
 
 	ofPushStyle();
 	ofDisableLighting();
@@ -121,7 +119,7 @@ bool SceneModel3d::drawCel(const ofColor & litColor, bool replaceMaterial) const
 	ofTranslate(sceneCenter.x, sceneCenter.y, -sceneCenter.z);
 
 	program->begin();
-	program->setUniform3f("lightView", lightView);
+	celShading::setLightUniforms(*program, fallbackLight);
 	program->setUniform1f("bands", static_cast<float>(max(celBands, 2)));
 	program->setUniform1f("ambient", celAmbient);
 	program->setUniform1f("outline", celOutline);
