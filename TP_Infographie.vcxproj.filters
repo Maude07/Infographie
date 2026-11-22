@@ -85,6 +85,9 @@
     <ClCompile Include="src\presentation\bezierStrokeTool.cpp">
       <Filter>src\presentation</Filter>
     </ClCompile>
+    <ClCompile Include="src\presentation\catmullRomTool.cpp">
+      <Filter>src\presentation</Filter>
+    </ClCompile>
     <ClCompile Include="src\presentation\cursorRenderer.cpp">
       <Filter>src\presentation</Filter>
     </ClCompile>
@@ -110,6 +113,9 @@
       <Filter>src\presentation\ui</Filter>
     </ClCompile>
     <ClCompile Include="src\vector_shapes\sceneShapeBezierCurve.cpp">
+      <Filter>src\vector_shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vector_shapes\sceneShapeCatmullRom.cpp">
       <Filter>src\vector_shapes</Filter>
     </ClCompile>
     <ClCompile Include="src\vector_shapes\sceneShapeFunkyCircles.cpp">
@@ -396,6 +402,9 @@
     <ClInclude Include="src\presentation\bezierStrokeTool.h">
       <Filter>src\presentation</Filter>
     </ClInclude>
+    <ClInclude Include="src\presentation\catmullRomTool.h">
+      <Filter>src\presentation</Filter>
+    </ClInclude>
     <ClInclude Include="src\presentation\cursorRenderer.h">
       <Filter>src\presentation</Filter>
     </ClInclude>
@@ -424,6 +433,9 @@
       <Filter>src\presentation\ui</Filter>
     </ClInclude>
     <ClInclude Include="src\vector_shapes\sceneShapeBezierCurve.h">
+      <Filter>src\vector_shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="src\vector_shapes\sceneShapeCatmullRom.h">
       <Filter>src\vector_shapes</Filter>
     </ClInclude>
     <ClInclude Include="src\vector_shapes\sceneShapeFunkyCircles.h">

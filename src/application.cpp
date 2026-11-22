@@ -60,6 +60,7 @@ namespace {
 			return glm::length(extent) >= minShapeSize;
 		case ToolType::Point:
 		case ToolType::Bezier:
+		case ToolType::CatmullRom:
 		case ToolType::Model3d:
 		case ToolType::Select:
 		case ToolType::Primitive3d:
@@ -88,6 +89,8 @@ namespace {
 			return "cercles funky";
 		case ToolType::Bezier:
 			return "bezier";
+		case ToolType::CatmullRom:
+			return "catmull-rom";
 		case ToolType::Triangulation:
 			return "triangulation";
 		case ToolType::Select:
@@ -624,6 +627,10 @@ void Application::draw() {
 	transformTool.drawOverlay();
 	drawCameraLabel();
 
+	if (toolType == ToolType::CatmullRom && catmullRomTool.isActive()) {
+		catmullRomTool.draw(glm::vec2(ofGetMouseX(), ofGetMouseY()), strokeColor.get(), strokeWeight);
+	}
+
 	if (isMouseButtonPressed) {
 		if (toolType == ToolType::Bezier && bezierStrokeTool.isActive()) {
 			bezierStrokeTool.draw();
@@ -792,6 +799,7 @@ CursorState Application::currentCursorState(const glm::vec2 & mouse) const {
 	case ToolType::Wave:
 	case ToolType::FunkyCircles:
 	case ToolType::Bezier:
+	case ToolType::CatmullRom:
 	case ToolType::Model3d:
 	case ToolType::Primitive3d:
 	case ToolType::Sprite:
@@ -1084,6 +1092,9 @@ void Application::keyPressed(ofKeyEventArgs & args) {
 	case 'b':
 		setToolType(ToolType::Bezier);
 		break;
+	case 'k':
+		setToolType(ToolType::CatmullRom);
+		break;
 	case 't':
 		setToolType(ToolType::Triangulation);
 		break;
@@ -1117,7 +1128,9 @@ void Application::keyPressed(ofKeyEventArgs & args) {
 
 	case OF_KEY_DEL:
 	case OF_KEY_BACKSPACE:
-		if (toolType == ToolType::Triangulation && triangulationTool.hasPoints()) {
+		if (toolType == ToolType::CatmullRom && catmullRomTool.isActive()) {
+			catmullRomTool.removeLastPoint();
+		} else if (toolType == ToolType::Triangulation && triangulationTool.hasPoints()) {
 			triangulationTool.removeLastPoint();
 		} else if (transformTool.hasSelection()) {
 			deleteSelectedObject();
@@ -1127,6 +1140,14 @@ void Application::keyPressed(ofKeyEventArgs & args) {
 		break;
 
 	case OF_KEY_RETURN:
+		if (toolType == ToolType::CatmullRom && catmullRomTool.isActive()) {
+			if (auto curve = catmullRomTool.commit(strokeColor.get(), strokeWeight,
+				shapeLabel(ToolType::CatmullRom))) {
+					history.execute(make_unique<AddObjectCommand>(&scene, move(curve)));
+				}
+				break;
+		}
+
 		if (toolType == ToolType::Triangulation) {
 			commitTriangulation();
 			break;
@@ -1174,6 +1195,7 @@ void Application::setToolType(ToolType mode) {
 	transformTool.clearSelection();
 	isMouseButtonPressed = false;
 	bezierStrokeTool.cancel();
+	catmullRomTool.cancel();
 	triangulationTool.cancel();
 }
 
@@ -1239,6 +1261,11 @@ void Application::mousePressed(int x, int y, int button) {
 			transformTool.select(clicked, additive);
 			return;
 		}
+	}
+
+	if (toolType == ToolType::CatmullRom) {
+		catmullRomTool.addPoint(glm::vec2(x, y));
+		return;
 	}
 
 	isMouseButtonPressed = true;
@@ -1506,6 +1533,7 @@ unique_ptr<ScenePrimitive> Application::makeShape(ToolType type, const glm::vec2
 		shape->size = glm::abs(end - start);
 		break;
 	case ToolType::Bezier:
+	case ToolType::CatmullRom:
 	case ToolType::Model3d:
 	case ToolType::Primitive3d:
 	case ToolType::Sprite:

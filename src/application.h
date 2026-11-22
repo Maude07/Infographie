@@ -8,6 +8,7 @@
 #include "presentation/depthOfField.h"
 #include "infrastructure/imageExporter.h"
 #include "presentation/bezierStrokeTool.h"
+#include "presentation/catmullRomTool.h"
 #include "presentation/triangulationTool.h"
 #include "presentation/transformTool.h"
 #include "presentation/ui/palettePreview.h"
@@ -58,6 +59,7 @@ enum class ToolType {
 	Wave,
 	FunkyCircles,
 	Bezier,
+	CatmullRom,
 	Model3d,
 	Primitive3d,
 	Sprite,
@@ -87,6 +89,7 @@ private:
 	Scene scene;
 	TransformTool transformTool;
 	BezierStrokeTool bezierStrokeTool;
+	CatmullRomTool catmullRomTool;
 	SceneTreePanel sceneTreePanel;
 	CursorRenderer cursor;
 	ModelLibrary modelLibrary;
