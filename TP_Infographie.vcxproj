@@ -260,6 +260,7 @@
     <ClCompile Include="src\infrastructure\spriteLibrary.cpp" />
     <ClCompile Include="src\infrastructure\skyboxCatalog.cpp" />
     <ClCompile Include="src\presentation\bezierStrokeTool.cpp" />
+    <ClCompile Include="src\presentation\catmullRomTool.cpp" />
     <ClCompile Include="src\presentation\cursorRenderer.cpp" />
     <ClCompile Include="src\presentation\renderer.cpp" />
     <ClCompile Include="src\presentation\celShading.cpp" />
@@ -269,6 +270,7 @@
     <ClCompile Include="src\presentation\ui\modelListPanel.cpp" />
     <ClCompile Include="src\presentation\ui\sceneTreePanel.cpp" />
     <ClCompile Include="src\vector_shapes\sceneShapeBezierCurve.cpp" />
+    <ClCompile Include="src\vector_shapes\sceneShapeCatmullRom.cpp" />
     <ClCompile Include="src\vector_shapes\sceneShapeFunkyCircles.cpp" />
     <ClCompile Include="src\vector_shapes\sceneShapeStars.cpp" />
     <ClCompile Include="src\vector_shapes\sceneShapeWave.cpp" />
@@ -334,6 +336,7 @@
     <ClInclude Include="src\infrastructure\spriteLibrary.h" />
     <ClInclude Include="src\infrastructure\skyboxCatalog.h" />
     <ClInclude Include="src\presentation\bezierStrokeTool.h" />
+    <ClInclude Include="src\presentation\catmullRomTool.h" />
     <ClInclude Include="src\presentation\cursorRenderer.h" />
     <ClInclude Include="src\presentation\renderer.h" />
     <ClInclude Include="src\presentation\celShading.h" />
@@ -346,6 +349,7 @@
     <ClInclude Include="src\presentation\ui\palettePreview.h" />
     <ClInclude Include="src\presentation\ui\sceneTreePanel.h" />
     <ClInclude Include="src\vector_shapes\sceneShapeBezierCurve.h" />
+    <ClInclude Include="src\vector_shapes\sceneShapeCatmullRom.h" />
     <ClInclude Include="src\vector_shapes\sceneShapeFunkyCircles.h" />
     <ClInclude Include="src\vector_shapes\sceneShapeStars.h" />
     <ClInclude Include="src\vector_shapes\sceneShapeWave.h" />
