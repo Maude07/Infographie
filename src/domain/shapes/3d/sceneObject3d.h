@@ -11,10 +11,22 @@ public:
     int materialIndex = 0;
     const SceneCamera * camera = nullptr;
 
+    static constexpr int defaultCelBands = 3;
+    static constexpr float defaultCelAmbient = 0.2f;
+    static constexpr float defaultCelOutline = 0.0f;
+
     bool celShaded = false;
-    int celBands = 3;
-    float celAmbient = 0.2f;
-    float celOutline = 0.0f;
+    int celBands = defaultCelBands;
+    float celAmbient = defaultCelAmbient;
+    float celOutline = defaultCelOutline;
+    static constexpr int defaultReliefColumns = 4;
+    static constexpr int defaultReliefRows = 8;
+    static constexpr float defaultReliefMortar = 0.12f;
+
+    bool relief = false;
+    int reliefColumns = defaultReliefColumns;
+    int reliefRows = defaultReliefRows;
+    float reliefMortar = defaultReliefMortar;
 
     bool isSquare() const override { return true; }
 

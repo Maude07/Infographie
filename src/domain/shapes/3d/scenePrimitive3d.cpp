@@ -1,6 +1,7 @@
 #include "scenePrimitive3d.h"
 #include "proceduralTexture.h"
 #include "presentation/celShading.h"
+#include "presentation/reliefMapping.h"
 #include "../../lighting/materialLibrary.h"
 
 namespace {
@@ -59,9 +60,33 @@ void ScenePrimitive3d::draw() const {
     ofEnableDepthTest();
 
     const ofTexture * tex = customMaterial ? nullptr : texture();
+    ofShader * reliefShader = (relief && mesh().hasTexCoords()) ? reliefMapping::shader() : nullptr;
     ofShader * shader = celShaded ? celShading::shader() : nullptr;
 
-    if (shader) {
+    if (reliefShader) {
+        const glm::vec3 fallbackLight(center.x - side, center.y - side, depth + side * 3.0f);
+        const ofFloatColor base = tex ? ofFloatColor(1.0f, 1.0f, 1.0f, 1.0f)
+            : (customMaterial ? materialLibrary::get(materialIndex).diffuse : ofFloatColor(color));
+        const MaterialPreset & preset = materialLibrary::get(
+            customMaterial ? materialIndex : materialLibrary::defaultIndex);
+        ofFloatColor specular = preset.specular;
+        float shininess = preset.shininess;
+        if (!customMaterial && specular.r + specular.g + specular.b < 0.01f) {
+            specular = ofFloatColor(0.25f);
+            shininess = 32.0f;
+        }
+
+        ofDisableLighting();
+        reliefShader->begin();
+        celShading::setLightUniforms(*reliefShader, fallbackLight);
+        reliefMapping::setMaterialUniforms(*reliefShader, base, specular, shininess, tex != nullptr,
+            reliefColumns, reliefRows, reliefMortar);
+        reliefShader->setUniform1f("hasNormals", 1.0f);
+        if (tex) reliefShader->setUniformTexture("colorTex", *tex, 0);
+        mesh().draw();
+        reliefShader->end();
+        ofEnableLighting();
+    } else if (shader) {
         const glm::vec3 fallbackLight(center.x - side, center.y - side, depth + side * 3.0f);
         const ofFloatColor base = tex ? ofFloatColor(1.0f, 1.0f, 1.0f, 1.0f)
             : (customMaterial ? materialLibrary::get(materialIndex).diffuse : ofFloatColor(color));
