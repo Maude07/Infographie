@@ -13,6 +13,7 @@ public:
     void draw() const override;
 
     ofRectangle getScreenBounds() const override;
+    glm::mat4 localTransform() const;
 
 protected:
     static constexpr float half = 0.5f;
@@ -21,8 +22,6 @@ protected:
     virtual const ofMesh & mesh() const = 0;
 
     const ofTexture * texture() const;
-
-    glm::mat4 localTransform() const;
 
     static void addTriangle(ofMesh & mesh,
         const glm::vec3 & a, const glm::vec3 & b, const glm::vec3 & c,

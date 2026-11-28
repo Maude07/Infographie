@@ -108,3 +108,11 @@ glm::vec2 SceneCamera::screenToPlane(const glm::vec2 & screen, float planeZ) con
 	glm::vec3 p = a + dir * t;
 	return { p.x, p.y };
 }
+
+glm::mat4 SceneCamera::getInverseViewProjection() const {
+	glm::mat4 viewProjection = camera.getModelViewProjectionMatrix();
+	if (camera.isVFlipped()) {
+		viewProjection = glm::scale(glm::mat4(1.0f), glm::vec3(1.0f, -1.0f, 1.0f)) * viewProjection;
+	}
+	return glm::inverse(viewProjection);
+}

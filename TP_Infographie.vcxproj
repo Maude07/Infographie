@@ -264,6 +264,7 @@
     <ClCompile Include="src\infrastructure\skyboxCatalog.cpp" />
     <ClCompile Include="src\presentation\bezierStrokeTool.cpp" />
     <ClCompile Include="src\presentation\catmullRomTool.cpp" />
+    <ClCompile Include="src\presentation\rayTracer.cpp" />
     <ClCompile Include="src\presentation\cursorRenderer.cpp" />
     <ClCompile Include="src\presentation\renderer.cpp" />
     <ClCompile Include="src\presentation\celShading.cpp" />
@@ -343,6 +344,7 @@
     <ClInclude Include="src\infrastructure\skyboxCatalog.h" />
     <ClInclude Include="src\presentation\bezierStrokeTool.h" />
     <ClInclude Include="src\presentation\catmullRomTool.h" />
+    <ClInclude Include="src\presentation\rayTracer.h" />
     <ClInclude Include="src\presentation\cursorRenderer.h" />
     <ClInclude Include="src\presentation\renderer.h" />
     <ClInclude Include="src\presentation\celShading.h" />
