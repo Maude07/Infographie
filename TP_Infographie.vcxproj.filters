@@ -88,6 +88,12 @@
     <ClCompile Include="src\presentation\catmullRomTool.cpp">
       <Filter>src\presentation</Filter>
     </ClCompile>
+    <ClCompile Include="src\presentation\rayTracer.cpp">
+      <Filter>src\presentation</Filter>
+    </ClCompile>
+    <ClCompile Include="src\presentation\sdfRenderer.cpp">
+      <Filter>src\presentation</Filter>
+    </ClCompile>
     <ClCompile Include="src\presentation\cursorRenderer.cpp">
       <Filter>src\presentation</Filter>
     </ClCompile>
@@ -403,6 +409,12 @@
       <Filter>src\presentation</Filter>
     </ClInclude>
     <ClInclude Include="src\presentation\catmullRomTool.h">
+      <Filter>src\presentation</Filter>
+    </ClInclude>
+    <ClInclude Include="src\presentation\rayTracer.h">
+      <Filter>src\presentation</Filter>
+    </ClInclude>
+    <ClInclude Include="src\presentation\sdfRenderer.h">
       <Filter>src\presentation</Filter>
     </ClInclude>
     <ClInclude Include="src\presentation\cursorRenderer.h">

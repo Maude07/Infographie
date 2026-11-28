@@ -6,6 +6,8 @@
 #include "presentation/cursorRenderer.h"
 #include "presentation/renderer.h"
 #include "presentation/depthOfField.h"
+#include "presentation/rayTracer.h"
+#include "presentation/sdfRenderer.h"
 #include "infrastructure/imageExporter.h"
 #include "presentation/bezierStrokeTool.h"
 #include "presentation/catmullRomTool.h"
@@ -205,6 +207,20 @@ private:
 	DepthOfField depthOfField;
 	ofxGuiGroup groupDepthOfField;
 	ofParameter<bool> depthOfFieldEnabled;
+
+	RayTracer rayTracer;
+	ofxGuiGroup groupRayTracing;
+	ofParameter<bool> rayTracingEnabled;
+	ofParameter<bool> rayTracingShadows;
+	ofParameter<bool> rayTracingFloor;
+	
+	SdfRenderer sdfRenderer;
+	ofxGuiGroup groupSdf;
+	ofParameter<bool> sdfEnabled;
+	ofParameter<float> sdfSize;
+	ofParameter<float> sdfBlend;
+	ofParameter<bool> sdfAnimate;
+
 	ofParameter<float> focusDistance;
 	ofParameter<float> focusRange;
 	ofParameter<float> maxBlur;
@@ -401,6 +417,8 @@ private:
 	void syncSkyboxFileLabel();
 	void onSkyboxIndexChanged(int & value);
 	void setupDepthOfFieldGui();
+	void setupRayTracingGui();
+	void setupSdfGui();
 	void resetCamera();
 	void selectCamera(size_t index);
 	void onCameraSelectorChanged(int & value);
