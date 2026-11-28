@@ -36,6 +36,7 @@ public:
 
 	glm::vec3 worldToScreen(const glm::vec3 & world) const { return camera.worldToScreen(world); }
 	glm::vec2 screenToPlane(const glm::vec2 & screen, float planeZ) const;
+	glm::mat4 getInverseViewProjection() const;
 
 private:
 	void apply();

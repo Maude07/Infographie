@@ -136,6 +136,7 @@ void Application::setup() {
 	setupTheme();
 	ofDisableArbTex();
 	depthOfField.setup();
+	rayTracer.setup();
 	renderer.setup();
 	cursor.setup();
 
@@ -155,6 +156,7 @@ void Application::setup() {
 	setupSurfaceGui();
 	setupSkyboxGui();
 	setupDepthOfFieldGui();
+	setupRayTracingGui();
 
 	spriteLibrary.setup();
 	setupSpriteGui();
@@ -602,6 +604,13 @@ void Application::draw() {
 		depthOfField.draw(activeCamera(), focusDistance, focusRange, maxBlur);
 	} else {
 		renderer.draw(scene, activeCamera(), skyboxView);
+	}
+
+	if (rayTracingEnabled) {
+		RayTracingOptions options;
+		options.shadows = rayTracingShadows;
+		options.floor = rayTracingFloor;
+		rayTracer.draw(scene, activeCamera(), canvas, options);
 	}
 
 	if (histogramRequested) {
@@ -1961,6 +1970,14 @@ void Application::setupDepthOfFieldGui() {
 	groupDepthOfField.add(focusRange.set("zone nette", 200.0f, 10.0f, 2000.0f));
 	groupDepthOfField.add(maxBlur.set("flou maximal (px)", 8.0f, 0.0f, 20.0f));
 	gui.add(&groupDepthOfField);
+}
+
+void Application::setupRayTracingGui() {
+	groupRayTracing.setup("lancer de rayons");
+	groupRayTracing.add(rayTracingEnabled.set("activer", false));
+	groupRayTracing.add(rayTracingShadows.set("ombres portees", true));
+	groupRayTracing.add(rayTracingFloor.set("sol", true));
+	gui.add(&groupRayTracing);
 }
 
 void Application::resetCamera() {
