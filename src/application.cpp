@@ -137,6 +137,7 @@ void Application::setup() {
 	ofDisableArbTex();
 	depthOfField.setup();
 	rayTracer.setup();
+	sdfRenderer.setup();
 	renderer.setup();
 	cursor.setup();
 
@@ -157,6 +158,7 @@ void Application::setup() {
 	setupSkyboxGui();
 	setupDepthOfFieldGui();
 	setupRayTracingGui();
+	setupSdfGui();
 
 	spriteLibrary.setup();
 	setupSpriteGui();
@@ -611,6 +613,14 @@ void Application::draw() {
 		options.shadows = rayTracingShadows;
 		options.floor = rayTracingFloor;
 		rayTracer.draw(scene, activeCamera(), canvas, options);
+	}
+
+	if (sdfEnabled) {
+		SdfOptions options;
+		options.size = sdfSize;
+		options.blend = sdfBlend;
+		options.animate = sdfAnimate;
+		sdfRenderer.draw(activeCamera(), canvas, options);
 	}
 
 	if (histogramRequested) {
@@ -1978,6 +1988,15 @@ void Application::setupRayTracingGui() {
 	groupRayTracing.add(rayTracingShadows.set("ombres portees", true));
 	groupRayTracing.add(rayTracingFloor.set("sol", true));
 	gui.add(&groupRayTracing);
+}
+
+void Application::setupSdfGui() {
+	groupSdf.setup("raymarching (SDF)");
+	groupSdf.add(sdfEnabled.set("activer", false));
+	groupSdf.add(sdfSize.set("taille", 120.0f, 20.0f, 400.0f));
+	groupSdf.add(sdfBlend.set("fusion", 0.0f, 0.0f, 1.0f));
+	groupSdf.add(sdfAnimate.set("animer", true));
+	gui.add(&groupSdf);
 }
 
 void Application::resetCamera() {
